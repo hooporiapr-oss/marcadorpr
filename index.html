@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>marcadorpr — marcadores en vivo del baloncesto de Puerto Rico</title>
+<meta name="description" content="Calendarios y marcadores en vivo de torneos de baloncesto en Puerto Rico. El cuadro se llena solo según entran los resultados.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+  background:#fff;line-height:1.5}
+.wrap{width:min(760px,93vw);margin:0 auto}
+
+header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
+  padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0}
+.mark{font-weight:900;font-size:1.15rem;color:#fff;letter-spacing:-.02em}
+.mark span{color:var(--ball)}
+.tagline{font-size:.64rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9FB3C4}
+
+main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}
+main .wrap{padding:clamp(22px,5vw,36px) 0 32px}
+
+h1{font-size:clamp(1.6rem,5vw,2.3rem);letter-spacing:-.03em;line-height:1.1;margin:0 0 10px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 26px;max-width:56ch}
+h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);margin:30px 0 10px}
+
+.ev{display:block;border:2px solid var(--ink);border-radius:4px;padding:18px 20px;
+  text-decoration:none;color:var(--ink);margin-bottom:12px;background:#fff}
+.ev:hover{background:var(--tint)}
+.ev .when{font-size:.66rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ball)}
+.ev .nm{display:block;font-size:1.25rem;font-weight:900;letter-spacing:-.02em;margin:3px 0 2px}
+.ev .ds{display:block;color:var(--mute);font-size:.92rem}
+.ev .go{display:block;font-weight:800;color:var(--accent);margin-top:10px;font-size:.9rem}
+.ev.past{border-color:var(--line)}
+.ev.past .when{color:var(--mute)}
+.ev.past .nm{color:var(--mute)}
+.ev.soon{border-color:var(--ink)}
+.ev.soon .when{color:var(--accent)}
+.ev.live{border-color:var(--ball);box-shadow:0 0 0 4px rgba(255,122,24,.12)}
+
+/* El punto que late: si algo está corriendo ahora, se ve desde lejos. */
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ball);
+  margin-right:6px;vertical-align:1px;animation:beat 1.6s ease-in-out infinite}
+@keyframes beat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+
+.what{border-left:4px solid var(--accent);background:var(--tint);padding:16px 18px;margin:28px 0 0}
+.what b{display:block;margin-bottom:5px}
+.what p{margin:0 0 10px;color:var(--mute);font-size:.94rem}
+.what p:last-child{margin:0}
+
+.org{border:2px dashed var(--line);border-radius:4px;padding:18px 20px;margin:22px 0 0}
+.org b{display:block;font-size:1.02rem;margin-bottom:4px}
+.org p{margin:0 0 12px;color:var(--mute);font-size:.94rem}
+.org a{display:inline-block;padding:11px 18px;border:2px solid var(--ink);border-radius:4px;
+  background:var(--ink);color:#fff;text-decoration:none;font-weight:800;font-size:.92rem}
+
+.cp{border:2px solid var(--ink);border-radius:4px;padding:20px 22px;margin:0 0 4px}
+.cp-line{font-size:clamp(1.2rem,3.6vw,1.5rem);font-weight:900;letter-spacing:-.025em;
+  margin:0 0 8px;line-height:1.2}
+.cp-line b{color:var(--accent)}
+.cp-p{color:var(--mute);margin:0 0 16px;font-size:.95rem}
+.cp-steps{display:grid;gap:9px;margin-bottom:16px}
+.cp-steps div{border-left:3px solid var(--ball);padding-left:12px}
+.cp-steps b{display:block;font-size:.95rem}
+.cp-steps span{color:var(--mute);font-size:.9rem}
+.cp-fee{background:var(--tint);padding:13px 15px;margin:0 0 16px;color:var(--mute);font-size:.9rem}
+.cp-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cp-go{display:inline-block;padding:13px 20px;border:2px solid var(--ink);border-radius:4px;
+  background:var(--ink);color:#fff;text-decoration:none;font-weight:800;font-size:.95rem}
+.cp-alt{font-weight:800;color:var(--accent);text-decoration:none;font-size:.95rem}
+
+footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
+  padding:16px 0 calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
+footer b{color:#fff;display:block;font-weight:800;margin-bottom:4px}
+footer a{color:#4FD3F0;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <span class="mark">marcador<span>pr</span></span>
+    <span class="tagline">Baloncesto en vivo</span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h1>Los marcadores, según pasan.</h1>
+    <p class="lede">Calendarios completos de torneos de baloncesto en Puerto Rico, con los
+      resultados puestos el mismo día. El cuadro se llena solo: en cuanto entra un marcador,
+      el ganador aparece en el juego que le toca después. Y los equipos que recaudan lo hacen
+      desde el mismo calendario.</p>
+
+    <div id="events"></div>
+
+    <div class="what">
+      <b>Qué encuentras aquí</b>
+      <p>Todo el calendario en el teléfono, filtrado por categoría, con la hora y la cancha de
+        cada juego. Los resultados se ponen según terminan.</p>
+      <p>Y donde el papel dice “Ganador J-#14”, aquí aparece el equipo de verdad en cuanto se
+        juega ese partido.</p>
+    </div>
+
+    <h2>Para organizadores</h2>
+
+    <div class="org">
+      <b>El calendario viene con la recaudación</b>
+      <p>Montamos aquí el calendario de los torneos que corren con Cada Punto: los equipos
+        recaudan con los juegos que ya están jugando, y el marcador en vivo viene incluido.
+        No cobramos por el calendario.</p>
+      <p>Cada equipo que se inscribe cobra lo suyo, en su propia cuenta. Un padrino promete unos
+        centavos por cada punto que anota su equipo, y paga después del juego. Ganen o pierdan,
+        el programa gana.</p>
+      <a href="mailto:gostardigital@gmail.com?subject=Torneo%20con%20Cada%20Punto">Hablemos de tu torneo</a>
+    </div>
+
+    <div class="what" style="margin-top:18px">
+      <b>¿Juegas en un torneo que está aquí?</b>
+      <p>Busca tu equipo en el calendario. Si tiene campaña, verás el botón para prometer al
+        lado de cada juego suyo. Si no la tiene, puedes pedirla ahí mismo.</p>
+    </div>
+
+    <h2>Qué es Cada Punto</h2>
+
+    <div class="cp">
+      <p class="cp-line">Tu equipo anota. <b>Tu programa cobra.</b></p>
+      <p class="cp-p">La recaudación que corre con el calendario. Sin vender nada, sin productos
+        que entregar, sin nada que devolver — el equipo juega sus juegos y los padrinos pagan por
+        los puntos que anotó.</p>
+
+      <div class="cp-steps">
+        <div><b>1 · El equipo juega</b><span>Su calendario, sus juegos. Los mismos que ya tenía.</span></div>
+        <div><b>2 · Los padrinos prometen por punto</b><span>Familia, vecinos, el negocio de la esquina. Cada uno escoge el juego y la tarifa.</span></div>
+        <div><b>3 · Entra el marcador</b><span>Eso cierra el juego y cobra cada promesa. Anotan 68 con diez padrinos a diez centavos, y el programa tiene $68.</span></div>
+      </div>
+
+      <p class="cp-fee">Nada por adelantado y nada mensual. El 10% de plataforma se le añade al
+        pago del padrino, nunca se saca de lo del programa: una promesa de $200 es un pago de
+        $220, y el programa recibe los $200 completos.</p>
+
+      <div class="cp-btns">
+        <a class="cp-go" href="https://cadapunto.com/equipo.html">Inscribir mi equipo</a>
+        <a class="cp-alt" href="https://cadapunto.com">Ver cómo funciona →</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
+    Los equipos que recaudan lo hacen con
+    <a href="https://cadapunto.com">Cada Punto</a>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  Los eventos. Añade uno aquí y la página lo coloca sola
+//  según las fechas: en vivo arriba, luego lo que viene, y
+//  lo pasado abajo con su enlace, que sigue sirviendo.
+// ══════════════════════════════════════════════════════
+var EVENTS = [
+  {
+    name:   'Basketween 2026',
+    sub:    'Torneo preparatorio · 80 juegos · 8 categorías · tres canchas',
+    where:  'Arecibo',
+    from:   '2026-10-05',
+    to:     '2026-10-09',
+    href:   'basketween.html'
+  }
+];
+
+var T = {
+  live:'En vivo ahora', soon:'Viene', past:'Ya jugado',
+  openLive:'Ver los marcadores en vivo →',
+  openSoon:'Ver el calendario →',
+  openPast:'Ver resultados →',
+  none:'Todavía no hay eventos puestos.'
+};
+
+function today(){
+  // La fecha en Puerto Rico, que no cambia de hora en todo el año.
+  var d = new Date(Date.now() - 4 * 3600 * 1000);
+  return d.toISOString().slice(0, 10);
+}
+
+function state(e){
+  var t = today();
+  if (e.to   && t > e.to)   return 'past';
+  if (e.from && t < e.from) return 'soon';
+  return 'live';
+}
+
+function span(e){
+  var f = new Date(e.from + 'T12:00:00'), t = new Date(e.to + 'T12:00:00');
+  var mo = function(d){ return d.toLocaleDateString('es-PR', { month:'long' }); };
+  var same = f.getMonth() === t.getMonth();
+  return same
+    ? f.getDate() + ' – ' + t.getDate() + ' de ' + mo(t)
+    : f.getDate() + ' de ' + mo(f) + ' – ' + t.getDate() + ' de ' + mo(t);
+}
+
+function card(e){
+  var st = state(e);
+  var tag = st === 'live' ? '<span class="dot"></span>' + T.live
+          : st === 'soon' ? T.soon : T.past;
+  var go  = st === 'live' ? T.openLive : st === 'soon' ? T.openSoon : T.openPast;
+
+  return '<a class="ev ' + st + '" href="' + e.href + '">' +
+    '<span class="when">' + tag + '</span>' +
+    '<span class="nm">' + e.name + '</span>' +
+    '<span class="ds">' + span(e) + ' · ' + e.where + '</span>' +
+    '<span class="ds">' + e.sub + '</span>' +
+    '<span class="go">' + go + '</span>' +
+  '</a>';
+}
+
+(function drawEvents(){
+  var box = document.getElementById('events');
+  if (!box) return;
+
+  var order = { live:0, soon:1, past:2 };
+  var list = EVENTS.slice().sort(function(a, b){
+    var d = order[state(a)] - order[state(b)];
+    return d !== 0 ? d : (b.from || '').localeCompare(a.from || '');
+  });
+
+  if (!list.length){ box.innerHTML = '<p class="lede">' + T.none + '</p>'; return; }
+
+  var html = '', lastGroup = null;
+  list.forEach(function(e){
+    var g = state(e);
+    if (g !== lastGroup){
+      html += '<h2>' + (g === 'live' ? T.live : g === 'soon' ? T.soon : T.past) + '</h2>';
+      lastGroup = g;
+    }
+    html += card(e);
+  });
+  box.innerHTML = html;
+})();
+</script>
+</body>
+</html>
