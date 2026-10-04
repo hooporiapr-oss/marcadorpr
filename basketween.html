@@ -74,6 +74,37 @@ h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-
   font-family:inherit;cursor:pointer}
 .pl.want:hover{border-color:var(--accent);color:var(--accent);background:#fff}
 .pl.waiting{border-style:dashed;border-color:var(--line);color:#9AA8B5;cursor:default}
+
+/* El formulario, encima de la página: el mismo que en Cada Punto, sin
+   mandar a nadie a otro sitio en medio de mirar el calendario. */
+body.locked{overflow:hidden}
+#signupBox{position:fixed;inset:0;z-index:60;display:none;overflow-y:auto;
+  background:rgba(11,23,36,.72);padding:18px 0 40px}
+#signupBox.on{display:block}
+.su-card{position:relative;width:min(460px,92vw);margin:24px auto;background:#fff;
+  border-radius:6px;padding:24px 24px 20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.su-x{position:absolute;top:10px;right:12px;border:none;background:none;font-size:1.6rem;
+  line-height:1;color:var(--mute);cursor:pointer;padding:4px 8px}
+.su-kick{font-size:.62rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.su-h{font-size:1.35rem;font-weight:900;letter-spacing:-.03em;margin:4px 0 6px}
+.su-p{color:var(--mute);font-size:.92rem;margin:0 0 6px}
+.su-card label{display:block;font-size:.8rem;font-weight:700;margin:13px 0 4px}
+.su-card input[type=text],.su-card input[type=email],.su-card input[type=tel]{
+  width:100%;padding:12px;border:2px solid var(--ink);border-radius:4px;
+  font:inherit;font-size:1rem;color:var(--ink);background:#fff}
+.su-card input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(12,110,140,.15)}
+.su-ok{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.85rem;color:var(--mute)}
+.su-ok input{width:20px;height:20px;flex:0 0 20px;margin-top:1px;accent-color:var(--accent);cursor:pointer}
+.su-ok span{cursor:pointer}
+.su-ok a{color:var(--accent)}
+.su-go{display:block;width:100%;margin-top:16px;padding:15px;border:2px solid var(--ink);
+  border-radius:4px;background:var(--ink);color:#fff;font:inherit;font-weight:800;
+  font-size:1rem;cursor:pointer}
+.su-msg{min-height:1.2em;margin:10px 0 0;font-weight:700;font-size:.9rem;text-align:center}
+.su-msg.bad{color:#A8323F}
+.su-fee{color:var(--mute);font-size:.82rem;margin:12px 0 0}
+.su-done{text-align:center;padding:10px 0}
+.su-tick{font-size:2.6rem;line-height:1;margin-bottom:6px}
 .pl.waiting:hover{background:#fff;color:#9AA8B5}
 .r{cursor:default}
 .r.done{background:var(--tint)}
@@ -263,6 +294,8 @@ footer a{color:#4FD3F0;text-decoration:none}
   </div>
 </main>
 
+<div id="signupBox"></div>
+
 <div class="lock" id="lock">
   <div class="wrap">
     <span id="lockWho">Marcadores desbloqueados</span>
@@ -324,52 +357,118 @@ function askTeam(name){
   var team = resolve(name);
   if (placeholderFor(team)) return;
 
-  var program = prompt(ASK.program, team);
-  if (program === null) return;
-  if (!program.trim()) return;
+  var box = document.getElementById('signupBox');
+  box.dataset.team = team;
+  box.innerHTML =
+    '<div class="su-card">' +
+      '<button class="su-x" onclick="closeSignup()" aria-label="cerrar">×</button>' +
+      '<div class="su-kick">' + ASK.kick + '</div>' +
+      '<h3 class="su-h">' + esc(team) + '</h3>' +
+      '<p class="su-p">' + ASK.lede + '</p>' +
 
-  var coach = prompt(ASK.coach);
-  if (coach === null || !coach.trim()) return;
+      '<label>' + ASK.lProgram + '</label>' +
+      '<input id="suProg" type="text" maxlength="60" value="' + esc(team) + '">' +
 
-  var email = prompt(ASK.email);
-  if (email === null || email.indexOf('@') === -1) return;
+      '<label>' + ASK.lCoach + '</label>' +
+      '<input id="suName" type="text" maxlength="60" autocomplete="name">' +
 
-  var phone = prompt(ASK.phone) || '';
+      '<label>' + ASK.lEmail + '</label>' +
+      '<input id="suMail" type="email" maxlength="80" autocomplete="email">' +
 
-  if (!confirm(ASK.terms)) return;
+      '<label>' + ASK.lPhone + '</label>' +
+      '<input id="suPhone" type="tel" maxlength="25" autocomplete="tel">' +
 
+      '<div class="su-ok">' +
+        '<input id="suTerms" type="checkbox">' +
+        '<span onclick="document.getElementById(\'suTerms\').click()">' + ASK.terms + '</span>' +
+      '</div>' +
+
+      '<button class="su-go" onclick="sendSignup()">' + ASK.send + '</button>' +
+      '<p class="su-msg" id="suMsg"></p>' +
+      '<p class="su-fee">' + ASK.fee + '</p>' +
+    '</div>';
+
+  box.classList.add('on');
+  document.body.classList.add('locked');
+}
+
+function closeSignup(){
+  var box = document.getElementById('signupBox');
+  box.classList.remove('on');
+  box.innerHTML = '';
+  document.body.classList.remove('locked');
+}
+
+function suSay(t, bad){
+  var el = document.getElementById('suMsg');
+  if (el){ el.textContent = t; el.className = 'su-msg' + (bad ? ' bad' : ''); }
+}
+
+function sendSignup(){
+  var box = document.getElementById('signupBox');
+  var team  = box.dataset.team;
+  var prog  = (document.getElementById('suProg').value  || '').trim();
+  var name  = (document.getElementById('suName').value  || '').trim();
+  var email = (document.getElementById('suMail').value  || '').trim();
+  var phone = (document.getElementById('suPhone').value || '').trim();
+  var terms = document.getElementById('suTerms').checked;
+
+  if (!prog)  return suSay(ASK.errProg, true);
+  if (!name || email.indexOf('@') === -1) return suSay(ASK.errWho, true);
+  if (!terms) return suSay(ASK.errTerms, true);
+
+  suSay('…');
   rpc('bw_request_team', {
-    p_team: team, p_program: program.trim(), p_name: coach.trim(),
-    p_email: email.trim(), p_phone: phone.trim(), p_terms: true
+    p_team: team, p_program: prog, p_name: name,
+    p_email: email, p_phone: phone, p_terms: true
   }).then(function(r){
     if (!r || !r.ok){
-      if (r && r.reason === 'taken')   return alert(ASK.taken);
-      if (r && r.reason === 'pending') return alert(ASK.already);
-      return alert(ASK.failed);
+      if (r && r.reason === 'taken')   return suSay(ASK.taken, true);
+      if (r && r.reason === 'pending') return suSay(ASK.already, true);
+      return suSay(ASK.failed, true);
     }
-    ASKED[team.toLowerCase()] = 'pending';
 
     fetch('https://basketball-money-payments.onrender.com/team-signup', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ team: team, program: program.trim(),
-                             coach: coach.trim(), email: email.trim(),
-                             phone: phone.trim() })
+      body: JSON.stringify({ team: team, program: prog, coach: name,
+                             email: email, phone: phone })
     }).catch(function(e){ console.error('notice', e); });
 
-    alert(ASK.thanks);
+    ASKED[team.toLowerCase()] = 'pending';
+    box.querySelector('.su-card').innerHTML =
+      '<button class="su-x" onclick="closeSignup()" aria-label="cerrar">×</button>' +
+      '<div class="su-done">' +
+        '<div class="su-tick">✓</div>' +
+        '<h3 class="su-h">' + ASK.doneH + '</h3>' +
+        '<p class="su-p">' + ASK.doneP.replace('{E}', esc(email)) + '</p>' +
+        '<button class="su-go" onclick="closeSignup()">' + ASK.close + '</button>' +
+      '</div>';
     paintPledges();
-  }).catch(function(e){ console.error(e); alert(ASK.failed); });
+  }).catch(function(e){ console.error(e); suSay(ASK.failed, true); });
 }
 
 var ASK = {
-  program:'¿Cómo se llama el programa? (lo que verán las familias)',
-  coach:'¿Tu nombre?',
-  email:'¿Tu correo? Ahí te escribimos.',
-  phone:'¿Tu teléfono? (opcional)',
-  terms:'¿Aceptas los Términos de Uso y la Política de Privacidad de Cada Punto?\n\n' +
-        'cadapunto.com/terms.html',
-  thanks:'Pedido. Te escribimos para confirmar y abrirte la campaña.',
+  kick:'Recaudar con este equipo',
+  lede:'Tu equipo anota, tu programa cobra. Los padrinos prometen unos centavos por cada punto ' +
+       'que anoten, y pagan después del juego. Ganen o pierdan, el programa gana.',
+  lProgram:'Nombre del programa (lo que verán las familias)',
+  lCoach:'Tu nombre',
+  lEmail:'Tu correo — ahí te escribimos y por ahí entras',
+  lPhone:'Tu teléfono (opcional)',
+  terms:'He leído y acepto los ' +
+        '<a href="https://cadapunto.com/terms.html" target="_blank" rel="noopener">Términos de Uso</a>' +
+        ' y la ' +
+        '<a href="https://cadapunto.com/privacy.html" target="_blank" rel="noopener">Política de Privacidad</a>.',
+  fee:'Nada por adelantado y nada mensual. El 10% de plataforma se le añade al pago del padrino, ' +
+      'nunca se saca de lo del programa.',
+  send:'Pedir mi campaña',
+  close:'Cerrar',
+  errProg:'Escribe el nombre del programa.',
+  errWho:'Tu nombre y tu correo, por favor.',
+  errTerms:'Tienes que aceptar los términos para seguir.',
+  doneH:'Recibido.',
+  doneP:'Te escribimos a {E} para confirmarlo y abrirte la campaña. Normalmente el mismo día.',
   taken:'Ese equipo ya tiene campaña.',
   already:'Ya hay una petición para ese equipo. Te escribimos pronto.',
   failed:'No se pudo enviar. Intenta otra vez.',
