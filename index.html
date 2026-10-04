@@ -47,6 +47,17 @@ h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercas
 .ev.soon .when{color:var(--accent)}
 .ev.live{border-color:var(--ball);box-shadow:0 0 0 4px rgba(255,122,24,.12)}
 
+/* Anunciado, sin calendario todavía */
+.ev.nolink{border-style:dashed;border-color:var(--line);cursor:default}
+.ev.nolink:hover{background:#fff}
+.ev .soonnote{display:inline-block;margin-top:10px;font-size:.62rem;font-weight:900;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--mute);
+  border:1px solid var(--line);border-radius:3px;padding:4px 9px}
+.ev .joinline{display:block;margin-top:12px;color:var(--mute);font-size:.9rem;line-height:1.5}
+.ev .joinline a{display:inline-block;margin-top:6px;font-weight:800;color:var(--accent);
+  text-decoration:none}
+.ev .joinline a:hover{text-decoration:underline}
+
 /* El punto que late: si algo está corriendo ahora, se ve desde lejos. */
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ball);
   margin-right:6px;vertical-align:1px;animation:beat 1.6s ease-in-out infinite}
@@ -182,8 +193,13 @@ var EVENTS = [
   }
 ];
 
+var CP = 'https://cadapunto.com';
+
 var T = {
   live:'En vivo ahora', soon:'Viene', past:'Ya jugado',
+  soonCal:'Calendario pronto',
+  joinNow:'Tu equipo puede inscribirse desde ya — recauda con los juegos que ya tiene, y este torneo aparece solo en su tablero cuando salga el calendario.',
+  joinGo:'Inscribir mi equipo →',
   openLive:'Ver los marcadores en vivo →',
   openSoon:'Ver el calendario →',
   openPast:'Ver resultados →',
