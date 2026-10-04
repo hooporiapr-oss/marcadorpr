@@ -70,6 +70,8 @@ h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-
   text-decoration:none;background:#fff}
 .pl b{font-weight:900}
 .pl:hover{background:var(--accent);color:#fff}
+.pl.mine{border-color:var(--ink);color:var(--ink);background:#fff}
+.pl.mine:hover{background:var(--ink);color:#fff}
 .pl.want{border-style:dashed;border-color:var(--line);color:var(--mute);
   font-family:inherit;cursor:pointer}
 .pl.want:hover{border-color:var(--accent);color:var(--accent);background:#fff}
@@ -333,6 +335,7 @@ footer a{color:#4FD3F0;text-decoration:none}
 <script>
 var CP = 'https://cadapunto.com';     // ahí vive el dinero
 var STR_PLEDGE = ' — prometer';
+var STR_IPLAY  = 'Soy jugador · mi enlace';
 var STR_SAVE = 'OK';
 var STR_DEL  = 'Borrar';
 var STR_BADCODE = 'Código incorrecto.';
@@ -523,6 +526,7 @@ function T(k){ return STR_PLEDGE; }
 
 function pledgeBits(row){
   var out = [];
+  var mine = [];                       // un "soy jugador" por equipo
   var sides = [row.dataset.a, row.dataset.b];
 
   sides.forEach(function(side, i){
@@ -554,6 +558,14 @@ function pledgeBits(row){
     out.push('<a class="pl" href="' + href + '">' +
                '<b>' + real + '</b>' + STR_PLEDGE +
              '</a>');
+
+    // Y para quien juega en ese equipo: su propio enlace de padrinos.
+    if (mine.indexOf(t.campaign) === -1){
+      mine.push(t.campaign);
+      out.push('<a class="pl mine" href="' + CP + '/jugador.html?c=' + t.campaign + '">' +
+                 STR_IPLAY +
+               '</a>');
+    }
   });
   return out.join('');
 }
