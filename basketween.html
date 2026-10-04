@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Basketween 2026 — calendario completo</title>
+<meta name="description" content="Las 80 partidas del Torneo Preparatorio Basketween 2026, en tres canchas de Arecibo, del 5 al 9 de octubre.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+  background:#fff;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{width:min(900px,94vw);margin:0 auto}
+
+header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
+  padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff;line-height:1.1}
+.mark span{display:block;font-size:.58rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ball)}
+.by{font-size:.95rem;font-weight:900;letter-spacing:-.02em;color:#fff;text-align:right}
+.by span{color:var(--ball)}
+
+.tools{background:#0B1724;padding:9px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tools .wrap{display:flex;gap:6px;flex-wrap:nowrap}
+.chip{white-space:nowrap;border:1px solid #33465A;background:none;color:#C8D6E2;
+  border-radius:999px;padding:5px 12px;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
+.chip.on{background:var(--k,#fff);border-color:var(--k,#fff);color:#fff}
+.chip.all.on{background:#fff;border-color:#fff;color:#0B1724}
+
+main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}
+main .wrap{padding:clamp(16px,3vw,26px) 0 30px}
+
+h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 6px}
+.stat{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 20px;color:var(--mute);font-size:.86rem}
+.stat b{color:var(--ink)}
+
+.day{margin-bottom:26px}
+.day h2{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;margin:0 0 8px;
+  padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.day h2 span{float:right;font-size:.7rem;font-weight:800;color:var(--mute);
+  letter-spacing:.1em;text-transform:uppercase;padding-top:4px}
+.rows{display:grid;gap:4px}
+/* Flex en vez de rejilla: con una rejilla de cinco columnas fijas, una
+   categoría larga como "Juvenil Masculino" se salía del borde en vez
+   de bajar de línea. Así cada pieza se acomoda sola. */
+.r{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;
+  padding:8px 10px;border:1px solid var(--line);border-radius:4px;font-size:.88rem}
+.r.p{border-color:var(--ball);background:rgba(255,122,24,.06)}
+.r .t{font-weight:800;font-variant-numeric:tabular-nums;flex:0 0 58px}
+.r .c{color:var(--mute);font-size:.78rem;font-weight:800;flex:0 0 32px}
+.r .m{flex:1 1 180px;min-width:0}
+.r .m b{font-weight:800}
+.r .m i{font-style:normal;color:var(--mute);font-size:.8rem;padding:0 3px}
+.r .j{color:var(--mute);font-size:.72rem;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.r .k{font-size:.58rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:var(--k);border-radius:3px;padding:3px 8px;white-space:nowrap;
+  flex-shrink:0}
+.r.hide{display:none}
+.r .pls{flex:1 1 100%;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.r .pls:empty{display:none}
+.pl{display:inline-block;border:1px solid var(--accent);border-radius:999px;
+  padding:4px 11px;font-size:.74rem;font-weight:800;color:var(--accent);
+  text-decoration:none;background:#fff}
+.pl b{font-weight:900}
+.pl:hover{background:var(--accent);color:#fff}
+.pl.want{border-style:dashed;border-color:var(--line);color:var(--mute);
+  font-family:inherit;cursor:pointer}
+.pl.want:hover{border-color:var(--accent);color:var(--accent);background:#fff}
+.pl.waiting{border-style:dashed;border-color:var(--line);color:#9AA8B5;cursor:default}
+.pl.waiting:hover{background:#fff;color:#9AA8B5}
+.r{cursor:default}
+.r.done{background:var(--tint)}
+.r.done.p{background:rgba(255,122,24,.1)}
+.r .sc{display:block;font-size:.8rem;font-weight:900;color:var(--mute);
+  font-variant-numeric:tabular-nums;margin-top:1px}
+.r .sc b{color:var(--ink)}
+.r .m b.fill{color:#0C6E8C}
+.r .won{color:#0B7A5A;font-weight:900}
+.r .won::after{content:' ✓';font-size:.8em}
+.r .lost{color:#9AA8B5;font-weight:500}
+
+/* el marcador: el que ganó, grande y oscuro; el otro, apagado */
+.r .sc{display:block;margin-top:2px;font-variant-numeric:tabular-nums}
+.r .sc .hi{font-size:1.05rem;font-weight:900;color:var(--ink)}
+.r .sc .lo{font-size:.9rem;font-weight:700;color:#9AA8B5}
+.r .sc .d{padding:0 5px;color:#C3D2DD;font-weight:700}
+.r .sc b{font-size:1rem;font-weight:800}
+
+/* y la fila entera se nota jugada */
+.r.done{background:var(--tint);border-color:#C3D2DD}
+.r.done.p{background:rgba(255,122,24,.1);border-color:var(--ball)}
+.r.live{cursor:pointer}
+.r.live:hover{border-color:var(--ink)}
+
+/* la barra de abajo, sólo cuando está desbloqueado */
+.lock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#0B1724;
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));display:none}
+.lock.on{display:block}
+.lock .wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lock span{color:#9FB3C4;font-size:.76rem;font-weight:800}
+.lock button{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;
+  padding:6px 13px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+@media(max-width:620px){
+  .r .t{flex:0 0 52px}
+  .r .c{flex:0 0 28px;font-size:.72rem}
+  .r .m{flex:1 1 100%}
+  .r .j{font-size:.68rem}
+}
+
+.courts{display:grid;gap:6px;margin:0 0 22px;font-size:.84rem;color:var(--mute)}
+.courts b{color:var(--ink)}
+
+footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
+  padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
+footer b{color:#fff;display:block;font-weight:800}
+footer a{color:#4FD3F0;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="mark"><span>Torneo Preparatorio</span>Basketween 2026</div>
+    <div class="by">marcador<span>pr</span></div>
+  </div>
+  <div class="tools">
+    <div class="wrap">
+      <button class="chip all on" data-f="" onclick="filt(this)">Todo</button>
+      <button class="chip" data-f="Junior Femenino" onclick="filt(this)" style="--k:#7B1FA2">Junior Femenino</button><button class="chip" data-f="Juniors" onclick="filt(this)" style="--k:#1D4FA3">Juniors</button><button class="chip" data-f="Juvenil Femenino" onclick="filt(this)" style="--k:#C2410C">Juvenil Femenino</button><button class="chip" data-f="Juvenil Masculino" onclick="filt(this)" style="--k:#0B7A5A">Juvenil Masculino</button><button class="chip" data-f="Mini" onclick="filt(this)" style="--k:#A8323F">Mini</button><button class="chip" data-f="Senior Femenino" onclick="filt(this)" style="--k:#C2185B">Senior Femenino</button><button class="chip" data-f="Senior Gold" onclick="filt(this)" style="--k:#B08900">Senior Gold</button><button class="chip" data-f="Senior Silver" onclick="filt(this)" style="--k:#5A6B7C">Senior Silver</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h1>Las 80 partidas, del 5 al 9 de octubre</h1>
+    <p class="lede">Tres canchas en Arecibo, ocho categorías, cincuenta y cinco equipos.</p>
+    <div class="stat">
+      <span><b>80</b> juegos</span>
+      <span><b>8</b> categorías</span>
+      <span><b>3</b> canchas</span>
+      <span><b>5</b> días</span>
+    </div>
+
+    <div class="courts">
+      <div><b>C-1</b> — Cancha 1 · Bo. Factor 1</div>
+      <div><b>C-2</b> — Cancha 2 · Bo. Factor 1</div>
+      <div><b>C-3</b> — Cancha 3 · Bo. Garrochales, Padre Egidio</div>
+    </div>
+
+<section class="day" id="dLun">
+  <h2>Lunes 5 de octubre <span>16 juegos</span></h2>
+  <div class="rows">
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-34" data-on="2026-10-05" data-a="Luchetti B" data-b="HEA B" onclick="tap(this)"><span class="t">2:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Luchetti B</b> <i>vs</i> <b class="sb">HEA B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-34</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r p" data-cat="Juniors" data-court="C-3" data-j="J-6" data-on="2026-10-05" data-a="Felipe Crespo" data-b="Paradiso B" onclick="tap(this)"><span class="t">2:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Felipe Crespo</b> <i>vs</i> <b class="sb">Paradiso B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-6</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r p" data-cat="Senior Silver" data-court="C-1" data-j="J-39" data-on="2026-10-05" data-a="Paradiso" data-b="Francisco Mendoza B" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Paradiso</b> <i>vs</i> <b class="sb">Francisco Mendoza B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-39</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-5B" data-on="2026-10-05" data-a="Francisco Mendoza" data-b="Vocacional" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Francisco Mendoza</b> <i>vs</i> <b class="sb">Vocacional</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-5B</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-3" data-on="2026-10-05" data-a="CNSC Blue" data-b="Vigotsky" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">CNSC Blue</b> <i>vs</i> <b class="sb">Vigotsky</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-3</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Junior Femenino" data-court="C-3" data-j="J-48" data-on="2026-10-05" data-a="Dac" data-b="Manuel Ramos" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Dac</b> <i>vs</i> <b class="sb">Manuel Ramos</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-48</span><span class="k" style="--k:#7B1FA2">Junior Femenino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-4" data-on="2026-10-05" data-a="HEA" data-b="Padre Aníbal" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">HEA</b> <i>vs</i> <b class="sb">Padre Aníbal</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-4</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-54" data-on="2026-10-05" data-a="Castañer" data-b="Padre Aníbal" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Castañer</b> <i>vs</i> <b class="sb">Padre Aníbal</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-54</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-21" data-on="2026-10-05" data-a="Inter" data-b="HEA-A" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Inter</b> <i>vs</i> <b class="sb">HEA-A</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-21</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-53" data-on="2026-10-05" data-a="CNSC" data-b="Emilio Delgado" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">CNSC</b> <i>vs</i> <b class="sb">Emilio Delgado</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-53</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-8" data-on="2026-10-05" data-a="Inter" data-b="PRBBA (B)" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Inter</b> <i>vs</i> <b class="sb">PRBBA (B)</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-8</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r p" data-cat="Mini" data-court="C-2" data-j="J-73" data-on="2026-10-05" data-a="Paradiso" data-b="HCLM" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Paradiso</b> <i>vs</i> <b class="sb">HCLM</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-73</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-9" data-on="2026-10-05" data-a="CNSC Red" data-b="DAC-A" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">CNSC Red</b> <i>vs</i> <b class="sb">DAC-A</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-9</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-35" data-on="2026-10-05" data-a="Kingdom B" data-b="Dac-B" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Kingdom B</b> <i>vs</i> <b class="sb">Dac-B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-35</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r p" data-cat="Juvenil Masculino" data-court="C-2" data-j="J-60" data-on="2026-10-05" data-a="Paradiso B" data-b="HCLM" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Paradiso B</b> <i>vs</i> <b class="sb">HCLM</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-60</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-3" data-j="J-25" data-on="2026-10-05" data-a="Emilio Delgado" data-b="Dac-A" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Emilio Delgado</b> <i>vs</i> <b class="sb">Dac-A</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-25</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+  </div>
+</section>
+<section class="day" id="dMar">
+  <h2>Martes 6 de octubre <span>18 juegos</span></h2>
+  <div class="rows">
+    <div class="r p" data-cat="Juniors" data-court="C-1" data-j="J-5" data-on="2026-10-06" data-a="Paradiso" data-b="Dac B" onclick="tap(this)"><span class="t">2:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Paradiso</b> <i>vs</i> <b class="sb">Dac B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-5</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-2" data-on="2026-10-06" data-a="Kingdom B" data-b="JPL A" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Kingdom B</b> <i>vs</i> <b class="sb">JPL A</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-2</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-55" data-on="2026-10-06" data-a="Kingdom" data-b="Vigotsky" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Kingdom</b> <i>vs</i> <b class="sb">Vigotsky</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-55</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-33" data-on="2026-10-06" data-a="Comercio" data-b="JPL B" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Comercio</b> <i>vs</i> <b class="sb">JPL B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-33</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-3" data-j="J-61" data-on="2026-10-06" data-a="Kingdom" data-b="San Rafael" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Kingdom</b> <i>vs</i> <b class="sb">San Rafael</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-61</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-23" data-on="2026-10-06" data-a="Catalina Morales" data-b="Manuel A Ramos" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Catalina Morales</b> <i>vs</i> <b class="sb">Manuel A Ramos</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-23</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Mini" data-court="C-2" data-j="J-71" data-on="2026-10-06" data-a="Pentecostal" data-b="ABA" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Pentecostal</b> <i>vs</i> <b class="sb">ABA</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-71</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-3" data-j="J-62" data-on="2026-10-06" data-a="PBA" data-b="Kingdom B" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">PBA</b> <i>vs</i> <b class="sb">Kingdom B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-62</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Junior Femenino" data-court="C-1" data-j="J-46" data-on="2026-10-06" data-a="Saint Monica" data-b="CNSC" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Saint Monica</b> <i>vs</i> <b class="sb">CNSC</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-46</span><span class="k" style="--k:#7B1FA2">Junior Femenino</span></div>
+    <div class="r" data-cat="Juvenil Femenino" data-court="C-2" data-j="J-79" data-on="2026-10-06" data-a="San Felipe" data-b="CRCA" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">San Felipe</b> <i>vs</i> <b class="sb">CRCA</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-79</span><span class="k" style="--k:#C2410C">Juvenil Femenino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-10" data-on="2026-10-06" data-a="Catalina" data-b="Manuel A Ramos" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Catalina</b> <i>vs</i> <b class="sb">Manuel A Ramos</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-10</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-1" data-j="J-52" data-on="2026-10-06" data-a="Saint Monica" data-b="San Rafael" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Saint Monica</b> <i>vs</i> <b class="sb">San Rafael</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-52</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r p" data-cat="Juvenil Masculino" data-court="C-2" data-j="J-64" data-on="2026-10-06" data-a="Paradiso A" data-b="San Rafael B" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Paradiso A</b> <i>vs</i> <b class="sb">San Rafael B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-64</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-3" data-j="J-37" data-on="2026-10-06" data-a="Padre Aníbal" data-b="Felipe Crespo" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Padre Aníbal</b> <i>vs</i> <b class="sb">Felipe Crespo</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-37</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-24" data-on="2026-10-06" data-a="Luchetti A" data-b="Madelcar" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Luchetti A</b> <i>vs</i> <b class="sb">Madelcar</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-24</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-15" data-on="2026-10-06" data-a="Ganador J-9" data-b="Ganador J-10" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-9</b> <i>vs</i> <b class="sb">Ganador J-10</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-15</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-38" data-on="2026-10-06" data-a="Cadilla" data-b="JPL A" onclick="tap(this)"><span class="t">9:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Cadilla</b> <i>vs</i> <b class="sb">JPL A</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-38</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-3" data-j="J-20" data-on="2026-10-06" data-a="Kingdom A" data-b="Francisco Mendoza A" onclick="tap(this)"><span class="t">9:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Kingdom A</b> <i>vs</i> <b class="sb">Francisco Mendoza A</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-20</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+  </div>
+</section>
+<section class="day" id="dMié">
+  <h2>Miércoles 7 de octubre <span>18 juegos</span></h2>
+  <div class="rows">
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-14" data-on="2026-10-07" data-a="Ganador J-7" data-b="Ganador J-8" onclick="tap(this)"><span class="t">1:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-7</b> <i>vs</i> <b class="sb">Ganador J-8</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-14</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-13" data-on="2026-10-07" data-a="Ganador J-5" data-b="Ganador J-5B" onclick="tap(this)"><span class="t">2:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-5</b> <i>vs</i> <b class="sb">Ganador J-5B</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-13</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-3" data-j="J-42" data-on="2026-10-07" data-a="Ganador J-37" data-b="Ganador J-38" onclick="tap(this)"><span class="t">2:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-37</b> <i>vs</i> <b class="sb">Ganador J-38</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-42</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-1" data-on="2026-10-07" data-a="La Vieja" data-b="Adjuntas High" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">La Vieja</b> <i>vs</i> <b class="sb">Adjuntas High</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-1</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-3" data-j="J-40" data-on="2026-10-07" data-a="Ganador J-33" data-b="Ganador J-34" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-33</b> <i>vs</i> <b class="sb">Ganador J-34</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-40</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-22" data-on="2026-10-07" data-a="Adjuntas High" data-b="La Vieja" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Adjuntas High</b> <i>vs</i> <b class="sb">La Vieja</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-22</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-3" data-j="J-65" data-on="2026-10-07" data-a="Ganador J-61" data-b="Ganador J-62" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-61</b> <i>vs</i> <b class="sb">Ganador J-62</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-65</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Junior Femenino" data-court="C-1" data-j="J-47" data-on="2026-10-07" data-a="San Rafael" data-b="Madelcar" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">San Rafael</b> <i>vs</i> <b class="sb">Madelcar</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-47</span><span class="k" style="--k:#7B1FA2">Junior Femenino</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-3" data-j="J-63" data-on="2026-10-07" data-a="ABA" data-b="HEA" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">ABA</b> <i>vs</i> <b class="sb">HEA</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-63</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Juvenil Femenino" data-court="C-1" data-j="J-78" data-on="2026-10-07" data-a="Robertson" data-b="Madelcar" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Robertson</b> <i>vs</i> <b class="sb">Madelcar</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-78</span><span class="k" style="--k:#C2410C">Juvenil Femenino</span></div>
+    <div class="r" data-cat="Mini" data-court="C-2" data-j="J-69" data-on="2026-10-07" data-a="San Felipe Blue" data-b="Kingdom" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">San Felipe Blue</b> <i>vs</i> <b class="sb">Kingdom</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-69</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-51" data-on="2026-10-07" data-a="DAC" data-b="HEA" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">DAC</b> <i>vs</i> <b class="sb">HEA</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-51</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-26" data-on="2026-10-07" data-a="Petra" data-b="CNSC" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Petra</b> <i>vs</i> <b class="sb">CNSC</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-26</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Mini" data-court="C-2" data-j="J-70" data-on="2026-10-07" data-a="San Felipe White" data-b="Inter" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">San Felipe White</b> <i>vs</i> <b class="sb">Inter</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-70</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-3" data-j="J-38b" data-on="2026-10-07" data-a="HCLM" data-b="Castañer" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">HCLM</b> <i>vs</i> <b class="sb">Castañer</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-38b</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-29" data-on="2026-10-07" data-a="Ganador J-24" data-b="Ganador J-25" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-24</b> <i>vs</i> <b class="sb">Ganador J-25</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-29</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-56" data-on="2026-10-07" data-a="Ganador J-51" data-b="Ganador J-52" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-51</b> <i>vs</i> <b class="sb">Ganador J-52</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-56</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Junior Femenino" data-court="C-3" data-j="J-49" data-on="2026-10-07" data-a="Ganador J-46" data-b="Ganador J-47" onclick="tap(this)"><span class="t">9:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-46</b> <i>vs</i> <b class="sb">Ganador J-47</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-49</span><span class="k" style="--k:#7B1FA2">Junior Femenino</span></div>
+  </div>
+</section>
+<section class="day" id="dJue">
+  <h2>Jueves 8 de octubre <span>17 juegos</span></h2>
+  <div class="rows">
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-41" data-on="2026-10-08" data-a="Ganador J-35" data-b="Ganador J-36" onclick="tap(this)"><span class="t">2:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-35</b> <i>vs</i> <b class="sb">Ganador J-36</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-41</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-16" data-on="2026-10-08" data-a="Ganador J-6" data-b="Ganador J-14" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-6</b> <i>vs</i> <b class="sb">Ganador J-14</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-16</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-3" data-j="J-44" data-on="2026-10-08" data-a="Ganador J-40" data-b="Ganador J-41" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-40</b> <i>vs</i> <b class="sb">Ganador J-41</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-44</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-43" data-on="2026-10-08" data-a="Ganador J-42" data-b="Ganador J-39" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-42</b> <i>vs</i> <b class="sb">Ganador J-39</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-43</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r p" data-cat="Juvenil Femenino" data-court="C-3" data-j="J-80" data-on="2026-10-08" data-a="Ganador J-79" data-b="Paradiso" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-79</b> <i>vs</i> <b class="sb">Paradiso</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-80</span><span class="k" style="--k:#C2410C">Juvenil Femenino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-12" data-on="2026-10-08" data-a="Ganador J-3" data-b="Ganador J-4" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-3</b> <i>vs</i> <b class="sb">Ganador J-4</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-12</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Mini" data-court="C-2" data-j="J-73b" data-on="2026-10-08" data-a="Ganador J-69" data-b="Ganador J-70" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Ganador J-69</b> <i>vs</i> <b class="sb">Ganador J-70</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-73b</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-57" data-on="2026-10-08" data-a="Ganador J-53" data-b="Ganador J-54" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-53</b> <i>vs</i> <b class="sb">Ganador J-54</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-57</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-27" data-on="2026-10-08" data-a="Ganador J-20" data-b="Ganador J-21" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-20</b> <i>vs</i> <b class="sb">Ganador J-21</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-27</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-3" data-j="J-67" data-on="2026-10-08" data-a="Ganador J-60" data-b="Ganador J-61" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-60</b> <i>vs</i> <b class="sb">Ganador J-61</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-67</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-11" data-on="2026-10-08" data-a="Ganador J-1" data-b="Ganador J-2" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-1</b> <i>vs</i> <b class="sb">Ganador J-2</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-11</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Mini" data-court="C-2" data-j="J-74" data-on="2026-10-08" data-a="Ganador J-71" data-b="Ganador J-72" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Ganador J-71</b> <i>vs</i> <b class="sb">Ganador J-72</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-74</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-3" data-j="J-58" data-on="2026-10-08" data-a="Ganador J-55" data-b="Ganador J-57" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-55</b> <i>vs</i> <b class="sb">Ganador J-57</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-58</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-30" data-on="2026-10-08" data-a="Ganador J-29" data-b="Ganador J-26" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-29</b> <i>vs</i> <b class="sb">Ganador J-26</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-30</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-2" data-j="J-66" data-on="2026-10-08" data-a="Ganador J-63" data-b="Ganador J-64" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Ganador J-63</b> <i>vs</i> <b class="sb">Ganador J-64</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-66</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-3" data-j="J-28" data-on="2026-10-08" data-a="Ganador J-22" data-b="Ganador J-23" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-22</b> <i>vs</i> <b class="sb">Ganador J-23</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-28</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-13B" data-on="2026-10-08" data-a="Ganador J-11" data-b="Ganador J-12" onclick="tap(this)"><span class="t">9:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-11</b> <i>vs</i> <b class="sb">Ganador J-12</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-13B</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+  </div>
+</section>
+<section class="day" id="dVie">
+  <h2>Viernes 9 de octubre <span>11 juegos</span></h2>
+  <div class="rows">
+    <div class="r" data-cat="Juvenil Femenino" data-court="C-1" data-j="J-80f" data-on="2026-10-09" data-a="Ganador J-78" data-b="Ganador J-79" onclick="tap(this)"><span class="t">3:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-78</b> <i>vs</i> <b class="sb">Ganador J-79</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-80f</span><span class="k" style="--k:#C2410C">Juvenil Femenino</span></div>
+    <div class="r" data-cat="Juvenil Masculino" data-court="C-1" data-j="J-68" data-on="2026-10-09" data-a="Ganador J-66" data-b="Ganador J-67" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-66</b> <i>vs</i> <b class="sb">Ganador J-67</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-68</span><span class="k" style="--k:#0B7A5A">Juvenil Masculino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-18" data-on="2026-10-09" data-a="Ganador J-15" data-b="Ganador J-16" onclick="tap(this)"><span class="t">4:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-15</b> <i>vs</i> <b class="sb">Ganador J-16</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-18</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Junior Femenino" data-court="C-1" data-j="J-50" data-on="2026-10-09" data-a="Ganador J-48" data-b="Ganador J-49" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-48</b> <i>vs</i> <b class="sb">Ganador J-49</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-50</span><span class="k" style="--k:#7B1FA2">Junior Femenino</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-3" data-j="J-17" data-on="2026-10-09" data-a="Ganador J-13B" data-b="Ganador J-13" onclick="tap(this)"><span class="t">5:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-13B</b> <i>vs</i> <b class="sb">Ganador J-13</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-17</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Silver" data-court="C-1" data-j="J-45" data-on="2026-10-09" data-a="Ganador J-43" data-b="Ganador J-44" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-43</b> <i>vs</i> <b class="sb">Ganador J-44</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-45</span><span class="k" style="--k:#5A6B7C">Senior Silver</span></div>
+    <div class="r" data-cat="Mini" data-court="C-2" data-j="J-77" data-on="2026-10-09" data-a="Ganador J-76" data-b="Ganador J-75" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-2</span><span class="m"><b class="sa">Ganador J-76</b> <i>vs</i> <b class="sb">Ganador J-75</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-77</span><span class="k" style="--k:#A8323F">Mini</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-3" data-j="J-31" data-on="2026-10-09" data-a="Ganador J-27" data-b="Ganador J-28" onclick="tap(this)"><span class="t">6:00PM</span><span class="c">C-3</span><span class="m"><b class="sa">Ganador J-27</b> <i>vs</i> <b class="sb">Ganador J-28</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-31</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+    <div class="r" data-cat="Juniors" data-court="C-1" data-j="J-19" data-on="2026-10-09" data-a="Ganador J-17" data-b="Ganador J-18" onclick="tap(this)"><span class="t">7:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-17</b> <i>vs</i> <b class="sb">Ganador J-18</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-19</span><span class="k" style="--k:#1D4FA3">Juniors</span></div>
+    <div class="r" data-cat="Senior Femenino" data-court="C-1" data-j="J-59" data-on="2026-10-09" data-a="Ganador J-56" data-b="Ganador J-58" onclick="tap(this)"><span class="t">8:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-56</b> <i>vs</i> <b class="sb">Ganador J-58</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-59</span><span class="k" style="--k:#C2185B">Senior Femenino</span></div>
+    <div class="r" data-cat="Senior Gold" data-court="C-1" data-j="J-32" data-on="2026-10-09" data-a="Ganador J-30" data-b="Ganador J-31" onclick="tap(this)"><span class="t">9:00PM</span><span class="c">C-1</span><span class="m"><b class="sa">Ganador J-30</b> <i>vs</i> <b class="sb">Ganador J-31</b><span class="sc"></span></span><span class="pls"></span><span class="j">J-32</span><span class="k" style="--k:#B08900">Senior Gold</span></div>
+  </div>
+</section>
+  </div>
+</main>
+
+<div class="lock" id="lock">
+  <div class="wrap">
+    <span id="lockWho">Marcadores desbloqueados</span>
+    <button onclick="lockOff()">Bloquear</button>
+  </div>
+</div>
+
+<footer>
+  <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
+  Marcadores en vivo · Las promesas se hacen en
+  <a href="https://cadapunto.com">Cada Punto</a>
+</footer>
+
+<script>
+var CP = 'https://cadapunto.com';     // ahí vive el dinero
+var STR_PLEDGE = ' — prometer';
+var STR_PUSHED = 'También se cerró este juego en la campaña (vs {O}).\n' +
+                 'Las promesas ya se pueden cobrar desde el admin.';
+var SB_URL='https://sdaphocueugzfvjovuxd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+
+function rpc(name, args){
+  return fetch(SB_URL + '/rest/v1/rpc/' + name, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify(args || {})
+  }).then(function(r){ if(!r.ok) throw new Error('rpc'); return r.json(); });
+}
+
+// El código vive sólo en esta pestaña: en una computadora prestada no
+// se queda abierto.
+function code(){ try { return sessionStorage.getItem('bw-code') || ''; } catch(e){ return ''; } }
+function keep(c){ try { sessionStorage.setItem('bw-code', c); } catch(e){} }
+
+var SCORES = {};
+
+// ══════════════════════════════════════════════════════
+//  Cada equipo cobra lo suyo. Un equipo con campaña enseña
+//  un botón de prometer en cada juego suyo; uno sin campaña
+//  enseña cómo conseguirla. Nada que administrar por los que
+//  no entren.
+// ══════════════════════════════════════════════════════
+var TEAMS = {};
+
+// ══════════════════════════════════════════════════════
+//  Un equipo sin campaña enseña cómo conseguir una. El
+//  coach pide; se aprueba a mano, porque pedir un equipo
+//  es pedir el derecho a cobrar en su nombre.
+// ══════════════════════════════════════════════════════
+var ASKED = {};
+
+function loadAsked(){
+  return rpc('bw_request_states')
+    .then(function(r){ ASKED = r || {}; })
+    .catch(function(e){ console.error('asked', e); });
+}
+
+function askTeam(name){
+  var team = resolve(name);
+  if (placeholderFor(team)) return;
+
+  var program = prompt(ASK.program, team);
+  if (program === null) return;
+  if (!program.trim()) return;
+
+  var coach = prompt(ASK.coach);
+  if (coach === null || !coach.trim()) return;
+
+  var email = prompt(ASK.email);
+  if (email === null || email.indexOf('@') === -1) return;
+
+  var phone = prompt(ASK.phone) || '';
+
+  if (!confirm(ASK.terms)) return;
+
+  rpc('bw_request_team', {
+    p_team: team, p_program: program.trim(), p_name: coach.trim(),
+    p_email: email.trim(), p_phone: phone.trim(), p_terms: true
+  }).then(function(r){
+    if (!r || !r.ok){
+      if (r && r.reason === 'taken')   return alert(ASK.taken);
+      if (r && r.reason === 'pending') return alert(ASK.already);
+      return alert(ASK.failed);
+    }
+    ASKED[team.toLowerCase()] = 'pending';
+
+    fetch('https://basketball-money-payments.onrender.com/team-signup', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ team: team, program: program.trim(),
+                             coach: coach.trim(), email: email.trim(),
+                             phone: phone.trim() })
+    }).catch(function(e){ console.error('notice', e); });
+
+    alert(ASK.thanks);
+    paintPledges();
+  }).catch(function(e){ console.error(e); alert(ASK.failed); });
+}
+
+var ASK = {
+  program:'¿Cómo se llama el programa? (lo que verán las familias)',
+  coach:'¿Tu nombre?',
+  email:'¿Tu correo? Ahí te escribimos.',
+  phone:'¿Tu teléfono? (opcional)',
+  terms:'¿Aceptas los Términos de Uso y la Política de Privacidad de Cada Punto?\n\n' +
+        'cadapunto.com/terms.html',
+  thanks:'Pedido. Te escribimos para confirmar y abrirte la campaña.',
+  taken:'Ese equipo ya tiene campaña.',
+  already:'Ya hay una petición para ese equipo. Te escribimos pronto.',
+  failed:'No se pudo enviar. Intenta otra vez.',
+  want:' — recaudar con este equipo',
+  waiting:' — pedido'
+};
+
+
+
+function teamKey(n){ return norm(n); }
+
+function teamOf(name){
+  var real = resolve(name);
+  return TEAMS[teamKey(real)] || null;
+}
+
+// Los botones de un juego: uno por equipo que tenga campaña.
+function T(k){ return STR_PLEDGE; }
+
+function pledgeBits(row){
+  var out = [];
+  var sides = [row.dataset.a, row.dataset.b];
+
+  sides.forEach(function(side, i){
+    var real = resolve(side);
+    if (placeholderFor(real)) return;          // todavía es un hueco
+    var t = TEAMS[teamKey(real)];
+
+    if (!t){
+      // Sin campaña: se ofrece pedirla, o se dice que ya está pedida.
+      if (ASKED[real.toLowerCase()]){
+        out.push('<span class="pl waiting"><b>' + real + '</b>' + ASK.waiting + '</span>');
+      } else {
+        out.push('<button class="pl want" onclick="askTeam(\'' +
+                   real.replace(/'/g, "\\'") + '\')">' +
+                   '<b>' + real + '</b>' + ASK.want +
+                 '</button>');
+      }
+      return;
+    }
+
+    // Para ese equipo, el rival es el otro lado — que es como está
+    // puesto el juego en su propia campaña.
+    var foe = resolve(sides[i === 0 ? 1 : 0]);
+
+    var href = CP + '/scoreboard.html?c=' + t.campaign +
+               '&on=' + encodeURIComponent(row.dataset.on || '') +
+               '&vs=' + encodeURIComponent(foe);
+
+    out.push('<a class="pl" href="' + href + '">' +
+               '<b>' + real + '</b>' + STR_PLEDGE +
+             '</a>');
+  });
+  return out.join('');
+}
+
+function paintPledges(){
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    var holder = rows[i].querySelector('.pls');
+    if (!holder) continue;
+    var done = rows[i].classList.contains('done');
+    holder.innerHTML = done ? '' : pledgeBits(rows[i]);
+  }
+}
+
+function loadTeams(){
+  return rpc('bw_teams_board')
+    .then(function(b){
+      TEAMS = {};
+      Object.keys(b || {}).forEach(function(k){ TEAMS[teamKey(k)] = b[k]; });
+    })
+    .catch(function(e){ console.error('teams', e); });
+}
+
+
+
+// ══════════════════════════════════════════════════════
+//  "Ganador J-9" deja de ser un hueco en cuanto se pone
+//  el marcador de J-9. Y como un ganador puede depender de
+//  otro ganador, se resuelve hacia atrás hasta encontrar un
+//  nombre de verdad.
+// ══════════════════════════════════════════════════════
+var GAMES = {};   // J-9 → { a:'CNSC Red', b:'DAC-A' }
+
+function indexGames(){
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    GAMES[norm(rows[i].dataset.j)] = { a: rows[i].dataset.a, b: rows[i].dataset.b };
+  }
+}
+
+function norm(s){ return String(s || '').replace(/#/g, '').trim().toUpperCase(); }
+
+function placeholderFor(name){
+  var m = norm(name).match(/^GANADOR\s+(J-\S+)$/);
+  return m ? m[1] : null;
+}
+
+// Devuelve el nombre real si ya se sabe, o el texto original si no.
+// El guardia de profundidad evita que dos juegos que se apunten el uno
+// al otro cuelguen la página.
+function resolve(name, depth){
+  depth = depth || 0;
+  if (depth > 8) return name;
+
+  var key = placeholderFor(name);
+  if (!key) return name;
+
+  var g = GAMES[key], s = SCORES[key];
+  if (!g || !s || s.a === s.b) return name;
+
+  var winner = s.a > s.b ? g.a : g.b;
+  return resolve(winner, depth + 1);
+}
+
+
+
+function paint(){
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    var r = rows[i];
+    var s = SCORES[norm(r.dataset.j)] || SCORES[r.dataset.j];
+    var sa = r.querySelector('.sa'), sb = r.querySelector('.sb'), sc = r.querySelector('.sc');
+
+    // Los huecos del cuadro se rellenan solos según entran marcadores.
+    var na = resolve(r.dataset.a), nb = resolve(r.dataset.b);
+    sa.textContent = na;
+    sb.textContent = nb;
+    sa.classList.toggle('fill', na !== r.dataset.a);
+    sb.classList.toggle('fill', nb !== r.dataset.b);
+
+    r.classList.toggle('live', !!code());
+    sa.className = 'sa'; sb.className = 'sb';
+
+    if (!s){ r.classList.remove('done'); sc.textContent = ''; continue; }
+
+    r.classList.add('done');
+
+    if (s.a > s.b){
+      sa.className = 'sa won'; sb.className = 'sb lost';
+      sc.innerHTML = '<b class="hi">' + s.a + '</b><span class="d">–</span><b class="lo">' + s.b + '</b>';
+    } else if (s.b > s.a){
+      sb.className = 'sb won'; sa.className = 'sa lost';
+      sc.innerHTML = '<b class="lo">' + s.a + '</b><span class="d">–</span><b class="hi">' + s.b + '</b>';
+    } else {
+      sc.innerHTML = '<b>' + s.a + '</b><span class="d">–</span><b>' + s.b + '</b>';
+    }
+  }
+}
+
+function load(){
+  Promise.all([ rpc('bw_board'), loadTeams(), loadAsked() ])
+    .then(function(r){ SCORES = r[0] || {}; paint(); paintPledges(); })
+    .catch(function(e){ console.error(e); });
+}
+
+function tap(row){
+  if (!code()) return;                 // sin código no se toca nada
+  var j = row.dataset.j;
+  var cur = SCORES[j];
+  var a = prompt(resolve(row.dataset.a) + ' — puntos:', cur ? cur.a : '');
+  if (a === null) return;
+  if (a.trim() === ''){                // vacío borra el marcador
+    rpc('bw_clear_score', { p_code: code(), p_game: norm(j) })
+      .then(function(){ delete SCORES[norm(j)]; paint(); paintPledges(); });
+    return;
+  }
+  var b = prompt(resolve(row.dataset.b) + ' — puntos:', cur ? cur.b : '');
+  if (b === null) return;
+
+  if (!/^\d+$/.test(a.trim()) || !/^\d+$/.test(b.trim())){
+    alert('Los puntos son números.');
+    return;
+  }
+
+  rpc('bw_set_score', {
+    p_code: code(), p_game: norm(j),
+    p_a: parseInt(a,10), p_b: parseInt(b,10),
+    p_team_a: resolve(row.dataset.a),
+    p_team_b: resolve(row.dataset.b),
+    p_on: row.dataset.on || null
+  }).then(function(r){
+    if (!r || !r.ok){
+      if (r && r.reason === 'code'){ lockOff(); alert('Código incorrecto.'); return; }
+      alert('No se pudo guardar.');
+      return;
+    }
+    SCORES[norm(j)] = { a: parseInt(a,10), b: parseInt(b,10) };
+    paint(); paintPledges();
+
+    // Si el juego también estaba en la campaña de alguien, se cerró
+    // allí solo — vale la pena decirlo, porque significa que las
+    // promesas ya se pueden cobrar.
+    if (r.pushed) alert(STR_PUSHED.replace('{O}', r.pushed));
+  }).catch(function(e){ console.error(e); alert('No se pudo guardar.'); });
+}
+
+// Desbloquear con doble toque en el escudo: no hace falta un botón
+// que todo el mundo vea.
+function unlock(){
+  var c = prompt('Código de marcadores:');
+  if (c === null) return;
+  c = c.trim();
+  if (!c) return;
+  rpc('bw_check', { p_code: c }).then(function(ok){
+    if (!ok){ alert('Código incorrecto.'); return; }
+    keep(c);
+    document.getElementById('lock').classList.add('on');
+    paint();
+  });
+}
+
+function lockOff(){
+  try { sessionStorage.removeItem('bw-code'); } catch(e){}
+  document.getElementById('lock').classList.remove('on');
+  paint();
+}
+
+indexGames();
+document.querySelector('.mark').addEventListener('dblclick', unlock);
+if (code()) document.getElementById('lock').classList.add('on');
+load();
+
+// Filtrar por categoría: la lista completa es larga, y una familia
+// sólo quiere la suya.
+function filt(btn){
+  var want = btn.dataset.f || '';
+  var chips = document.querySelectorAll('.chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.remove('on');
+  btn.classList.add('on');
+
+  var rows = document.querySelectorAll('.r');
+  for (var j = 0; j < rows.length; j++){
+    var show = !want || rows[j].dataset.cat === want;
+    rows[j].classList.toggle('hide', !show);
+  }
+
+  // Un día sin juegos de esa categoría no hace falta enseñarlo.
+  var days = document.querySelectorAll('.day');
+  for (var k = 0; k < days.length; k++){
+    var any = days[k].querySelectorAll('.r:not(.hide)').length;
+    days[k].style.display = any ? '' : 'none';
+  }
+}
+</script>
+</body>
+</html>
