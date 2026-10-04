@@ -141,6 +141,9 @@ body.locked{overflow:hidden}
 .esave,.edel{padding:9px 14px;border:2px solid var(--ink);border-radius:4px;
   background:var(--ink);color:#fff;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer}
 .edel{background:#fff;color:var(--bad,#A8323F);border-color:var(--line)}
+.eclose{margin-left:auto;padding:7px 12px;border:1px solid var(--line);border-radius:4px;
+  background:#fff;color:var(--mute);font:inherit;font-size:1.1rem;line-height:1;cursor:pointer}
+.eclose:hover{border-color:var(--ink);color:var(--ink)}
 
 .toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:70;
   background:#0B1724;color:#fff;padding:11px 16px;border-radius:999px;font-size:.84rem;
@@ -677,7 +680,8 @@ function tap(row){
     '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
       'value="' + (cur ? cur.b : '') + '" placeholder="' + esc(shortName(row.dataset.b)) + '">' +
     '<button class="esave">' + STR_SAVE + '</button>' +
-    (cur ? '<button class="edel">' + STR_DEL + '</button>' : '');
+    (cur ? '<button class="edel">' + STR_DEL + '</button>' : '') +
+    '<button class="eclose" aria-label="cerrar">×</button>';
 
   row.appendChild(ed);
 
@@ -698,6 +702,7 @@ function tap(row){
   });
 
   ed.querySelector('.esave').addEventListener('click', save);
+  ed.querySelector('.eclose').addEventListener('click', function(){ ed.remove(); });
   var del = ed.querySelector('.edel');
   if (del) del.addEventListener('click', function(){
     rpc('bw_clear_score', { p_code: code(), p_game: j })
