@@ -353,6 +353,15 @@ function loadAsked(){
     .catch(function(e){ console.error('asked', e); });
 }
 
+
+// Un nombre de equipo viene del calendario, y el del programa lo
+// escribe un coach: los dos se escapan antes de pintarlos.
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m];
+  });
+}
+
 function askTeam(name){
   var team = resolve(name);
   if (placeholderFor(team)) return;
