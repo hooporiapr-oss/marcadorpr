@@ -128,6 +128,24 @@ body.locked{overflow:hidden}
 .r.done{background:var(--tint);border-color:#C3D2DD}
 .r.done.p{background:rgba(255,122,24,.1);border-color:var(--ball)}
 .r.live{cursor:pointer}
+
+/* Las casillas, dentro de la fila */
+.ed{flex:1 1 100%;display:flex;gap:6px;align-items:center;margin-top:6px}
+.ed.saving{opacity:.5;pointer-events:none}
+.ep{width:58px;padding:9px 6px;border:2px solid var(--ink);border-radius:4px;
+  font:inherit;font-size:1.05rem;font-weight:800;text-align:center;color:var(--ink);
+  background:#fff;font-variant-numeric:tabular-nums}
+.ep:focus{outline:none;border-color:var(--ball);box-shadow:0 0 0 3px rgba(255,122,24,.2)}
+.ep::placeholder{font-size:.68rem;font-weight:700;color:#9AA8B5}
+.edash{color:var(--mute);font-weight:800}
+.esave,.edel{padding:9px 14px;border:2px solid var(--ink);border-radius:4px;
+  background:var(--ink);color:#fff;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer}
+.edel{background:#fff;color:var(--bad,#A8323F);border-color:var(--line)}
+
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:70;
+  background:#0B1724;color:#fff;padding:11px 16px;border-radius:999px;font-size:.84rem;
+  font-weight:700;max-width:88vw;box-shadow:0 8px 30px rgba(0,0,0,.3);transition:opacity .4s}
+.toast.go{opacity:0}
 .r.live:hover{border-color:var(--ink)}
 
 /* la barra de abajo, sólo cuando está desbloqueado */
@@ -312,8 +330,11 @@ footer a{color:#4FD3F0;text-decoration:none}
 <script>
 var CP = 'https://cadapunto.com';     // ahí vive el dinero
 var STR_PLEDGE = ' — prometer';
-var STR_PUSHED = 'También se cerró este juego en la campaña (vs {O}).\n' +
-                 'Las promesas ya se pueden cobrar desde el admin.';
+var STR_SAVE = 'OK';
+var STR_DEL  = 'Borrar';
+var STR_BADCODE = 'Código incorrecto.';
+var STR_FAIL = 'No se pudo guardar.';
+var STR_PUSHED = 'Cerrado también en la campaña (vs {O}) — listo para cobrar.';
 var SB_URL='https://sdaphocueugzfvjovuxd.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
 
@@ -635,45 +656,105 @@ function load(){
     .catch(function(e){ console.error(e); });
 }
 
+// ══════════════════════════════════════════════════════
+//  Poner un marcador sin salir de la fila: dos casillas y
+//  guardar. Ochenta juegos en cinco días, de pie en un
+//  gimnasio — cada toque de menos cuenta.
+// ══════════════════════════════════════════════════════
 function tap(row){
   if (!code()) return;                 // sin código no se toca nada
-  var j = row.dataset.j;
+  if (row.querySelector('.ed')) return;   // ya está abierta
+
+  var j = norm(row.dataset.j);
   var cur = SCORES[j];
-  var a = prompt(resolve(row.dataset.a) + ' — puntos:', cur ? cur.a : '');
-  if (a === null) return;
-  if (a.trim() === ''){                // vacío borra el marcador
-    rpc('bw_clear_score', { p_code: code(), p_game: norm(j) })
-      .then(function(){ delete SCORES[norm(j)]; paint(); paintPledges(); });
-    return;
-  }
-  var b = prompt(resolve(row.dataset.b) + ' — puntos:', cur ? cur.b : '');
-  if (b === null) return;
 
-  if (!/^\d+$/.test(a.trim()) || !/^\d+$/.test(b.trim())){
-    alert('Los puntos son números.');
-    return;
-  }
+  var ed = document.createElement('span');
+  ed.className = 'ed';
+  ed.innerHTML =
+    '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
+      'value="' + (cur ? cur.a : '') + '" placeholder="' + esc(shortName(row.dataset.a)) + '">' +
+    '<span class="edash">–</span>' +
+    '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
+      'value="' + (cur ? cur.b : '') + '" placeholder="' + esc(shortName(row.dataset.b)) + '">' +
+    '<button class="esave">' + STR_SAVE + '</button>' +
+    (cur ? '<button class="edel">' + STR_DEL + '</button>' : '');
 
-  rpc('bw_set_score', {
-    p_code: code(), p_game: norm(j),
-    p_a: parseInt(a,10), p_b: parseInt(b,10),
-    p_team_a: resolve(row.dataset.a),
-    p_team_b: resolve(row.dataset.b),
-    p_on: row.dataset.on || null
-  }).then(function(r){
-    if (!r || !r.ok){
-      if (r && r.reason === 'code'){ lockOff(); alert('Código incorrecto.'); return; }
-      alert('No se pudo guardar.');
+  row.appendChild(ed);
+
+  var boxes = ed.querySelectorAll('.ep');
+
+  // Evitar que tocar dentro vuelva a disparar la fila.
+  ed.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  // Tres dígitos y salta sola a la otra; Enter guarda.
+  boxes[0].addEventListener('input', function(){
+    if (this.value.length >= 2 && Number(this.value) > 9) boxes[1].focus();
+  });
+  Array.prototype.forEach.call(boxes, function(b){
+    b.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ e.preventDefault(); save(); }
+      if (e.key === 'Escape'){ e.preventDefault(); ed.remove(); }
+    });
+  });
+
+  ed.querySelector('.esave').addEventListener('click', save);
+  var del = ed.querySelector('.edel');
+  if (del) del.addEventListener('click', function(){
+    rpc('bw_clear_score', { p_code: code(), p_game: j })
+      .then(function(){ delete SCORES[j]; ed.remove(); paint(); paintPledges(); });
+  });
+
+  boxes[0].focus();
+  boxes[0].select();
+
+  function save(){
+    var a = boxes[0].value.trim(), b = boxes[1].value.trim();
+    if (!/^\d+$/.test(a) || !/^\d+$/.test(b)){
+      boxes[!/^\d+$/.test(a) ? 0 : 1].focus();
       return;
     }
-    SCORES[norm(j)] = { a: parseInt(a,10), b: parseInt(b,10) };
-    paint(); paintPledges();
 
-    // Si el juego también estaba en la campaña de alguien, se cerró
-    // allí solo — vale la pena decirlo, porque significa que las
-    // promesas ya se pueden cobrar.
-    if (r.pushed) alert(STR_PUSHED.replace('{O}', r.pushed));
-  }).catch(function(e){ console.error(e); alert('No se pudo guardar.'); });
+    ed.classList.add('saving');
+    rpc('bw_set_score', {
+      p_code: code(), p_game: j,
+      p_a: parseInt(a, 10), p_b: parseInt(b, 10),
+      p_team_a: resolve(row.dataset.a),
+      p_team_b: resolve(row.dataset.b),
+      p_on: row.dataset.on || null
+    }).then(function(r){
+      ed.classList.remove('saving');
+      if (!r || !r.ok){
+        if (r && r.reason === 'code'){ lockOff(); alert(STR_BADCODE); return; }
+        alert(STR_FAIL);
+        return;
+      }
+      SCORES[j] = { a: parseInt(a, 10), b: parseInt(b, 10) };
+      ed.remove();
+      paint(); paintPledges();
+      if (r.pushed) toast(STR_PUSHED.replace('{O}', r.pushed));
+    }).catch(function(e){
+      ed.classList.remove('saving');
+      console.error(e); alert(STR_FAIL);
+    });
+  }
+}
+
+// "Ganador J-9" no cabe de marcador de posición; el nombre corto sí.
+function shortName(n){
+  var r = resolve(n);
+  if (placeholderFor(r)) return '?';
+  return r.length > 9 ? r.slice(0, 9) : r;
+}
+
+// Un aviso que se va solo: un alert por juego, ochenta veces, es
+// insoportable de pie en un gimnasio.
+function toast(msg){
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.classList.add('go'); }, 2600);
+  setTimeout(function(){ t.remove(); }, 3200);
 }
 
 // Desbloquear con doble toque en el escudo: no hace falta un botón
