@@ -337,6 +337,7 @@ var CP = 'https://cadapunto.com';     // ahí vive el dinero
 var STR_PLEDGE = ' — prometer';
 var STR_IPLAY  = 'Soy jugador · mi enlace';
 var STR_SAVE = 'OK';
+var STR_ADDED = '{N} juego(s) nuevos puestos en la campaña — ya se puede prometer.';
 var STR_DEL  = 'Borrar';
 var STR_BADCODE = 'Código incorrecto.';
 var STR_FAIL = 'No se pudo guardar.';
@@ -677,6 +678,52 @@ function load(){
 //  guardar. Ochenta juegos en cinco días, de pie en un
 //  gimnasio — cada toque de menos cuenta.
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  Después de un marcador: los juegos que se acaban de
+//  concretar se ponen solos en la campaña del equipo que
+//  pasó. Sin esto hay que ir a copiarlos a mano, y un
+//  padrino no puede prometer hasta que alguien lo hace.
+// ══════════════════════════════════════════════════════
+function pushForward(){
+  var added = [];
+  var rows = document.querySelectorAll('.r');
+  var jobs = [];
+
+  for (var i = 0; i < rows.length; i++){
+    var r = rows[i];
+    if (SCORES[norm(r.dataset.j)]) continue;        // ése ya se jugó
+
+    var a = resolve(r.dataset.a), b = resolve(r.dataset.b);
+    if (placeholderFor(a) && placeholderFor(b)) continue;   // no se sabe ninguno
+
+    // ¿Alguno de los dos tiene campaña? Entonces ese juego ya es real
+    // para ellos, con el rival y la fecha del calendario.
+    [[a, b], [b, a]].forEach(function(pair){
+      var t = TEAMS[teamKey(pair[0])];
+      if (!t) return;
+      jobs.push({
+        team: pair[0], foe: pair[1],
+        on: r.dataset.on || null,
+        time: r.querySelector('.t') ? r.querySelector('.t').textContent.trim() : null,
+        note: (r.dataset.cat || '') + (r.querySelector('.c')
+               ? ' · ' + r.querySelector('.c').textContent.trim() : '')
+      });
+    });
+  }
+
+  if (!jobs.length) return Promise.resolve([]);
+
+  return Promise.all(jobs.map(function(j){
+    return rpc('bw_ensure_game', {
+      p_code: code(), p_team: j.team, p_foe: j.foe,
+      p_on: j.on, p_time: j.time, p_note: j.note
+    }).then(function(r){
+      if (r && r.added) added.push(j.team + ' vs ' + j.foe);
+    }).catch(function(e){ console.error('ensure', e); });
+  })).then(function(){ return added; });
+}
+
 function tap(row){
   if (!code()) return;                 // sin código no se toca nada
   if (row.querySelector('.ed')) return;   // ya está abierta
@@ -750,6 +797,14 @@ function tap(row){
       ed.remove();
       paint(); paintPledges();
       if (r.pushed) toast(STR_PUSHED.replace('{O}', r.pushed));
+
+      // Lo que este marcador acaba de concretar, a la campaña.
+      pushForward().then(function(added){
+        if (added.length){
+          paintPledges();
+          toast(STR_ADDED.replace('{N}', added.length));
+        }
+      });
     }).catch(function(e){
       ed.classList.remove('saving');
       console.error(e); alert(STR_FAIL);
