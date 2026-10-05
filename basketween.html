@@ -115,6 +115,8 @@ body.locked{overflow:hidden}
   font-variant-numeric:tabular-nums;margin-top:1px}
 .r .sc b{color:var(--ink)}
 .r .m b.fill{color:#0C6E8C}
+.r .m b.lnk a{color:inherit;text-decoration:none;border-bottom:1.5px dotted #9AA8B5}
+.r .m b.lnk a:hover{border-bottom-color:var(--accent);color:var(--accent)}
 .r .won{color:#0B7A5A;font-weight:900}
 .r .won::after{content:' ✓';font-size:.8em}
 .r .lost{color:#9AA8B5;font-weight:500}
@@ -634,6 +636,24 @@ function resolve(name, depth){
 
 
 
+
+// Un equipo con campaña lleva a su tablero; uno sin campaña es texto.
+// El enlace no debe disparar la fila, que es para poner el marcador.
+function nameInto(el, name, filled){
+  var t = TEAMS[teamKey(name)];
+  el.classList.toggle('fill', !!filled);
+
+  if (!t || placeholderFor(name)){
+    el.textContent = name;
+    el.classList.remove('lnk');
+    return;
+  }
+
+  el.innerHTML = '<a href="' + CP + '/scoreboard.html?c=' + t.campaign + '" ' +
+                 'onclick="event.stopPropagation()">' + esc(name) + '</a>';
+  el.classList.add('lnk');
+}
+
 function paint(){
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
@@ -643,10 +663,8 @@ function paint(){
 
     // Los huecos del cuadro se rellenan solos según entran marcadores.
     var na = resolve(r.dataset.a), nb = resolve(r.dataset.b);
-    sa.textContent = na;
-    sb.textContent = nb;
-    sa.classList.toggle('fill', na !== r.dataset.a);
-    sb.classList.toggle('fill', nb !== r.dataset.b);
+    nameInto(sa, na, na !== r.dataset.a);
+    nameInto(sb, nb, nb !== r.dataset.b);
 
     r.classList.toggle('live', !!code());
     sa.className = 'sa'; sb.className = 'sb';
