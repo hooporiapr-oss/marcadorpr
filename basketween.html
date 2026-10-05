@@ -562,7 +562,8 @@ function pledgeBits(row){
     // Y para quien juega en ese equipo: su propio enlace de padrinos.
     if (mine.indexOf(t.campaign) === -1){
       mine.push(t.campaign);
-      out.push('<a class="pl mine" href="' + CP + '/jugador.html?c=' + t.campaign + '">' +
+      var cat = row.dataset.cat ? '&d=' + encodeURIComponent(row.dataset.cat) : '';
+      out.push('<a class="pl mine" href="' + CP + '/jugador.html?c=' + t.campaign + cat + '">' +
                  STR_IPLAY +
                '</a>');
     }
