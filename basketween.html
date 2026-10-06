@@ -828,9 +828,7 @@ function build(){
     return a.localeCompare(b, 'es');
   });
 
-  fill('fCat',   'Todas las categorías', cats);
-  fill('fCourt', 'Todas las canchas',    courts);
-  fill('fTeam',  'Todos los equipos',    teamList);
+  narrow('', '', '');
 
   var MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto',
              'septiembre','octubre','noviembre','diciembre'];
@@ -938,20 +936,14 @@ function applyFilters(){
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
     var r = rows[i];
-
-    // El equipo se compara con el nombre ya resuelto: si un hueco del
-    // cuadro se llenó, su juego aparece al filtrar por ese equipo.
     var inTeam = !team ||
       resolve(r.dataset.a) === team || resolve(r.dataset.b) === team;
-
     var show = (!cat   || r.dataset.cat   === cat) &&
                (!court || r.dataset.court === court) &&
                inTeam;
-
     if (show) r.classList.remove('hide'); else r.classList.add('hide');
   }
 
-  // Un día sin nada que enseñar se esconde entero.
   var days = document.querySelectorAll('.day');
   for (var k = 0; k < days.length; k++){
     var n = days[k].querySelectorAll('.r:not(.hide)').length;
@@ -963,6 +955,58 @@ function applyFilters(){
   var left = document.querySelectorAll('.r:not(.hide)').length;
   var note = document.getElementById('fNone');
   if (note) note.hidden = left > 0;
+
+  narrow(cat, court, team);
+}
+
+// Un juego, visto desde los tres filtros a la vez.
+function matches(g, cat, court, team){
+  return (!cat   || g.cat   === cat) &&
+         (!court || g.court === court) &&
+         (!team  || g.a === team || g.b === team);
+}
+
+// Cada menú se reconstruye con lo que queda posible según los otros
+// dos. Así no hay forma de escoger algo que no da nada.
+function narrow(cat, court, team){
+  refill('fCat',   'Todas las categorías', 'cat',
+         GAMES.filter(function(g){ return matches(g, '', court, team); }), cat);
+  refill('fCourt', 'Todas las canchas',    'court',
+         GAMES.filter(function(g){ return matches(g, cat, '', team); }), court);
+
+  var pool = GAMES.filter(function(g){ return matches(g, cat, court, ''); });
+  var names = [];
+  pool.forEach(function(g){
+    [g.a, g.b].forEach(function(n){
+      if (n && !/^(Ganador|BYE)/i.test(n) && names.indexOf(n) === -1) names.push(n);
+    });
+  });
+  names.sort(function(a, b){ return a.localeCompare(b, 'es'); });
+
+  setOptions('fTeam', 'Todos los equipos', names, team);
+}
+
+function refill(id, allLabel, key, pool, current){
+  var vals = [];
+  pool.forEach(function(g){ if (g[key] && vals.indexOf(g[key]) === -1) vals.push(g[key]); });
+  if (key === 'court') vals.sort();
+  setOptions(id, allLabel, vals, current);
+}
+
+function setOptions(id, allLabel, vals, current){
+  var el = document.getElementById(id);
+  if (!el) return;
+
+  // Lo elegido se queda aunque ya no esté en la lista, para que el
+  // menú no cambie solo bajo el dedo de quien lo acaba de tocar.
+  if (current && vals.indexOf(current) === -1) vals = vals.concat([current]);
+
+  el.innerHTML = '<option value="">' + allLabel + '</option>' +
+    vals.map(function(v){
+      return '<option value="' + esc(v) + '"' +
+             (v === current ? ' selected' : '') + '>' + esc(v) + '</option>';
+    }).join('');
+  el.value = current || '';
 }
 
 function clearFilters(){
