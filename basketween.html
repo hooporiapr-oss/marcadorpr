@@ -764,9 +764,12 @@ function unlock(){
   if (c === null) return;
   c = c.trim();
   if (!c) return;
-  rpc('bw_check', { p_code: c }).then(function(ok){
-    if (!ok){ alert('Código incorrecto.'); return; }
+  rpc('bw_who', { p_code: c }).then(function(w){
+    if (!w || !w.ok){ alert('Código incorrecto.'); return; }
     keep(c);
+    try { sessionStorage.setItem('bw-who', w.label || ''); } catch(e){}
+    document.getElementById('lockWho').textContent =
+      'Marcadores desbloqueados · ' + (w.label || '');
     document.getElementById('lock').classList.add('on');
     paint();
   });
@@ -781,7 +784,14 @@ function lockOff(){
 build();
 indexGames();
 document.querySelector('.mark').addEventListener('dblclick', unlock);
-if (code()) document.getElementById('lock').classList.add('on');
+if (code()){
+  document.getElementById('lock').classList.add('on');
+  try {
+    var who = sessionStorage.getItem('bw-who');
+    if (who) document.getElementById('lockWho').textContent =
+      'Marcadores desbloqueados · ' + who;
+  } catch(e){}
+}
 load();
 
 
