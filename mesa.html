@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cómo poner los marcadores — marcadorpr</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+  background:#fff;line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{width:min(620px,93vw);margin:0 auto}
+
+header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
+  padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff}
+.mark span{color:var(--ball)}
+.langb{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;
+  padding:6px 13px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+
+main{flex:1 1 auto;min-height:0;overflow-y:auto}
+main .wrap{padding:clamp(20px,4vw,32px) 0 34px}
+
+.kick{font-size:.64rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:6px}
+h1{font-size:clamp(1.45rem,4.6vw,2rem);letter-spacing:-.03em;margin:0 0 8px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 24px}
+h2{font-size:1.05rem;margin:28px 0 10px;font-weight:900;letter-spacing:-.02em}
+
+ol{counter-reset:s;list-style:none;margin:0 0 20px;padding:0}
+ol li{counter-increment:s;position:relative;padding:14px 0 14px 46px;border-bottom:1px solid var(--line)}
+ol li:last-child{border-bottom:none}
+ol li::before{content:counter(s);position:absolute;left:0;top:14px;width:30px;height:30px;
+  border-radius:50%;background:var(--ink);color:#fff;font-weight:900;font-size:.9rem;
+  display:grid;place-content:center}
+ol b{display:block;font-size:1.02rem}
+ol span{color:var(--mute);font-size:.95rem}
+
+kbd{display:inline-block;background:var(--ink);color:#fff;border-radius:4px;
+  padding:2px 8px;font-family:inherit;font-size:.82rem;font-weight:800}
+
+.keys{display:grid;gap:8px;margin:0 0 20px}
+.keys div{display:flex;gap:12px;align-items:baseline;padding:10px 12px;
+  border:1.5px solid var(--line);border-radius:4px}
+.keys div span{color:var(--mute);font-size:.95rem}
+
+.warn{border-left:4px solid var(--ball);background:#FFF7F0;padding:14px 16px;margin:20px 0}
+.warn b{display:block;margin-bottom:3px}
+.warn p{margin:0 0 10px;color:var(--mute);font-size:.95rem}
+.warn p:last-child{margin:0}
+
+.note{border-left:4px solid var(--accent);background:var(--tint);padding:14px 16px;margin:20px 0}
+.note b{display:block;margin-bottom:3px}
+.note p{margin:0;color:var(--mute);font-size:.95rem}
+
+footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
+  padding:15px 0 calc(15px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.82rem}
+footer b{color:#fff;display:block;font-weight:800}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <span class="mark">marcador<span>pr</span></span>
+    <button class="langb" id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
+</header>
+
+<main><div class="wrap" id="app"></div></main>
+
+<footer>
+  <div class="wrap">
+    <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
+    Para las mesas de anotación
+  </div>
+</footer>
+
+<script>
+var DOC = {
+  es: {
+    kick:'Para la mesa',
+    h1:'Cómo poner los marcadores',
+    lede:'Un juego toma diez segundos: un clic y dos números. Todo lo demás pasa solo.',
+
+    h2open:'Antes de empezar, una vez al día',
+    open:[
+      ['Abre el calendario','En el Chromebook, entra a <b>marcadorpr.com</b> y abre el torneo.'],
+      ['Desbloquea','Haz doble clic en el nombre del torneo, arriba a la izquierda. Pide un código — pon el tuyo.'],
+      ['Comprueba que dice tu mesa','Abajo aparece una barra: <i>Marcadores desbloqueados · Cancha 1</i>. Si dice tu cancha, ya estás.'],
+      ['Filtra tu cancha','Arriba hay tres menús. En el de las canchas escoge la tuya. Así sólo ves tus juegos en todo el día.']
+    ],
+
+    h2score:'Cada juego',
+    score:[
+      ['Haz clic en la fila del juego','Se abren dos casillas dentro de la misma fila.'],
+      ['Escribe el primer marcador','Es el del equipo de la izquierda. Al escribir dos cifras salta sola a la otra casilla.'],
+      ['Escribe el segundo','El del equipo de la derecha.'],
+      ['Aprieta Enter','Ya está. El ganador sale en verde con un ✓, y el cuadro se rellena solo.']
+    ],
+
+    h2keys:'Las teclas',
+    keys:[
+      ['Enter','Guarda el marcador.'],
+      ['Tab','Pasa de una casilla a la otra.'],
+      ['Esc','Cierra sin guardar.']
+    ],
+
+    h2fix:'Si te equivocas',
+    fix:'Haz clic otra vez en el mismo juego. Las casillas salen con lo que pusiste; lo cambias y aprietas Enter. Para borrarlo del todo, aprieta <b>Borrar</b>.',
+
+    warnB:'Pon siempre los dos marcadores',
+    warnP1:'Sin el del contrario no se sabe quién ganó, y el cuadro no avanza.',
+    warnP2:'Y pon el marcador <b>final</b>, no uno a mitad de juego.',
+
+    noteB:'No cierres la pestaña',
+    noteP:'El código dura mientras la pestaña esté abierta. Si la cierras, hay que desbloquear otra vez.'
+  },
+  en: {
+    kick:'For the table',
+    h1:'How to post the scores',
+    lede:'A game takes ten seconds: one click and two numbers. Everything else happens on its own.',
+
+    h2open:'Once a day, before you start',
+    open:[
+      ['Open the schedule','On the Chromebook, go to <b>marcadorpr.com</b> and open the tournament.'],
+      ['Unlock it','Double-click the tournament name, top left. It asks for a code — enter yours.'],
+      ['Check it names your table','A bar appears at the bottom: <i>Marcadores desbloqueados · Cancha 1</i>. If it names your court, you are set.'],
+      ['Filter to your court','There are three menus at the top. Pick your court in the court menu. You will see only your own games all day.']
+    ],
+
+    h2score:'For each game',
+    score:[
+      ['Click the game\u2019s row','Two boxes open inside that same row.'],
+      ['Type the first score','That is the team on the left. After two digits it jumps to the other box on its own.'],
+      ['Type the second','The team on the right.'],
+      ['Press Enter','Done. The winner turns green with a ✓, and the bracket fills itself in.']
+    ],
+
+    h2keys:'The keys',
+    keys:[
+      ['Enter','Saves the score.'],
+      ['Tab','Moves between the two boxes.'],
+      ['Esc','Closes without saving.']
+    ],
+
+    h2fix:'If you get it wrong',
+    fix:'Click the same game again. The boxes open with what you typed; change it and press Enter. To remove it completely, press <b>Borrar</b>.',
+
+    warnB:'Always enter both scores',
+    warnP1:'Without the opponent\u2019s, nobody knows who won and the bracket does not advance.',
+    warnP2:'And enter the <b>final</b> score, not one from part-way through.',
+
+    noteB:'Do not close the tab',
+    noteP:'The code lasts as long as the tab stays open. Close it and you have to unlock again.'
+  }
+};
+
+var LANG = 'es';
+try{ LANG = localStorage.getItem('cp-lang') ||
+  ((navigator.language||'').toLowerCase().indexOf('es')===0 ? 'es':'en'); }catch(e){}
+
+function steps(list){
+  return '<ol>' + list.map(function(s){
+    return '<li><b>' + s[0] + '</b><span>' + s[1] + '</span></li>';
+  }).join('') + '</ol>';
+}
+
+function draw(){
+  var D = DOC[LANG] || DOC.es;
+  document.documentElement.lang = LANG;
+
+  document.getElementById('app').innerHTML =
+    '<div class="kick">' + D.kick + '</div>' +
+    '<h1>' + D.h1 + '</h1>' +
+    '<p class="lede">' + D.lede + '</p>' +
+
+    '<h2>' + D.h2open + '</h2>' + steps(D.open) +
+    '<h2>' + D.h2score + '</h2>' + steps(D.score) +
+
+    '<h2>' + D.h2keys + '</h2>' +
+    '<div class="keys">' +
+      D.keys.map(function(k){
+        return '<div><kbd>' + k[0] + '</kbd><span>' + k[1] + '</span></div>';
+      }).join('') +
+    '</div>' +
+
+    '<h2>' + D.h2fix + '</h2>' +
+    '<p>' + D.fix + '</p>' +
+
+    '<div class="warn"><b>' + D.warnB + '</b>' +
+      '<p>' + D.warnP1 + '</p><p>' + D.warnP2 + '</p></div>' +
+
+    '<div class="note"><b>' + D.noteB + '</b><p>' + D.noteP + '</p></div>';
+
+  document.getElementById('langBtn').textContent = LANG === 'es' ? 'EN' : 'ES';
+}
+
+function toggleLang(){
+  LANG = LANG === 'es' ? 'en' : 'es';
+  try{ localStorage.setItem('cp-lang', LANG); }catch(e){}
+  draw();
+}
+
+draw();
+</script>
+</body>
+</html>
