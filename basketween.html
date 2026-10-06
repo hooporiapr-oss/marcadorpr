@@ -245,6 +245,11 @@ var CATCOLOR = {"Juniors": "#1D4FA3", "Senior Gold": "#B08900", "Senior Silver":
 </script>
 <script>
 var CP = 'https://cadapunto.com';     // ahí vive el dinero
+
+// ?limpio=1 — el calendario sin nada de promesas. Para repartir
+// antes de abrir la recaudación, sin que nadie pregunte por botones
+// que todavía no deben usarse.
+var CLEAN = /[?&]limpio=1/.test(location.search);
 var STR_PLEDGE = ' — prometer';
 var STR_IPLAY  = 'Soy jugador · mi enlace';
 var STR_SAVE = 'OK';
@@ -302,6 +307,8 @@ function esc(s){
 }
 
 function askTeam(name){
+  if (CLEAN) return;
+
   var team = resolve(name);
   if (placeholderFor(team)) return;
 
@@ -487,6 +494,8 @@ function pledgeBits(row){
 }
 
 function paintPledges(){
+  if (CLEAN) return;            // enlace limpio: ni prometer ni inscribir
+
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
     var holder = rows[i].querySelector('.pls');
@@ -552,6 +561,13 @@ function resolve(name, depth){
 // Un equipo con campaña lleva a su tablero; uno sin campaña es texto.
 // El enlace no debe disparar la fila, que es para poner el marcador.
 function nameInto(el, name, filled){
+  if (CLEAN){
+    el.textContent = name;
+    if (filled) el.classList.add('fill'); else el.classList.remove('fill');
+    el.classList.remove('lnk');
+    return;
+  }
+
   var t = TEAMS[teamKey(name)];
   if (filled) el.classList.add('fill'); else el.classList.remove('fill');
 
