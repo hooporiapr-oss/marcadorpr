@@ -517,12 +517,12 @@ function loadTeams(){
 //  otro ganador, se resuelve hacia atrás hasta encontrar un
 //  nombre de verdad.
 // ══════════════════════════════════════════════════════
-var GAMES = {};   // J-9 → { a:'CNSC Red', b:'DAC-A' }
+var BYNO = {};    // J-9 → { a:'CNSC Red', b:'DAC-A' }
 
 function indexGames(){
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
-    GAMES[norm(rows[i].dataset.j)] = { a: rows[i].dataset.a, b: rows[i].dataset.b };
+    BYNO[norm(rows[i].dataset.j)] = { a: rows[i].dataset.a, b: rows[i].dataset.b };
   }
 }
 
@@ -543,7 +543,7 @@ function resolve(name, depth){
   var key = placeholderFor(name);
   if (!key) return name;
 
-  var g = GAMES[key], s = SCORES[key];
+  var g = BYNO[key], s = SCORES[key];
   if (!g || !s || s.a === s.b) return name;
 
   var winner = s.a > s.b ? g.a : g.b;
@@ -797,20 +797,6 @@ function lockOff(){
   paint();
 }
 
-build();
-indexGames();
-document.querySelector('.mark').addEventListener('dblclick', unlock);
-if (code()){
-  document.getElementById('lock').classList.add('on');
-  try {
-    var who = sessionStorage.getItem('bw-who');
-    if (who) document.getElementById('lockWho').textContent =
-      'Marcadores desbloqueados · ' + who;
-  } catch(e){}
-}
-load();
-
-
 // ══════════════════════════════════════════════════════
 //  El calendario se pinta de los datos de arriba.
 // ══════════════════════════════════════════════════════
@@ -895,6 +881,21 @@ function build(){
 
   document.getElementById('days').innerHTML = html;
 }
+
+
+
+build();
+indexGames();
+document.querySelector('.mark').addEventListener('dblclick', unlock);
+if (code()){
+  document.getElementById('lock').classList.add('on');
+  try {
+    var who = sessionStorage.getItem('bw-who');
+    if (who) document.getElementById('lockWho').textContent =
+      'Marcadores desbloqueados · ' + who;
+  } catch(e){}
+}
+load();
 
 
 // ══════════════════════════════════════════════════════
