@@ -36,7 +36,7 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
   background-position:calc(100% - 15px) 52%, calc(100% - 10px) 52%;
   background-size:5px 5px, 5px 5px;background-repeat:no-repeat;padding-right:28px}
 .tools select:focus{outline:none;border-color:var(--ball);color:#fff}
-.tools select:valid{border-color:var(--ball)}
+.tools select.on{border-color:var(--ball);color:#fff;background-color:#1c2a3a}
 .tools button{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;
   padding:8px 14px;font:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
 .tools button:hover{border-color:var(--ball);color:#fff}
@@ -951,6 +951,13 @@ function applyFilters(){
   }
 
   document.getElementById('fClear').hidden = !any;
+
+  // Resaltar sólo lo que de verdad está filtrando.
+  [['fCat', cat], ['fCourt', court], ['fTeam', team]].forEach(function(p){
+    var el = document.getElementById(p[0]);
+    if (!el) return;
+    if (p[1]) el.classList.add('on'); else el.classList.remove('on');
+  });
 
   var left = document.querySelectorAll('.r:not(.hide)').length;
   var note = document.getElementById('fNone');
