@@ -27,7 +27,19 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
 .by span{color:var(--ball)}
 
 .tools{background:#0B1724;padding:9px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tools .wrap{display:flex;gap:6px;flex-wrap:nowrap}
+.tools .wrap{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tools select{flex:1 1 150px;min-width:0;padding:8px 10px;border-radius:999px;
+  border:1px solid #33465A;background:#0B1724;color:#C8D6E2;font:inherit;
+  font-size:.78rem;font-weight:800;appearance:none;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,#C8D6E2 50%),
+                   linear-gradient(135deg,#C8D6E2 50%,transparent 50%);
+  background-position:calc(100% - 15px) 52%, calc(100% - 10px) 52%;
+  background-size:5px 5px, 5px 5px;background-repeat:no-repeat;padding-right:28px}
+.tools select:focus{outline:none;border-color:var(--ball);color:#fff}
+.tools select:valid{border-color:var(--ball)}
+.tools button{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;
+  padding:8px 14px;font:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
+.tools button:hover{border-color:var(--ball);color:#fff}
 .chip{white-space:nowrap;border:1px solid #33465A;background:none;color:#C8D6E2;
   border-radius:999px;padding:5px 12px;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
 .chip.on{background:var(--k,#fff);border-color:var(--k,#fff);color:#fff}
@@ -188,8 +200,11 @@ footer a{color:#4FD3F0;text-decoration:none}
   </div>
   <div class="tools">
     <div class="wrap">
-      <span id="chips"></span>
-      </div>
+      <select id="fCat"   onchange="applyFilters()"></select>
+      <select id="fCourt" onchange="applyFilters()"></select>
+      <select id="fTeam"  onchange="applyFilters()"></select>
+      <button id="fClear" onclick="clearFilters()" hidden>Todo</button>
+    </div>
   </div>
 </header>
 
@@ -205,7 +220,8 @@ footer a{color:#4FD3F0;text-decoration:none}
       <div><b>C-3</b> — Cancha 3 · Bo. Garrochales, Padre Egidio</div>
     </div>
 
-<div id="days"></div>
+<p id="fNone" hidden style="color:var(--mute)">Ningún juego con ese filtro.</p>
+    <div id="days"></div>
   </div>
 </main>
 
@@ -825,12 +841,14 @@ function build(){
   });
   days.sort(); courts.sort();
 
-  document.getElementById('chips').innerHTML =
-    '<button class="chip all on" data-f="" onclick="filt(this)">Todo</button>' +
-    cats.map(function(c){
-      return '<button class="chip" data-f="' + esc(c) + '" onclick="filt(this)" ' +
-             'style="--k:' + (CATCOLOR[c] || '#12202E') + '">' + esc(c) + '</button>';
-    }).join('');
+  // Los equipos de verdad, sin los huecos del cuadro.
+  var teamList = Object.keys(teams).sort(function(a, b){
+    return a.localeCompare(b, 'es');
+  });
+
+  fill('fCat',   'Todas las categorías', cats);
+  fill('fCourt', 'Todas las canchas',    courts);
+  fill('fTeam',  'Todos los equipos',    teamList);
 
   document.getElementById('stat').innerHTML =
     '<span><b>' + GAMES.length + '</b> juegos</span>' +
@@ -878,27 +896,64 @@ function build(){
   document.getElementById('days').innerHTML = html;
 }
 
-// Filtrar por categoría: la lista completa es larga, y una familia
-// sólo quiere la suya.
-function filt(btn){
-  var want = btn.dataset.f || '';
-  var chips = document.querySelectorAll('.chip');
-  for (var i = 0; i < chips.length; i++) chips[i].classList.remove('on');
-  btn.classList.add('on');
+
+// ══════════════════════════════════════════════════════
+//  Tres filtros que se combinan: categoría, cancha y
+//  equipo. Con ochenta y cinco juegos en un teléfono,
+//  encontrar el tuyo era el problema.
+// ══════════════════════════════════════════════════════
+function fill(id, allLabel, list){
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '<option value="">' + allLabel + '</option>' +
+    list.map(function(v){ return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join('');
+}
+
+function applyFilters(){
+  var cat   = document.getElementById('fCat').value;
+  var court = document.getElementById('fCourt').value;
+  var team  = document.getElementById('fTeam').value;
+  var any   = !!(cat || court || team);
 
   var rows = document.querySelectorAll('.r');
-  for (var j = 0; j < rows.length; j++){
-    var show = !want || rows[j].dataset.cat === want;
-    rows[j].classList.toggle('hide', !show);
+  for (var i = 0; i < rows.length; i++){
+    var r = rows[i];
+
+    // El equipo se compara con el nombre ya resuelto: si un hueco del
+    // cuadro se llenó, su juego aparece al filtrar por ese equipo.
+    var inTeam = !team ||
+      resolve(r.dataset.a) === team || resolve(r.dataset.b) === team;
+
+    var show = (!cat   || r.dataset.cat   === cat) &&
+               (!court || r.dataset.court === court) &&
+               inTeam;
+
+    r.classList.toggle('hide', !show);
   }
 
-  // Un día sin juegos de esa categoría no hace falta enseñarlo.
+  // Un día sin nada que enseñar se esconde entero.
   var days = document.querySelectorAll('.day');
   for (var k = 0; k < days.length; k++){
-    var any = days[k].querySelectorAll('.r:not(.hide)').length;
-    days[k].style.display = any ? '' : 'none';
+    var n = days[k].querySelectorAll('.r:not(.hide)').length;
+    days[k].style.display = n ? '' : 'none';
   }
+
+  document.getElementById('fClear').hidden = !any;
+
+  var left = document.querySelectorAll('.r:not(.hide)').length;
+  var note = document.getElementById('fNone');
+  if (note) note.hidden = left > 0;
 }
+
+function clearFilters(){
+  ['fCat','fCourt','fTeam'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  applyFilters();
+}
+
+// Filtrar por categoría: la lista completa es larga, y una familia
+// sólo quiere la suya.
 </script>
 </body>
 </html>
