@@ -816,6 +816,15 @@ function tap(row){
       paint(); paintPledges();
       if (r.pushed) toast(STR_PUSHED.replace('{O}', r.pushed));
 
+      // Si cerró un juego de campaña, avisar de que hay que cobrar.
+      if (r.pushed && r.game){
+        fetch('https://basketball-money-payments.onrender.com/score-posted', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ game_id: r.game })
+        }).catch(function(e){ console.error('notice', e); });
+      }
+
       // Lo que este marcador acaba de concretar, a la campaña.
       pushForward().then(function(added){
         if (added.length){
