@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Basketween 2026 — calendario</title>
-<meta name="description" content="Las 80 partidas del Torneo Preparatorio Basketween 2026, en tres canchas de Arecibo, del 5 al 9 de octubre.">
+<meta name="description" content="Calendario completo del Torneo Preparatorio Basketween 2026 en Arecibo, con los marcadores según entran.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -210,15 +210,11 @@ footer a{color:#4FD3F0;text-decoration:none}
 
 <main>
   <div class="wrap">
-    <h1>Las 80 partidas, del 5 al 9 de octubre</h1>
-    <p class="lede">Tres canchas en Arecibo, ocho categorías, cincuenta y cinco equipos.</p>
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
     <div class="stat" id="stat"></div>
 
     <div class="courts" id="courts"></div>
-
-      <div><b>C-2</b> — Cancha 2 · Bo. Factor 1</div>
-      <div><b>C-3</b> — Cancha 3 · Bo. Garrochales, Padre Egidio</div>
-    </div>
 
 <p id="fNone" hidden style="color:var(--mute)">Ningún juego con ese filtro.</p>
     <div id="days"></div>
@@ -557,7 +553,7 @@ function resolve(name, depth){
 // El enlace no debe disparar la fila, que es para poner el marcador.
 function nameInto(el, name, filled){
   var t = TEAMS[teamKey(name)];
-  el.classList.toggle('fill', !!filled);
+  if (filled) el.classList.add('fill'); else el.classList.remove('fill');
 
   if (!t || placeholderFor(name)){
     el.textContent = name;
@@ -582,7 +578,7 @@ function paint(){
     nameInto(sa, na, na !== r.dataset.a);
     nameInto(sb, nb, nb !== r.dataset.b);
 
-    r.classList.toggle('live', !!code());
+    if (code()) r.classList.add('live'); else r.classList.remove('live');
     sa.className = 'sa'; sb.className = 'sb';
 
     if (!s){ r.classList.remove('done'); sc.textContent = ''; continue; }
@@ -836,6 +832,29 @@ function build(){
   fill('fCourt', 'Todas las canchas',    courts);
   fill('fTeam',  'Todos los equipos',    teamList);
 
+  var MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto',
+             'septiembre','octubre','noviembre','diciembre'];
+  function dm(iso){
+    var x = new Date(iso + 'T12:00:00');
+    return { d: x.getDate(), m: MES[x.getMonth()] };
+  }
+
+  if (days.length){
+    var a = dm(days[0]), b = dm(days[days.length - 1]);
+    document.getElementById('h1').textContent =
+      'Las ' + GAMES.length + ' partidas, del ' + a.d +
+      (a.m === b.m ? '' : ' de ' + a.m) + ' al ' + b.d + ' de ' + b.m;
+  } else {
+    document.getElementById('h1').textContent = GAMES.length + ' partidas';
+  }
+
+  document.getElementById('lede').textContent =
+    courts.length + ' cancha' + (courts.length === 1 ? '' : 's') +
+    (TOURNEY.where ? ' en ' + TOURNEY.where : '') + ' · ' +
+    cats.length + ' categoría' + (cats.length === 1 ? '' : 's') + ' · ' +
+    Object.keys(teams).length + ' equipos · los juegos de ' +
+    (HOME || 'tu equipo') + ' van marcados';
+
   document.getElementById('stat').innerHTML =
     '<span><b>' + GAMES.length + '</b> juegos</span>' +
     '<span><b>' + cats.length + '</b> categorías</span>' +
@@ -929,7 +948,7 @@ function applyFilters(){
                (!court || r.dataset.court === court) &&
                inTeam;
 
-    r.classList.toggle('hide', !show);
+    if (show) r.classList.remove('hide'); else r.classList.add('hide');
   }
 
   // Un día sin nada que enseñar se esconde entero.
