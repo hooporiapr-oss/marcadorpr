@@ -307,10 +307,10 @@ var CATCOLOR = {"Juniors": "#1D4FA3", "Senior Gold": "#B08900", "Senior Silver":
 <script>
 var CP = 'https://cadapunto.com';     // ahí vive el dinero
 
-// ?limpio=1 — el calendario sin nada de promesas. Para repartir
-// antes de abrir la recaudación, sin que nadie pregunte por botones
-// que todavía no deben usarse.
-var CLEAN = /[?&]limpio=1/.test(location.search);
+// El calendario limpio es el normal: con 85 juegos, un botón de
+// prometer en cada fila era un muro. El menú de arriba hace ese
+// trabajo. ?todo=1 devuelve los botones por fila, por si acaso.
+var CLEAN = !/[?&]todo=1/.test(location.search);
 var STR_PLEDGE = ' — prometer';
 var STR_IPLAY  = 'Soy jugador · mi enlace';
 var STR_SAVE = 'OK';
