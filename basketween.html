@@ -203,6 +203,23 @@ body.locked{overflow:hidden}
   .cpad-go{display:block;text-align:center}
 }
 
+/* Apoyar a un equipo: un menú, no ochenta y cinco botones. */
+.back{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  border:1.5px solid var(--line);border-radius:6px;padding:14px 16px;margin:0 0 22px}
+.back-l{font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mute)}
+.back select{flex:1 1 220px;min-width:0;padding:10px 12px;border:2px solid var(--ink);
+  border-radius:4px;background:#fff;color:var(--ink);font:inherit;font-size:.95rem;
+  font-weight:700;cursor:pointer}
+.back select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(12,110,140,.15)}
+.back-up{flex:0 0 auto;color:var(--accent);font-weight:800;font-size:.86rem;text-decoration:none}
+.back-up:hover{text-decoration:underline}
+@media(max-width:620px){
+  .back{gap:8px}
+  .back select{flex:1 1 100%}
+  .back-up{flex:1 1 100%}
+}
+
 .courts{display:grid;gap:6px;margin:0 0 22px;font-size:.84rem;color:var(--mute)}
 .courts b{color:var(--ink)}
 
@@ -248,6 +265,16 @@ footer a{color:#4FD3F0;text-decoration:none}
         <span class="cpad-go">Ver cómo funciona →</span>
       </span>
     </a>
+
+    <div class="back" id="backBox" hidden>
+      <span class="back-l">Apoyar a un equipo</span>
+      <select id="backTeam" onchange="goBack(this)">
+        <option value="">Escoge un equipo…</option>
+      </select>
+      <a class="back-up" href="https://cadapunto.com/equipo.html" id="backUp">
+        ¿Tu equipo no está? Inscríbelo →
+      </a>
+    </div>
 
     <p id="fNone" hidden style="color:var(--mute)">Ningún juego con ese filtro.</p>
     <div id="days"></div>
@@ -526,6 +553,49 @@ function pledgeBits(row){
   return out.join('');
 }
 
+
+// ══════════════════════════════════════════════════════
+//  Apoyar a un equipo
+//
+//  Los que ya recaudan salen en el menú; el enlace de
+//  inscripción se queda debajo para los que no. Un control
+//  en vez de dos botones en cada una de 85 filas.
+// ══════════════════════════════════════════════════════
+function paintBackers(){
+  var box = document.getElementById('backBox');
+  var sel = document.getElementById('backTeam');
+  if (!box || !sel) return;
+
+  // Sólo equipos que de verdad juegan aquí y tienen campaña.
+  var playing = {};
+  GAMES.forEach(function(g){
+    [g.a, g.b].forEach(function(n){
+      if (n && !/^(Ganador|BYE)/i.test(n)) playing[n] = 1;
+    });
+  });
+
+  var list = Object.keys(playing).filter(function(n){
+    return !!TEAMS[teamKey(n)];
+  }).sort(function(a, b){ return a.localeCompare(b, 'es'); });
+
+  sel.innerHTML = '<option value="">Escoge un equipo…</option>' +
+    list.map(function(n){
+      return '<option value="' + esc(TEAMS[teamKey(n)].campaign) + '">' + esc(n) + '</option>';
+    }).join('');
+
+  sel.hidden = !list.length;
+  document.getElementById('backUp').textContent = list.length
+    ? '¿Tu equipo no está? Inscríbelo →'
+    : 'Todavía ningún equipo recauda aquí. Inscribe el tuyo →';
+
+  box.hidden = false;
+}
+
+function goBack(sel){
+  if (!sel.value) return;
+  location.href = CP + '/scoreboard.html?c=' + encodeURIComponent(sel.value);
+}
+
 function paintPledges(){
   if (CLEAN) return;            // enlace limpio: ni prometer ni inscribir
 
@@ -648,7 +718,7 @@ function paint(){
 
 function load(){
   Promise.all([ rpc('bw_board'), loadTeams(), loadAsked() ])
-    .then(function(r){ SCORES = r[0] || {}; paint(); paintPledges(); })
+    .then(function(r){ SCORES = r[0] || {}; paint(); paintPledges(); paintBackers(); })
     .catch(function(e){ console.error(e); });
 }
 
