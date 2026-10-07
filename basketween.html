@@ -182,6 +182,27 @@ body.locked{overflow:hidden}
   .r .j{font-size:.68rem}
 }
 
+/* Cada Punto, una sola vez en la página. Con 85 juegos, un botón por
+   fila era ruido; esto se ve al llegar y después se queda atrás. */
+.cpad{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  text-decoration:none;color:#fff;background:#12202E;border:3px solid var(--ball);
+  border-radius:6px;padding:20px 22px;margin:26px 0 28px}
+.cpad:hover{background:#0B1724;box-shadow:0 0 0 4px rgba(255,122,24,.18)}
+.cpad-l{flex:1 1 300px;min-width:0}
+.cpad-h{display:block;font-size:1.05rem;font-weight:900;letter-spacing:-.02em;margin-bottom:3px}
+.cpad-p{display:block;color:#B9CBD9;font-size:.9rem;line-height:1.55}
+.cpad-r{flex:0 0 auto;text-align:right}
+.cpad-mk{display:block;font-weight:900;font-size:.95rem;letter-spacing:-.01em}
+.cpad-mk em{font-style:normal;color:#4FD3F0}
+.cpad-go{display:inline-block;margin-top:8px;padding:9px 16px;border:2px solid var(--ball);
+  border-radius:4px;color:var(--ball);font-weight:800;font-size:.86rem}
+.cpad:hover .cpad-go{background:var(--ball);color:#1A0C00}
+@media(max-width:620px){
+  .cpad{padding:17px;margin:22px 0 24px}
+  .cpad-r{flex:1 1 100%;text-align:left}
+  .cpad-go{display:block;text-align:center}
+}
+
 .courts{display:grid;gap:6px;margin:0 0 22px;font-size:.84rem;color:var(--mute)}
 .courts b{color:var(--ink)}
 
@@ -216,7 +237,19 @@ footer a{color:#4FD3F0;text-decoration:none}
 
     <div class="courts" id="courts"></div>
 
-<p id="fNone" hidden style="color:var(--mute)">Ningún juego con ese filtro.</p>
+<a class="cpad" href="https://cadapunto.com">
+      <span class="cpad-l">
+        <b class="cpad-h">¿Tu equipo recauda con sus juegos?</b>
+        <span class="cpad-p">Los padrinos prometen unos centavos por cada punto que anota tu
+          equipo y pagan después del juego. Sin vender nada. Ganen o pierdan, el programa gana.</span>
+      </span>
+      <span class="cpad-r">
+        <span class="cpad-mk">cada <em>punto</em> cuenta</span>
+        <span class="cpad-go">Ver cómo funciona →</span>
+      </span>
+    </a>
+
+    <p id="fNone" hidden style="color:var(--mute)">Ningún juego con ese filtro.</p>
     <div id="days"></div>
   </div>
 </main>
