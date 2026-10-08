@@ -90,6 +90,10 @@ var DOC = {
     h1:'Cómo poner los marcadores',
     lede:'Un juego toma diez segundos: un clic y dos números. Todo lo demás pasa solo.',
 
+    h2who:'Quién lo pone',
+    whoVoli:'<b>Voleibol — lo pone la mesa.</b> Al terminar cada set hay un hueco natural: se escriben los dos números y ya. No hay reloj corriendo ni faltas que apuntar.',
+    whoBasket:'<b>Baloncesto — lo pone una persona asignada, no la mesa.</b> La mesa de baloncesto lleva el reloj, las faltas por jugador, los periodos y los tiempos. No se le pide nada más durante el juego. Al terminar, alguien recoge la hoja y pone el marcador — el coordinador, un ayudante, o quien el torneo asigne.',
+    whoNote:'El código no distingue: quien lo tenga puede poner cualquier marcador. Lo que cambia es quién lo tiene.',
     h2open:'Antes de empezar, una vez al día',
     open:[
       ['Abre el calendario','En el Chromebook, entra a <b>marcadorpr.com</b> y abre el torneo.'],
@@ -128,6 +132,10 @@ var DOC = {
     h1:'How to post the scores',
     lede:'A game takes ten seconds: one click and two numbers. Everything else happens on its own.',
 
+    h2who:'Who posts it',
+    whoVoli:'<b>Volleyball — the table posts it.</b> There is a natural gap at the end of every set: type the two numbers and you are done. No clock running, no fouls to record.',
+    whoBasket:'<b>Basketball — one assigned person posts it, not the table.</b> A basketball table is running the clock, fouls by player, periods and timeouts. Nothing more is asked of them during the game. Afterwards someone takes the sheet and posts the score — the coordinator, a helper, or whoever the tournament assigns.',
+    whoNote:'The code does not care who holds it — any code posts any game. What changes is who has it.',
     h2open:'Once a day, before you start',
     open:[
       ['Open the schedule','On the Chromebook, go to <b>marcadorpr.com</b> and open the tournament.'],
@@ -181,6 +189,11 @@ function draw(){
     '<div class="kick">' + D.kick + '</div>' +
     '<h1>' + D.h1 + '</h1>' +
     '<p class="lede">' + D.lede + '</p>' +
+
+    '<h2>' + D.h2who + '</h2>' +
+    '<p>' + D.whoVoli + '</p>' +
+    '<p>' + D.whoBasket + '</p>' +
+    '<div class="note"><p>' + D.whoNote + '</p></div>' +
 
     '<h2>' + D.h2open + '</h2>' + steps(D.open) +
     '<h2>' + D.h2score + '</h2>' + steps(D.score) +
