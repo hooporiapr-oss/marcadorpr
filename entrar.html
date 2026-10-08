@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Inscribe tu equipo — marcadorpr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;
+      --ball:#FF7A18;--good:#0B7A5A;--bad:#A8323F}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+  background:#fff;line-height:1.55;-webkit-text-size-adjust:100%}
+.wrap{width:min(560px,93vw);margin:0 auto}
+
+header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
+  padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff;text-decoration:none}
+.mark span{color:var(--ball)}
+
+main{flex:1 1 auto;min-height:0;overflow-y:auto}
+main .wrap{padding:clamp(20px,5vw,32px) 0 34px}
+
+.kick{font-size:.64rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ball);margin-bottom:6px}
+h1{font-size:clamp(1.5rem,4.8vw,2.1rem);letter-spacing:-.03em;line-height:1.1;margin:0 0 8px;font-weight:900}
+.when{color:var(--mute);margin:0 0 20px;font-weight:700}
+
+label{display:block;font-size:.84rem;font-weight:700;margin:14px 0 5px}
+input,select{width:100%;padding:13px;border:2px solid var(--ink);border-radius:4px;
+  background:#fff;color:var(--ink);font:inherit;font-size:1.02rem}
+input:focus,select:focus{outline:none;border-color:var(--ball);
+  box-shadow:0 0 0 3px rgba(255,122,24,.2)}
+.hint{font-size:.82rem;color:var(--mute);margin:4px 0 0}
+.btn{display:block;width:100%;padding:16px;border:2px solid var(--ink);border-radius:4px;
+  background:var(--ink);color:#fff;font:inherit;font-weight:800;font-size:1.02rem;
+  cursor:pointer;text-align:center;text-decoration:none;margin-top:20px}
+.btn.line{background:#fff;color:var(--ink);margin-top:10px}
+.msg{margin-top:12px;font-weight:700;font-size:.92rem;min-height:1.2em;text-align:center}
+.msg.bad{color:var(--bad)}
+
+.counts{border:1.5px solid var(--line);border-radius:4px;padding:14px 16px;margin:0 0 22px}
+.counts b{display:block;font-size:.66rem;font-weight:900;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.counts .row{display:flex;justify-content:space-between;padding:3px 0;font-size:.93rem}
+.counts .row span{color:var(--mute)}
+.counts .none{color:var(--mute);font-size:.92rem}
+
+.note{border-left:4px solid var(--accent);background:var(--tint);padding:14px 16px;margin:22px 0 0}
+.note b{display:block;margin-bottom:3px}
+.note p{margin:0;color:var(--mute);font-size:.93rem}
+
+.done{text-align:center}
+.done .tick{font-size:2.8rem;line-height:1;margin-bottom:8px}
+
+footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
+  padding:15px 0 calc(15px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.82rem}
+footer b{color:#fff;display:block;font-weight:800}
+footer a{color:#4FD3F0;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark" href="index.html">marcador<span>pr</span></a>
+  </div>
+</header>
+
+<main><div class="wrap" id="app"></div></main>
+
+<footer>
+  <div class="wrap">
+    <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
+    Las inscripciones las administra el torneo
+  </div>
+</footer>
+
+<script>
+var SB_URL='https://sdaphocueugzfvjovuxd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+
+function rpc(name, args){
+  return fetch(SB_URL + '/rest/v1/rpc/' + name, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify(args || {})
+  }).then(function(r){ if(!r.ok) throw new Error('rpc'); return r.json(); });
+}
+
+// ══ EL TORNEO ═════════════════════════════════════════
+// Se cambia aquí para cada torneo nuevo.
+var TOURNEY = {
+  id:    'noviembre-2026',
+  name:  'Torneo de Noviembre',
+  when:  '11 al 16 de noviembre · Arecibo',
+  cats:  ['Mini','Juniors','Junior Femenino','Juvenil Masculino',
+          'Juvenil Femenino','Senior Gold','Senior Silver','Senior Femenino'],
+  closes:'' // opcional: 'Las inscripciones cierran el 1 de noviembre.'
+};
+
+var app = document.getElementById('app');
+var SENT = null, COUNTS = {};
+
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"\']/g, function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+
+function draw(){
+  if (SENT){
+    app.innerHTML =
+      '<div class="done">' +
+        '<div class="tick">✓</div>' +
+        '<h1>Inscripción recibida</h1>' +
+        '<p class="when">' + esc(SENT.team) + ' · ' + esc(SENT.cat) + '</p>' +
+        '<p>Te confirmamos a <b>' + esc(SENT.email) + '</b> cuando se cierre el cuadro ' +
+          'y salga el calendario.</p>' +
+        '<a class="btn line" href="entrar.html">Inscribir otro equipo</a>' +
+      '</div>';
+    return;
+  }
+
+  var rows = TOURNEY.cats.map(function(c){
+    var n = COUNTS[c] || 0;
+    return '<div class="row"><span>' + esc(c) + '</span><b>' + n + '</b></div>';
+  }).join('');
+
+  app.innerHTML =
+    '<div class="kick">Inscripción</div>' +
+    '<h1>' + esc(TOURNEY.name) + '</h1>' +
+    '<p class="when">' + esc(TOURNEY.when) + '</p>' +
+
+    '<div class="counts"><b>Equipos inscritos</b>' +
+      (Object.keys(COUNTS).length ? rows : '<div class="none">Todavía ninguno.</div>') +
+    '</div>' +
+
+    '<label for="tm">Nombre del equipo</label>' +
+    '<input id="tm" type="text" maxlength="60" placeholder="Como quieres que salga en el calendario">' +
+    '<div class="hint">Si inscribes más de una escuadra, ponles A y B — Paradiso A, Paradiso B.</div>' +
+
+    '<label for="ct">Categoría</label>' +
+    '<select id="ct">' +
+      '<option value="">Escoge una…</option>' +
+      TOURNEY.cats.map(function(c){
+        return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+      }).join('') +
+    '</select>' +
+    '<div class="hint">Un equipo por categoría. Si juegas en dos, inscríbelo dos veces.</div>' +
+
+    '<label for="nm">Tu nombre</label>' +
+    '<input id="nm" type="text" maxlength="60" autocomplete="name">' +
+
+    '<label for="em">Tu correo</label>' +
+    '<input id="em" type="email" maxlength="80" autocomplete="email">' +
+
+    '<label for="ph">Tu teléfono</label>' +
+    '<input id="ph" type="tel" maxlength="25" autocomplete="tel">' +
+
+    '<button class="btn" onclick="send()">Inscribir mi equipo</button>' +
+    '<p class="msg" id="msg"></p>' +
+
+    (TOURNEY.closes ? '<p class="hint" style="text-align:center">' + esc(TOURNEY.closes) + '</p>' : '') +
+
+    '<div class="note"><b>Qué pasa después</b><p>Cuando cierren las inscripciones sale el ' +
+      'calendario completo aquí en marcadorpr, con los marcadores según entran. Tu equipo ' +
+      'también puede recaudar con esos mismos juegos — eso se ve en el calendario cuando salga.</p></div>';
+}
+
+function say(t, bad){
+  var el = document.getElementById('msg');
+  if (el){ el.textContent = t; el.className = 'msg' + (bad ? ' bad' : ''); }
+}
+
+function send(){
+  var team  = (document.getElementById('tm').value || '').trim();
+  var cat   = document.getElementById('ct').value;
+  var name  = (document.getElementById('nm').value || '').trim();
+  var email = (document.getElementById('em').value || '').trim();
+  var phone = (document.getElementById('ph').value || '').trim();
+
+  if (!team)  return say('Escribe el nombre del equipo.', true);
+  if (!cat)   return say('Escoge la categoría.', true);
+  if (!name || email.indexOf('@') === -1)
+    return say('Tu nombre y tu correo, por favor.', true);
+
+  say('…');
+  rpc('bw_enter', {
+    p_tourney: TOURNEY.id, p_team: team, p_category: cat,
+    p_coach: name, p_email: email, p_phone: phone
+  }).then(function(r){
+    if (!r || !r.ok){
+      if (r && r.reason === 'already')
+        return say('Ese equipo ya está inscrito en esa categoría.', true);
+      return say('No se pudo inscribir. Intenta otra vez.', true);
+    }
+    SENT = { team: team, cat: cat, email: email };
+    draw();
+    try { document.querySelector('main').scrollTop = 0; } catch(e){}
+  }).catch(function(e){ console.error(e); say('No se pudo inscribir. Intenta otra vez.', true); });
+}
+
+rpc('bw_entry_counts', { p_tourney: TOURNEY.id })
+  .then(function(c){ COUNTS = c || {}; draw(); })
+  .catch(function(e){ console.error(e); draw(); });
+</script>
+</body>
+</html>
