@@ -556,17 +556,51 @@ function show(){
 
 function download(){
   var r = RESULT;
+
+  var slug = r.tourney.name.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'torneo';
+
+  // La descripción sale del torneo, no de una copia pegada: antes
+  // decía "las 80 partidas de Basketween" en todos los calendarios.
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio',
+               'agosto','septiembre','octubre','noviembre','diciembre'];
+  function dpart(iso){
+    var x = new Date(iso + 'T12:00:00');
+    return { d: x.getDate(), m: MESES[x.getMonth()] };
+  }
+  // "del 18 al 20 de diciembre", no "del 18 de diciembre al 20 de
+  // diciembre": el mes se dice una sola vez si es el mismo.
+  function span(a, b){
+    var x = dpart(a), y = dpart(b);
+    if (a === b) return 'el ' + x.d + ' de ' + x.m;
+    return 'del ' + x.d + (x.m === y.m ? '' : ' de ' + x.m) +
+           ' al ' + y.d + ' de ' + y.m;
+  }
+  var ds = r.games.map(function(g){ return g.date; })
+            .filter(Boolean).sort();
+  var nc = r.games.reduce(function(acc, g){
+    if (g.court && acc.indexOf(g.court) === -1) acc.push(g.court);
+    return acc;
+  }, []).length;
+  var ng = r.games.length;
+  var desc = (ng === 1 ? 'La partida de ' : 'Las ' + ng + ' partidas de ') +
+    r.tourney.name +
+    (nc ? ', en ' + nc + ' cancha' + (nc === 1 ? '' : 's') : '') +
+    (r.tourney.where ? ' de ' + r.tourney.where : '') +
+    (ds.length ? ', ' + span(ds[0], ds[ds.length - 1]) : '') +
+    '. Los marcadores según van entrando.';
+  desc = desc.replace(/"/g, '&quot;');
+
   var page = TEMPLATE
     .split('__TOURNEY__').join(JSON.stringify(r.tourney))
     .split('__HOME__').join(JSON.stringify(r.home))
     .split('__GAMES__').join(JSON.stringify(r.games))
     .split('__CATCOLOR__').join(JSON.stringify(r.colour))
     .split('__NAME__').join(r.tourney.name)
-    .split('__KICKER__').join(r.tourney.where || 'Torneo');
-
-  var slug = r.tourney.name.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'torneo';
+    .split('__KICKER__').join(r.tourney.where || 'Torneo')
+    .split('__DESC__').join(desc)
+    .split('__SLUG__').join(slug);
 
   var blob = new Blob([page], { type: 'text/html' });
   var a = document.createElement('a');
@@ -591,7 +625,24 @@ addDiv('Juniors', '');
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>__NAME__ — calendario</title>
-<meta name="description" content="Las 80 partidas del Torneo Preparatorio Basketween 2026, en tres canchas de Arecibo, del 5 al 9 de octubre.">
+<meta name="description" content="__DESC__">
+<meta name="theme-color" content="#12202E">
+<!-- La vista previa al compartir: sin esto el enlace entra pelado
+     en WhatsApp y nadie lo toca. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="marcadorpr">
+<meta property="og:url" content="https://marcadorpr.com/__SLUG__.html">
+<meta property="og:title" content="__NAME__ — calendario y marcadores">
+<meta property="og:description" content="__DESC__">
+<meta property="og:image" content="https://marcadorpr.com/marcador-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="marcadorpr — torneos, calendarios, cuadros y resultados">
+<meta property="og:locale" content="es_PR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="__NAME__ — calendario y marcadores">
+<meta name="twitter:description" content="__DESC__">
+<meta name="twitter:image" content="https://marcadorpr.com/marcador-share.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
