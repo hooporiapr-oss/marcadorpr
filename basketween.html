@@ -40,6 +40,23 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
 .tools button{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;
   padding:8px 14px;font:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
 .tools button:hover{border-color:var(--ball);color:#fff}
+/* En el telefono los tres menus se partian en dos lineas y se comian
+   96px de pantalla antes del primer juego. Aqui van los tres en una
+   sola linea; el que esta puesto se agranda para que se lea entero,
+   porque esconderlos detras de un boton fue lo que me confundio la
+   primera vez: no veia que tenia C-2 escogida. */
+@media(max-width:620px){
+  .tools{padding:7px 0}
+  .tools .wrap{flex-wrap:nowrap;gap:5px}
+  .tools select{flex:1 1 0;font-size:.74rem;padding:7px 20px 7px 9px;
+    text-overflow:ellipsis;white-space:nowrap;
+    background-position:calc(100% - 11px) 52%, calc(100% - 7px) 52%}
+  .tools select.on{flex:1.9 1 0}
+  /* El boton de limpiar pasa a ser una x: con la palabra "Todo"
+     se comia el ancho y "Categoria" salia cortada. */
+  .tools button{flex:0 0 auto;padding:7px 11px;font-size:0;line-height:1}
+  .tools button::before{content:"\00d7";font-size:1.05rem;font-weight:700}
+}
 .chip{white-space:nowrap;border:1px solid #33465A;background:none;color:#C8D6E2;
   border-radius:999px;padding:5px 12px;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
 .chip.on{background:var(--k,#fff);border-color:var(--k,#fff);color:#fff}
@@ -1097,10 +1114,17 @@ function matches(g, cat, court, team){
 
 // Cada menú se reconstruye con lo que queda posible según los otros
 // dos. Así no hay forma de escoger algo que no da nada.
+// Sin variable de modulo: narrow() corre antes de que una asignacion
+// a nivel de archivo alcance a ejecutarse, y eso ya me costo un error
+// una vez. La consulta se hace en el momento.
+function L(long, short){
+  return window.matchMedia('(max-width:620px)').matches ? short : long;
+}
+
 function narrow(cat, court, team){
-  refill('fCat',   'Todas las categorías', 'cat',
+  refill('fCat',   L('Todas las categorías','Categoría'), 'cat',
          GAMES.filter(function(g){ return matches(g, '', court, team); }), cat);
-  refill('fCourt', 'Todas las canchas',    'court',
+  refill('fCourt', L('Todas las canchas','Cancha'),    'court',
          GAMES.filter(function(g){ return matches(g, cat, '', team); }), court);
 
   var pool = GAMES.filter(function(g){ return matches(g, cat, court, ''); });
@@ -1112,8 +1136,14 @@ function narrow(cat, court, team){
   });
   names.sort(function(a, b){ return a.localeCompare(b, 'es'); });
 
-  setOptions('fTeam', 'Todos los equipos', names, team);
+  setOptions('fTeam', L('Todos los equipos','Equipo'), names, team);
 }
+
+// Al girar el telefono cambian las etiquetas cortas por las largas.
+window.addEventListener('load', function(){
+  var mq = window.matchMedia('(max-width:620px)');
+  if (mq.addEventListener) mq.addEventListener('change', function(){ applyFilters(); });
+});
 
 function refill(id, allLabel, key, pool, current){
   var vals = [];
