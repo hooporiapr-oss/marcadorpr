@@ -73,6 +73,25 @@ h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercas
   text-decoration:none}
 .ev .joinline a:hover{text-decoration:underline}
 
+/* ── Evento destacado ──────────────────────────────────────
+   El que quieres que vean primero. No depende del estado: se
+   marca en el evento con feature:true, para que cuando llegue
+   el próximo torneo el brillo se mueva con una línea y no haya
+   que esperar al calendario. Va después de .past a propósito —
+   misma especificidad, gana el que está más abajo. */
+.ev.feat{background:#12202E;border:3px solid var(--ball);
+  box-shadow:0 0 0 5px rgba(255,122,24,.13), 0 14px 34px -14px rgba(18,32,46,.55)}
+.ev.feat:hover{background:#0B1724;
+  box-shadow:0 0 0 6px rgba(255,122,24,.2), 0 14px 34px -14px rgba(18,32,46,.6)}
+.ev.feat .nm{color:#fff}
+.ev.feat .ds{color:#B9CBD9}
+.ev.feat .when,.ev.feat .go{color:var(--ball)}
+
+/* La cinta: dice por qué brilla, en una palabra. */
+.ev.feat .flag{display:inline-block;margin-bottom:7px;padding:4px 10px;
+  border-radius:999px;background:var(--ball);color:#1A0C00;
+  font-size:.58rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+
 /* El punto que late: si algo está corriendo ahora, se ve desde lejos. */
 #lang{background:none;border:1px solid #33465A;color:#C8D6E2;border-radius:999px;
   padding:5px 12px;font:inherit;font-size:.72rem;font-weight:800;letter-spacing:.06em;
@@ -126,6 +145,16 @@ header .bar{gap:10px}
 .cp-go{display:inline-block;padding:13px 20px;border:2px solid var(--ink);border-radius:4px;
   background:var(--ink);color:#fff;text-decoration:none;font-weight:800;font-size:.95rem}
 .cp-alt{font-weight:800;color:var(--accent);text-decoration:none;font-size:.95rem}
+
+/* Los botones al centro. En el teléfono además a lo ancho con tope,
+   para que el pulgar no tenga que buscarlos. Va después de .org y
+   .cp-btns a propósito: estas reglas mandan sobre las de arriba. */
+.org a{display:block;width:100%;max-width:290px;margin:2px auto 0;text-align:center}
+.cp-btns{justify-content:center}
+@media(max-width:560px){
+  .cp-btns{flex-direction:column;align-items:center;gap:12px}
+  .cp-go{width:100%;max-width:290px;text-align:center}
+}
 
 footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
   padding:16px 0 calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
@@ -238,7 +267,9 @@ var EVENTS = [
     where:  'Arecibo',
     from:   '2026-10-05',
     to:     '2026-10-09',
-    href:   'basketween.html'
+    href:   'basketween.html',
+    feature: true,
+    flag:   { es:'El torneo completo', en:'The whole tournament' }
   }
 ];
 
@@ -392,7 +423,8 @@ function card(e){
   // El estado ya lo dice el encabezado del grupo. Repetirlo dentro de
   // la tarjeta se leía como un error. Sólo "en vivo" se queda, porque
   // el punto naranja es lo que hay que ver de lejos.
-  return '<a class="ev ' + st + '" href="' + e.href + '">' +
+  return '<a class="ev ' + st + (e.feature ? ' feat' : '') + '" href="' + e.href + '">' +
+    (e.feature && e.flag ? '<span class="flag">' + (e.flag[lang] || e.flag.es || e.flag) + '</span>' : '') +
     (st === 'live' ? '<span class="when"><span class="dot"></span>' + t('live') + '</span>' : '') +
     '<span class="nm">' + e.name + '</span>' +
     '<span class="ds">' + span(e) + ' · ' + e.where + '</span>' +
