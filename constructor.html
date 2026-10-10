@@ -703,36 +703,29 @@ h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-
 @media(max-width:420px){.tb table{font-size:.8rem}
   .tb td{padding:6px 0 6px 9px}.tb th{padding-left:9px}.tb td.n{padding-left:0}}
 
-/* ── Categorías que se abren ──────────────────────────────
-   La barra de chips se fue: con nombres largos como "Mini Junior ·
-   9-10 años" se iba a dos líneas, y encima repetía lo que ahora
-   dice la cabecera de cada sección. */
-.cat{margin:0 0 10px;border:1px solid var(--line);border-radius:5px;overflow:hidden}
-.cat.on{border-color:var(--ink)}
-.cathead{display:flex;align-items:center;gap:10px;width:100%;
-  padding:14px 14px 14px 0;border:0;background:#fff;cursor:pointer;
-  font:inherit;color:var(--ink);text-align:left;
-  border-left:5px solid var(--k,#12202E)}
-.cathead:hover{background:var(--tint)}
-.cat.on .cathead{border-bottom:1px solid var(--line)}
-.cathead .ct{flex:1 1 auto;font-weight:900;font-size:.98rem;letter-spacing:-.02em;
-  padding-left:14px;min-width:0}
-.cathead .cn{flex:0 0 auto;font-size:.66rem;font-weight:800;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--mute);white-space:nowrap}
-/* La flechita es un cuadradito girado: sin fuente de iconos. */
-.cathead .cv{flex:0 0 auto;width:8px;height:8px;margin-right:4px;
-  border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);
-  transform:rotate(45deg);transition:transform .18s ease}
-.cat.on .cathead .cv{transform:rotate(-135deg)}
-@media(prefers-reduced-motion:reduce){.cathead .cv{transition:none}}
-
-.catbody{display:none;padding:14px 12px 2px}
-.cat.on .catbody{display:block}
-.catbody .day:last-child{margin-bottom:14px}
-/* Con una sola categoría esto no es una caja, es el calendario. */
-.cat:only-child{border:0;border-radius:0}
-.cat:only-child .catbody{padding:0}
-.cat:only-child .catbody .day:last-child{margin-bottom:26px}
+/* ── Pestañas por categoría ───────────────────────────────
+   Van en el cuerpo y no en la barra oscura de arriba: ahí
+   parecían decoración del encabezado. Aquí se leen como lo
+   que son, el mando del calendario que tienen debajo. */
+.tabs{display:flex;gap:2px;margin:0 0 20px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  border-bottom:2px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tabs:empty{display:none}
+.tab{flex:0 0 auto;white-space:nowrap;border:0;background:none;cursor:pointer;
+  font:inherit;font-size:.85rem;font-weight:800;color:var(--mute);
+  padding:10px 14px;margin-bottom:-2px;
+  border-bottom:3px solid transparent}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);border-bottom-color:var(--k,var(--ink))}
+@media(max-width:560px){
+  .tab{font-size:.8rem;padding:9px 11px}
+  /* En el teléfono las pestañas no caben y se corren de lado. El
+     desvanecido de la derecha es lo que dice que hay más: sin él,
+     la categoría que queda fuera no la encuentra nadie. */
+  .tabs{mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent)}
+}
 
 .day{margin-bottom:26px}
 .day h2{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;margin:0 0 8px;
@@ -923,6 +916,8 @@ footer a{color:#4FD3F0;text-decoration:none}
         <span class="cpad-go">Ver cómo funciona →</span>
       </span>
     </a>
+
+<div class="tabs" id="tabs" role="tablist"></div>
 
 <div id="tabla"></div>
 <div id="days"></div>
@@ -1680,73 +1675,88 @@ function build(){
       return '<div><b>' + esc(c.id) + '</b> — ' + esc(c.name || c.id) + '</div>';
     }).join('');
 
-  // Una categoría, una sección que se abre. Un papá viene a ver los
-  // juegos de su hijo, no los ochenta del torneo: llega, ve las
-  // categorías, y toca la suya. Con una sola no hay nada que escoger,
-  // así que esa abre sola y sin cabecera.
-  var sola = cats.length < 2;
+  // Una pestaña por categoría, encima del calendario. Con una sola
+  // categoría no hay nada entre qué escoger y la fila sobra.
+  document.getElementById('tabs').innerHTML = cats.length < 2 ? '' :
+    '<button class="tab on" role="tab" aria-selected="true" data-f="" ' +
+      'onclick="filt(this)">Todo</button>' +
+    cats.map(function(c){
+      return '<button class="tab" role="tab" aria-selected="false" data-f="' + esc(c) + '" ' +
+             'onclick="filt(this)" style="--k:' + (CATCOLOR[c] || '#12202E') + '">' +
+             esc(c) + '</button>';
+    }).join('');
 
-  var html = cats.map(function(c, ci){
-    var suyos = GAMES.filter(function(g){ return g.cat === c; });
-    if (!suyos.length) return '';
+  var html = '';
+  days.forEach(function(d){
+    var list = GAMES.filter(function(g){ return g.date === d; })
+                    .sort(function(a, b){
+                      var t = mins(a.time) - mins(b.time);
+                      return t !== 0 ? t : String(a.court).localeCompare(String(b.court));
+                    });
+    if (!list.length) return;
 
-    var cuerpo = '';
-    days.forEach(function(d){
-      var list = suyos.filter(function(g){ return g.date === d; })
-                      .sort(function(a, b){
-                        var t = mins(a.time) - mins(b.time);
-                        return t !== 0 ? t : String(a.court).localeCompare(String(b.court));
-                      });
-      if (!list.length) return;
+    html += '<section class="day"><h2>' + dayLabel(d) +
+            ' <span>' + list.length + ' juegos</span></h2><div class="rows">';
 
-      cuerpo += '<section class="day"><h2>' + dayLabel(d) +
-                ' <span>' + list.length + (list.length === 1 ? ' juego' : ' juegos') +
-                '</span></h2><div class="rows">';
-
-      list.forEach(function(g){
-        var mine = HOME && (String(g.a).indexOf(HOME) === 0 || String(g.b).indexOf(HOME) === 0);
-        cuerpo +=
-          '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
-            'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
-            'data-on="' + esc(g.date) + '" data-a="' + esc(g.a) + '" data-b="' + esc(g.b) + '" ' +
-            'data-stage="' + esc(g.stage || '') + '" ' +
-            'onclick="tap(this)">' +
-            '<span class="t">' + esc(g.time) + '</span>' +
-            '<span class="c">' + esc(g.court) + '</span>' +
-            '<span class="m"><b class="sa">' + esc(g.a) + '</b> <i>vs</i> ' +
-              '<b class="sb">' + esc(g.b) + '</b><span class="sc"></span></span>' +
-            '<span class="pls"></span>' +
-            '<span class="j">' + esc(g.no) + (g.stage ? ' · ' + esc(g.stage) : '') + '</span>' +
-          '</div>';
-      });
-
-      cuerpo += '</div></section>';
+    list.forEach(function(g){
+      var mine = HOME && (String(g.a).indexOf(HOME) === 0 || String(g.b).indexOf(HOME) === 0);
+      html +=
+        '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
+          'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
+          'data-on="' + esc(g.date) + '" data-a="' + esc(g.a) + '" data-b="' + esc(g.b) + '" ' +
+          'data-stage="' + esc(g.stage || '') + '" ' +
+          'onclick="tap(this)">' +
+          '<span class="t">' + esc(g.time) + '</span>' +
+          '<span class="c">' + esc(g.court) + '</span>' +
+          '<span class="m"><b class="sa">' + esc(g.a) + '</b> <i>vs</i> ' +
+            '<b class="sb">' + esc(g.b) + '</b><span class="sc"></span></span>' +
+          '<span class="pls"></span>' +
+          '<span class="j">' + esc(g.no) + (g.stage ? ' · ' + esc(g.stage) : '') + '</span>' +
+          '<span class="k" style="--k:' + (CATCOLOR[g.cat] || '#12202E') + '">' + esc(g.cat) + '</span>' +
+        '</div>';
     });
 
-    var id = 'cat' + ci;
-    return '<section class="cat' + (sola ? ' on' : '') + '" ' +
-             'style="--k:' + (CATCOLOR[c] || '#12202E') + '">' +
-      (sola ? '' :
-        '<button class="cathead" aria-expanded="false" aria-controls="' + id + '" ' +
-          'onclick="abrir(this)">' +
-          '<span class="ct">' + esc(c) + '</span>' +
-          '<span class="cn">' + suyos.length + (suyos.length === 1 ? ' juego' : ' juegos') + '</span>' +
-          '<span class="cv" aria-hidden="true"></span>' +
-        '</button>') +
-      '<div class="catbody" id="' + id + '">' + cuerpo + '</div>' +
-    '</section>';
-  }).join('');
+    html += '</div></section>';
+  });
 
   document.getElementById('days').innerHTML = html;
 }
 
-// Abrir y cerrar una categoría. Sin animar la altura: con ochenta
-// filas dentro eso trabaja en cada cuadro y en un teléfono viejo se
-// ve a tirones. Enseñar y esconder es instantáneo.
-function abrir(btn){
-  var sec = btn.parentElement;
-  var abierta = sec.classList.toggle('on');
-  btn.setAttribute('aria-expanded', abierta ? 'true' : 'false');
+// Filtrar por categoría: la lista completa es larga, y una familia
+// sólo quiere la suya.
+function filt(btn){
+  var want = btn.dataset.f || '';
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++){
+    tabs[i].classList.remove('on');
+    tabs[i].setAttribute('aria-selected', 'false');
+  }
+  btn.classList.add('on');
+  btn.setAttribute('aria-selected', 'true');
+
+  // Al cambiar de categoría se vuelve arriba: si venías del final de
+  // una lista larga, la nueva empezaba a media página.
+  var m = document.querySelector('main');
+  if (m) m.scrollTop = 0;
+
+  var rows = document.querySelectorAll('.r');
+  for (var j = 0; j < rows.length; j++){
+    var show = !want || rows[j].dataset.cat === want;
+    rows[j].classList.toggle('hide', !show);
+  }
+
+  // Las tablas siguen al filtro igual que las filas.
+  var tbs = document.querySelectorAll('.tb');
+  for (var m = 0; m < tbs.length; m++){
+    tbs[m].classList.toggle('hide', !!want && tbs[m].dataset.cat !== want);
+  }
+
+  // Un día sin juegos de esa categoría no hace falta enseñarlo.
+  var days = document.querySelectorAll('.day');
+  for (var k = 0; k < days.length; k++){
+    var any = days[k].querySelectorAll('.r:not(.hide)').length;
+    days[k].style.display = any ? '' : 'none';
+  }
 }
 
 build();
