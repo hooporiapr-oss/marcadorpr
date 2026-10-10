@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>marcadorpr — marcadores en vivo del baloncesto de Puerto Rico</title>
-<meta name="description" content="Calendarios y marcadores en vivo de torneos de baloncesto en Puerto Rico. El cuadro se llena solo según entran los resultados.">
+<meta name="description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
 <meta name="theme-color" content="#12202E">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="marcadorpr">
 <meta property="og:url" content="https://marcadorpr.com/">
 <meta property="og:title" content="marcadorpr — marcadores en vivo del baloncesto de Puerto Rico">
-<meta property="og:description" content="Calendarios y marcadores en vivo de torneos de baloncesto en Puerto Rico. El cuadro se llena solo según entran los resultados.">
+<meta property="og:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
 <meta property="og:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -18,7 +18,7 @@
 <meta property="og:locale" content="es_PR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="marcadorpr — marcadores en vivo del baloncesto de Puerto Rico">
-<meta name="twitter:description" content="Calendarios y marcadores en vivo de torneos de baloncesto en Puerto Rico. El cuadro se llena solo según entran los resultados.">
+<meta name="twitter:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
 <meta name="twitter:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +74,14 @@ h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercas
 .ev .joinline a:hover{text-decoration:underline}
 
 /* El punto que late: si algo está corriendo ahora, se ve desde lejos. */
+#lang{background:none;border:1px solid #33465A;color:#C8D6E2;border-radius:999px;
+  padding:5px 12px;font:inherit;font-size:.72rem;font-weight:800;letter-spacing:.06em;
+  cursor:pointer;flex:0 0 auto}
+#lang:hover{border-color:var(--ball);color:var(--ball)}
+header .bar{gap:10px}
+.tagline{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:430px){.tagline{display:none}}
+
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ball);
   margin-right:6px;vertical-align:1px;animation:beat 1.6s ease-in-out infinite}
 @keyframes beat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
@@ -83,6 +91,20 @@ h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercas
 .what b{display:block;margin-bottom:5px}
 .what p{margin:0 0 10px;color:var(--mute);font-size:.94rem}
 .what p:last-child{margin:0}
+
+/* Lo que trae un calendario. Es la venta de verdad para un director
+   de torneo, así que va en lista y no en párrafo: se lee de un
+   vistazo en el teléfono, parado en un gimnasio. */
+.gets{display:grid;gap:0;margin:18px 0 0;border-top:1px solid var(--line)}
+.gets div{border-bottom:1px solid var(--line);padding:13px 0}
+.gets b{display:block;font-size:.97rem;margin-bottom:2px}
+.gets span{color:var(--mute);font-size:.91rem}
+.gets em{font-style:normal;font-size:.6rem;font-weight:900;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ball);margin-left:7px;vertical-align:1px}
+
+.free{border:2px solid var(--ball);border-radius:4px;padding:16px 18px;margin:22px 0 0}
+.free b{display:block;font-size:1.02rem;margin-bottom:4px}
+.free p{margin:0;color:var(--mute);font-size:.94rem}
 
 .org{border:2px dashed var(--line);border-radius:4px;padding:18px 20px;margin:22px 0 0}
 .org b{display:block;font-size:1.02rem;margin-bottom:4px}
@@ -116,68 +138,79 @@ footer a{color:#4FD3F0;text-decoration:none}
 <header>
   <div class="wrap bar">
     <span class="mark">marcador<span>pr</span></span>
-    <span class="tagline">Baloncesto en vivo</span>
+    <span class="tagline" data-t="tagline">Baloncesto en vivo</span>
+    <button id="lang" onclick="flip()">EN</button>
   </div>
 </header>
 
 <main>
   <div class="wrap">
-    <h1>Los marcadores, según pasan.</h1>
-    <p class="lede">Calendarios completos de torneos de baloncesto en Puerto Rico, con los
-      resultados puestos el mismo día. El cuadro se llena solo: en cuanto entra un marcador,
-      el ganador aparece en el juego que le toca después. Y los equipos que recaudan lo hacen
-      desde el mismo calendario.</p>
+    <h1 data-t="h1">El calendario entero. Los marcadores, según pasan. La tabla, sola.</h1>
+    <p class="lede" data-t="lede">El calendario completo de un torneo o de la temporada de un
+      equipo, con los marcadores puestos el mismo día y la tabla calculada sola. El cuadro se
+      llena solo: en cuanto entra un resultado, el ganador aparece en el juego que le toca
+      después. Montarlo no cuesta nada.</p>
 
     <div id="events"></div>
 
-    <div class="what">
-      <b>Qué encuentras aquí</b>
-      <p>Todo el calendario en el teléfono, filtrado por categoría, con la hora y la cancha de
-        cada juego. Los resultados se ponen según terminan.</p>
-      <p>Y donde el papel dice “Ganador J-#14”, aquí aparece el equipo de verdad en cuanto se
-        juega ese partido.</p>
+    <h2 data-t="getsH">Qué trae el calendario</h2>
+
+    <div class="gets">
+      <div><b data-t="g1b">Todo el calendario en el teléfono</b>
+        <span data-t="g1">Filtrado por categoría, con la hora y la cancha de cada juego.</span></div>
+      <div><b data-t="g2b">El cuadro se llena solo</b>
+        <span data-t="g2">Donde el papel dice “Ganador J-#14”, aquí aparece el equipo de verdad
+          en cuanto se juega ese partido.</span></div>
+      <div><b data-t="g3b">Los marcadores se ponen desde la cancha</b>
+        <span data-t="g3">Dos casillas en la fila del juego. El anotador no necesita computadora
+          ni esperar a llegar a su casa.</span></div>
+      <div><b data-t="g4b">La tabla de posiciones, calculada sola</b><em data-t="nuevo">nuevo</em>
+        <span data-t="g4">Ganados, perdidos, diferencia y puntos a favor. Desempata por el juego
+          entre ellos, y dice cuántos marcadores faltan para que nadie la lea como si estuviera
+          mala.</span></div>
+      <div><b data-t="g5b">Un enlace que se ve bien en WhatsApp</b><em data-t="nuevo2">nuevo</em>
+        <span data-t="g5">Con su tarjeta y el nombre del torneo. Se pega en el grupo y todo el
+          mundo abre el calendario.</span></div>
     </div>
 
-    <h2>Para organizadores</h2>
+    <h2 data-t="orgH">Para organizadores</h2>
+
+    <div class="free">
+      <b data-t="freeB">El calendario no cuesta nada</b>
+      <p data-t="freeP">Ni por torneo, ni por equipo, ni mensual. Si corres un torneo o manejas
+        la temporada de un equipo, te montamos el calendario completo y queda en vivo el mismo
+        día. No hay que inscribirse en nada más para tenerlo.</p>
+    </div>
 
     <div class="org">
-      <b>El calendario viene con la recaudación</b>
-      <p>Montamos aquí el calendario de los torneos que corren con Cada Punto: los equipos
-        recaudan con los juegos que ya están jugando, y el marcador en vivo viene incluido.
-        No cobramos por el calendario.</p>
-      <p>Cada equipo que se inscribe cobra lo suyo, en su propia cuenta. Un padrino promete unos
-        centavos por cada punto que anota su equipo, y paga después del juego. Ganen o pierdan,
-        el programa gana.</p>
-      <a href="mailto:gostardigital@gmail.com?subject=Torneo%20con%20Cada%20Punto">Hablemos de tu torneo</a>
+      <b data-t="orgB">Un torneo completo, o los juegos de un equipo</b>
+      <p data-t="orgP1">Un torneo se monta entero: las categorías, los grupos o el cuadro, las
+        canchas y las horas. Un equipo con su temporada va juego por juego, con su marcador y
+        su resultado.</p>
+      <p data-t="orgP2">Mándame las categorías y los equipos y te devuelvo el enlace.</p>
+      <a href="mailto:gostardigital@gmail.com?subject=Calendario%20en%20marcadorpr"
+         data-t="orgCta">Hablemos de tu calendario</a>
     </div>
 
     <div class="what" style="margin-top:18px">
-      <b>¿Juegas en un torneo que está aquí?</b>
-      <p>Busca tu equipo en el calendario. Si tiene campaña, verás el botón para prometer al
-        lado de cada juego suyo. Si no la tiene, puedes pedirla ahí mismo.</p>
+      <b data-t="playB">¿Juegas en un torneo que está aquí?</b>
+      <p data-t="playP">Busca tu equipo en el calendario. Si tiene campaña de recaudación, verás
+        el botón para prometer al lado de cada juego suyo. Si no la tiene, puedes pedirla ahí
+        mismo.</p>
     </div>
 
-    <h2>Qué es Cada Punto</h2>
+    <h2 data-t="cpH">Y si además quieres recaudar</h2>
 
     <div class="cp">
-      <p class="cp-line">Tu equipo anota. <b>Tu programa cobra.</b></p>
-      <p class="cp-p">La recaudación que corre con el calendario. Sin vender nada, sin productos
-        que entregar, sin nada que devolver — el equipo juega sus juegos y los padrinos pagan por
-        los puntos que anotó.</p>
-
-      <div class="cp-steps">
-        <div><b>1 · El equipo juega</b><span>Su calendario, sus juegos. Los mismos que ya tenía.</span></div>
-        <div><b>2 · Los padrinos prometen por punto</b><span>Familia, vecinos, el negocio de la esquina. Cada uno escoge el juego y la tarifa.</span></div>
-        <div><b>3 · Entra el marcador</b><span>Eso cierra el juego y cobra cada promesa. Anotan 68 con diez padrinos a diez centavos, y el programa tiene $68.</span></div>
-      </div>
-
-      <p class="cp-fee">Nada por adelantado y nada mensual. El 20% de plataforma se le añade al
-        pago del padrino, nunca se saca de lo del programa: una promesa de $200 es un pago de
-        $240, y el programa recibe los $200 completos.</p>
+      <p class="cp-line" data-t="cpLine">Tu equipo anota. <b>Tu programa cobra.</b></p>
+      <p class="cp-p" data-t="cpP">Cada Punto es aparte del calendario y es opcional. Los
+        padrinos prometen unos centavos por cada punto que anota el equipo, y pagan cuando entra
+        el marcador — sin vender nada, sin productos que entregar. Ganen o pierdan, el programa
+        gana.</p>
 
       <div class="cp-btns">
-        <a class="cp-go" href="https://cadapunto.com/equipo.html">Inscribir mi equipo</a>
-        <a class="cp-alt" href="https://cadapunto.com">Ver cómo funciona →</a>
+        <a class="cp-go" href="https://cadapunto.com/equipo.html" data-t="cpGo">Inscribir mi equipo</a>
+        <a class="cp-alt" href="https://cadapunto.com" data-t="cpAlt">Ver cómo funciona →</a>
       </div>
     </div>
   </div>
@@ -186,7 +219,7 @@ footer a{color:#4FD3F0;text-decoration:none}
 <footer>
   <div class="wrap">
     <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
-    Los equipos que recaudan lo hacen con
+    <span data-t="footP">Los equipos que recaudan lo hacen con</span>
     <a href="https://cadapunto.com">Cada Punto</a>
   </div>
 </footer>
@@ -200,7 +233,8 @@ footer a{color:#4FD3F0;text-decoration:none}
 var EVENTS = [
   {
     name:   'Basketween 2026',
-    sub:    'Torneo preparatorio · 80 juegos · 8 categorías · tres canchas',
+    sub:    { es:'Torneo preparatorio · 80 juegos · 8 categorías · tres canchas',
+              en:'Preseason tournament · 80 games · 8 divisions · three courts' },
     where:  'Arecibo',
     from:   '2026-10-05',
     to:     '2026-10-09',
@@ -211,15 +245,111 @@ var EVENTS = [
 var CP = 'https://cadapunto.com';
 
 var T = {
-  live:'En vivo ahora', soon:'Viene', past:'Ya jugado',
-  soonCal:'Calendario pronto',
-  joinNow:'Tu equipo puede inscribirse desde ya — recauda con los juegos que ya tiene, y este torneo aparece solo en su tablero cuando salga el calendario.',
-  joinGo:'Inscribir mi equipo →',
-  openLive:'Ver los marcadores en vivo →',
-  openSoon:'Ver el calendario →',
-  openPast:'Ver resultados →',
-  none:'Todavía no hay eventos puestos.'
+  es:{
+    tagline:'Baloncesto en vivo',
+    h1:'El calendario entero. Los marcadores, según pasan. La tabla, sola.',
+    lede:'El calendario completo de un torneo o de la temporada de un equipo, con los marcadores puestos el mismo día y la tabla calculada sola. El cuadro se llena solo: en cuanto entra un resultado, el ganador aparece en el juego que le toca después. Montarlo no cuesta nada.',
+
+    live:'En vivo ahora', soon:'Viene', past:'Ya jugado',
+    openLive:'Ver los marcadores en vivo →',
+    openSoon:'Ver el calendario →',
+    openPast:'Ver resultados →',
+    none:'Todavía no hay eventos puestos.',
+
+    getsH:'Qué trae el calendario', nuevo:'nuevo', nuevo2:'nuevo',
+    g1b:'Todo el calendario en el teléfono',
+    g1:'Filtrado por categoría, con la hora y la cancha de cada juego.',
+    g2b:'El cuadro se llena solo',
+    g2:'Donde el papel dice “Ganador J-#14”, aquí aparece el equipo de verdad en cuanto se juega ese partido.',
+    g3b:'Los marcadores se ponen desde la cancha',
+    g3:'Dos casillas en la fila del juego. El anotador no necesita computadora ni esperar a llegar a su casa.',
+    g4b:'La tabla de posiciones, calculada sola',
+    g4:'Ganados, perdidos, diferencia y puntos a favor. Desempata por el juego entre ellos, y dice cuántos marcadores faltan para que nadie la lea como si estuviera mala.',
+    g5b:'Un enlace que se ve bien en WhatsApp',
+    g5:'Con su tarjeta y el nombre del torneo. Se pega en el grupo y todo el mundo abre el calendario.',
+
+    orgH:'Para organizadores',
+    freeB:'El calendario no cuesta nada',
+    freeP:'Ni por torneo, ni por equipo, ni mensual. Si corres un torneo o manejas la temporada de un equipo, te montamos el calendario completo y queda en vivo el mismo día. No hay que inscribirse en nada más para tenerlo.',
+    orgB:'Un torneo completo, o los juegos de un equipo',
+    orgP1:'Un torneo se monta entero: las categorías, los grupos o el cuadro, las canchas y las horas. Un equipo con su temporada va juego por juego, con su marcador y su resultado.',
+    orgP2:'Mándame las categorías y los equipos y te devuelvo el enlace.',
+    orgCta:'Hablemos de tu calendario',
+
+    playB:'¿Juegas en un torneo que está aquí?',
+    playP:'Busca tu equipo en el calendario. Si tiene campaña de recaudación, verás el botón para prometer al lado de cada juego suyo. Si no la tiene, puedes pedirla ahí mismo.',
+
+    cpH:'Y si además quieres recaudar',
+    cpLine:'Tu equipo anota. <b>Tu programa cobra.</b>',
+    cpP:'Cada Punto es aparte del calendario y es opcional. Los padrinos prometen unos centavos por cada punto que anota el equipo, y pagan cuando entra el marcador — sin vender nada, sin productos que entregar. Ganen o pierdan, el programa gana.',
+    cpGo:'Inscribir mi equipo', cpAlt:'Ver cómo funciona →',
+    footP:'Los equipos que recaudan lo hacen con'
+  },
+  en:{
+    tagline:'Live basketball',
+    h1:'The whole schedule. The scores, as they land. The table, on its own.',
+    lede:'The full schedule of a tournament, or of a team’s season, with the scores posted the same day and the table worked out on its own. The bracket fills itself in: the moment a result lands, the winner shows up in the game they play next. It costs nothing to set up.',
+
+    live:'Live now', soon:'Coming', past:'Played',
+    openLive:'See the live scores →',
+    openSoon:'See the schedule →',
+    openPast:'See results →',
+    none:'No events posted yet.',
+
+    getsH:'What the schedule comes with', nuevo:'new', nuevo2:'new',
+    g1b:'The whole schedule on a phone',
+    g1:'Filtered by division, with the time and the court for every game.',
+    g2b:'The bracket fills itself in',
+    g2:'Where the paper says “Winner J-#14”, here the real team appears the moment that game is played.',
+    g3b:'Scores go in from the court',
+    g3:'Two boxes in the game’s own row. The scorekeeper needs no computer and no trip home first.',
+    g4b:'Standings worked out on their own',
+    g4:'Won, lost, differential and points for. Ties break on the game between them, and it says how many scores are still missing so nobody reads the table as wrong.',
+    g5b:'A link that looks right in WhatsApp',
+    g5:'With its card and the tournament’s name. Paste it in the group and everyone opens the schedule.',
+
+    orgH:'For organizers',
+    freeB:'The schedule costs nothing',
+    freeP:'Not per tournament, not per team, not monthly. If you run a tournament or manage a team’s season, we build the whole schedule and it goes live the same day. There is nothing else to sign up for to have it.',
+    orgB:'A whole tournament, or one team’s games',
+    orgP1:'A tournament gets built complete: the divisions, the groups or the bracket, the courts and the times. A team with a season goes game by game, each with its score and its result.',
+    orgP2:'Send me the divisions and the teams and I will send you back the link.',
+    orgCta:'Let’s talk about your schedule',
+
+    playB:'Playing in a tournament that is here?',
+    playP:'Find your team in the schedule. If they have a fundraising campaign, you will see the pledge button next to each of their games. If they do not, you can ask for one right there.',
+
+    cpH:'And if you also want to raise money',
+    cpLine:'Your team scores. <b>Your program gets paid.</b>',
+    cpP:'Cada Punto is separate from the schedule, and it is optional. Padrinos pledge a few cents for every point the team scores, and they pay once the score goes in — nothing to sell, nothing to deliver. Win or lose, the program wins.',
+    cpGo:'Sign up my team', cpAlt:'See how it works →',
+    footP:'Teams that fundraise do it with'
+  }
 };
+
+// Esto es Puerto Rico: la página abre en español y el inglés está
+// ahí para el que lo necesite. Cada Punto abre al revés a propósito.
+var lang = 'es';
+try { var sv = localStorage.getItem('mpr_lang'); if (sv === 'en' || sv === 'es') lang = sv; } catch(e){}
+
+function t(k){ return (T[lang] && T[lang][k]) || T.es[k] || ''; }
+
+function paint(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-t]').forEach(function(el){
+    var v = t(el.getAttribute('data-t'));
+    if (!v) return;
+    if (v.indexOf('<') !== -1) el.innerHTML = v; else el.textContent = v;
+  });
+  document.getElementById('lang').textContent = lang === 'es' ? 'EN' : 'ES';
+  drawEvents();
+}
+
+function flip(){
+  lang = lang === 'es' ? 'en' : 'es';
+  try { localStorage.setItem('mpr_lang', lang); } catch(e){}
+  paint();
+}
 
 function today(){
   // La fecha en Puerto Rico, que no cambia de hora en todo el año.
@@ -236,29 +366,42 @@ function state(e){
 
 function span(e){
   var f = new Date(e.from + 'T12:00:00'), t = new Date(e.to + 'T12:00:00');
-  var mo = function(d){ return d.toLocaleDateString('es-PR', { month:'long' }); };
+  var loc = lang === 'en' ? 'en-US' : 'es-PR';
+  var mo = function(d){ return d.toLocaleDateString(loc, { month:'long' }); };
   var same = f.getMonth() === t.getMonth();
+  if (lang === 'en'){
+    return same ? mo(f) + ' ' + f.getDate() + ' – ' + t.getDate()
+                : mo(f) + ' ' + f.getDate() + ' – ' + mo(t) + ' ' + t.getDate();
+  }
   return same
     ? f.getDate() + ' – ' + t.getDate() + ' de ' + mo(t)
     : f.getDate() + ' de ' + mo(f) + ' – ' + t.getDate() + ' de ' + mo(t);
 }
 
+// El subtítulo de un evento puede venir en un idioma o en los dos.
+// Un texto suelto sirve igual: se enseña tal cual en ambos.
+function sub(e){
+  if (!e.sub) return '';
+  return typeof e.sub === 'string' ? e.sub : (e.sub[lang] || e.sub.es || e.sub.en || '');
+}
+
 function card(e){
   var st = state(e);
-  var tag = st === 'live' ? '<span class="dot"></span>' + T.live
-          : st === 'soon' ? T.soon : T.past;
-  var go  = st === 'live' ? T.openLive : st === 'soon' ? T.openSoon : T.openPast;
+  var go = st === 'live' ? t('openLive') : st === 'soon' ? t('openSoon') : t('openPast');
 
+  // El estado ya lo dice el encabezado del grupo. Repetirlo dentro de
+  // la tarjeta se leía como un error. Sólo "en vivo" se queda, porque
+  // el punto naranja es lo que hay que ver de lejos.
   return '<a class="ev ' + st + '" href="' + e.href + '">' +
-    '<span class="when">' + tag + '</span>' +
+    (st === 'live' ? '<span class="when"><span class="dot"></span>' + t('live') + '</span>' : '') +
     '<span class="nm">' + e.name + '</span>' +
     '<span class="ds">' + span(e) + ' · ' + e.where + '</span>' +
-    '<span class="ds">' + e.sub + '</span>' +
+    '<span class="ds">' + sub(e) + '</span>' +
     '<span class="go">' + go + '</span>' +
   '</a>';
 }
 
-(function drawEvents(){
+function drawEvents(){
   var box = document.getElementById('events');
   if (!box) return;
 
@@ -268,19 +411,21 @@ function card(e){
     return d !== 0 ? d : (b.from || '').localeCompare(a.from || '');
   });
 
-  if (!list.length){ box.innerHTML = '<p class="lede">' + T.none + '</p>'; return; }
+  if (!list.length){ box.innerHTML = '<p class="lede">' + t('none') + '</p>'; return; }
 
   var html = '', lastGroup = null;
   list.forEach(function(e){
     var g = state(e);
     if (g !== lastGroup){
-      html += '<h2>' + (g === 'live' ? T.live : g === 'soon' ? T.soon : T.past) + '</h2>';
+      html += '<h2>' + t(g) + '</h2>';
       lastGroup = g;
     }
     html += card(e);
   });
   box.innerHTML = html;
-})();
+}
+
+paint();
 </script>
 </body>
 </html>
