@@ -460,6 +460,19 @@ function days(){
 
 var RESULT = null;
 
+// Las iniciales del torneo, que son el prefijo de cada número de
+// juego. Antes todos los torneos numeraban J-1, J-2... y los
+// marcadores se guardan por número sin decir de qué torneo son: un
+// calendario nuevo salía con los marcadores del anterior encima, y
+// como una fila con marcador esconde sus botones de promesa, también
+// se perdían los enlaces de Cada Punto.
+function siglas(nombre){
+  var ini = String(nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .split(/[^A-Za-z0-9]+/).filter(Boolean)
+    .map(function(w){ return w.charAt(0).toUpperCase(); }).join('');
+  return (ini || 'T').slice(0, 3);
+}
+
 function generate(){
   var ds = days(), cs = courts();
   if (!ds.length) return alert('Pon el primer día.');
@@ -471,6 +484,10 @@ function generate(){
   if (to < from) return alert('La última hora va después de la primera.');
 
   var slots = makeSlots(ds, cs.map(function(c){ return c.id; }), from, to);
+
+  // El prefijo sale del nombre del torneo, así dos calendarios
+  // distintos nunca comparten números — ni marcadores.
+  var PFX = siglas((document.getElementById('tName').value || '').trim());
 
   var all = [], no = 1, colour = {}, ci = 0;
 
@@ -484,8 +501,8 @@ function generate(){
     var mode = document.getElementById('df' + id).value;
     var built = mode === 'pools'
       ? pools(teams, Number(document.getElementById('dps' + id).value) || 4,
-                     Number(document.getElementById('dpa' + id).value) || 2, 'J', no)
-      : knockout(teams, 'J', no);
+                     Number(document.getElementById('dpa' + id).value) || 2, PFX, no)
+      : knockout(teams, PFX, no);
 
     built.games.forEach(function(g){ g.cat = name; });
     all = all.concat(built.games);
@@ -496,6 +513,7 @@ function generate(){
 
   var placed = schedule(all, slots, 1);
   RESULT = {
+    prefix: PFX,
     tourney: {
       name:  (document.getElementById('tName').value || '').trim(),
       where: (document.getElementById('tWhere').value || '').trim(),
@@ -531,7 +549,7 @@ function show(){
       'No caben en los días y horas que pusiste. Añade un día, una cancha, o alarga el horario.</div>';
   }
 
-  html += '<table><tr><th>J-#</th><th>Día</th><th>Hora</th><th>Cancha</th>' +
+  html += '<table><tr><th>Juego</th><th>Día</th><th>Hora</th><th>Cancha</th>' +
           '<th>Juego</th><th>Categoría</th></tr>' +
     r.games.map(function(g){
       return '<tr>' +
@@ -1231,7 +1249,8 @@ function indexGames(){
 function norm(s){ return String(s || '').replace(/#/g, '').trim().toUpperCase(); }
 
 function placeholderFor(name){
-  var m = norm(name).match(/^GANADOR\s+(J-\S+)$/);
+  // El prefijo ya no es siempre J: cada torneo trae el suyo.
+  var m = norm(name).match(/^GANADOR\s+(\S+)$/);
   return m ? m[1] : null;
 }
 
