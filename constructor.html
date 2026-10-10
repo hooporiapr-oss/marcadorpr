@@ -1134,12 +1134,18 @@ function loadTeams(){
 //  otro ganador, se resuelve hacia atrás hasta encontrar un
 //  nombre de verdad.
 // ══════════════════════════════════════════════════════
-var GAMES = {};   // J-9 → { a:'CNSC Red', b:'DAC-A' }
+var BYNO = {};    // J-9 → { a:'CNSC Red', b:'DAC-A' }
+// Ojo: NO llamarlo GAMES. Arriba ya existe var GAMES con el
+// calendario entero, y una segunda declaración lo borraba: la
+// página salía en blanco con sólo las canchas.
 
 function indexGames(){
+  // Desde los datos primero, no sólo desde el DOM.
+  GAMES.forEach(function(g){ BYNO[norm(g.no)] = { a: g.a, b: g.b }; });
+
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
-    GAMES[norm(rows[i].dataset.j)] = { a: rows[i].dataset.a, b: rows[i].dataset.b };
+    BYNO[norm(rows[i].dataset.j)] = { a: rows[i].dataset.a, b: rows[i].dataset.b };
   }
 }
 
@@ -1160,7 +1166,7 @@ function resolve(name, depth){
   var key = placeholderFor(name);
   if (!key) return name;
 
-  var g = GAMES[key], s = SCORES[key];
+  var g = BYNO[key], s = SCORES[key];
   if (!g || !s || s.a === s.b) return name;
 
   var winner = s.a > s.b ? g.a : g.b;
@@ -1332,11 +1338,10 @@ function lockOff(){
   paint();
 }
 
-build();
-indexGames();
-document.querySelector('.mark').addEventListener('dblclick', unlock);
-if (code()) document.getElementById('lock').classList.add('on');
-load();
+// El arranque va al final del script, después de que todo esté
+// definido. Estaba aquí arriba y build() corría antes de que
+// var DAYNAME tuviera valor: la página reventaba en el primer
+// nombre de día.
 
 
 // ══════════════════════════════════════════════════════
@@ -1374,8 +1379,10 @@ function build(){
 
   document.getElementById('h1').textContent =
     'Los ' + GAMES.length + ' juegos' +
-    (days.length ? ', ' + dayLabel(days[0]).toLowerCase().replace(/^\w+ /, 'del ') +
-      ' al ' + dayLabel(days[days.length-1]).toLowerCase().replace(/^\w+ /, '') : '');
+    // \w no cubre acentos: con "sábado" y "miércoles" el día se
+    // quedaba pegado. \S+ corta la primera palabra sea cual sea.
+    (days.length ? ', ' + dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, 'del ') +
+      ' al ' + dayLabel(days[days.length-1]).toLowerCase().replace(/^\S+\s/, '') : '');
 
   document.getElementById('lede').textContent =
     courts.length + ' cancha' + (courts.length === 1 ? '' : 's') +
@@ -1457,6 +1464,12 @@ function filt(btn){
     days[k].style.display = any ? '' : 'none';
   }
 }
+
+build();
+indexGames();
+document.querySelector('.mark').addEventListener('dblclick', unlock);
+if (code()) document.getElementById('lock').classList.add('on');
+load();
 <\/script>
 </body>
 </html>
