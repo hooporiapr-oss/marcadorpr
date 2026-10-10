@@ -224,7 +224,7 @@ function pools(teams, perPool, advance, prefix, startNo){
       for (var j = i + 1; j < gr.length; j++){
         games.push({
           no: prefix + '-' + no, round: 0,
-          stage: 'Grupo ' + letter[gi],
+          stage: count > 1 ? 'Grupo ' + letter[gi] : 'Grupo',
           group: letter[gi],
           a: { team: gr[i] }, b: { team: gr[j] }
         });
@@ -243,7 +243,12 @@ function pools(teams, perPool, advance, prefix, startNo){
       if (groups[gi].length < place) continue;
       // los primeros en orden, los segundos al revés: 1A-2B, 1B-2A
       var idx = (place % 2 === 1) ? gi : (groups.length - 1 - gi);
-      through.push({ place: place + 'º Grupo ' + letter[idx], seed: place, g: idx });
+      // Con un solo grupo la letra sobra, y además hacía que las
+      // finales de todas las categorías se leyeran igual: "1º Grupo A
+      // vs 2º Grupo A", tres veces.
+      var etiqueta = groups.length > 1 ? place + 'º Grupo ' + letter[idx]
+                                       : place + 'º';
+      through.push({ place: etiqueta, seed: place, g: idx });
     }
   }
 
@@ -1158,6 +1163,12 @@ function teamOf(name){
 // Los botones de un juego: uno por equipo que tenga campaña.
 function T(k){ return STR_PLEDGE; }
 
+// Los equipos a los que ya se les ofreció campaña en esta página.
+// Un equipo que juega tres veces no necesita tres botones iguales:
+// con el calendario entero sin campañas salían cuarenta y dos y el
+// calendario desaparecía debajo.
+var PEDIDOS = {};
+
 function pledgeBits(row){
   var out = [];
   var mine = [];                       // un "soy jugador" por equipo
@@ -1165,11 +1176,18 @@ function pledgeBits(row){
 
   sides.forEach(function(side, i){
     var real = resolve(side);
-    if (placeholderFor(real)) return;          // todavía es un hueco
+    // Un hueco del cuadro no es un equipo. placeholderFor sólo conoce
+    // "Ganador DB-9"; los de grupo — "1º Grupo A", "2º" — se colaban y
+    // salían ofreciendo campaña para un equipo que no existe.
+    if (/^(Ganador|\d+º)/.test(real)) return;
     var t = TEAMS[teamKey(real)];
 
     if (!t){
-      // Sin campaña: se ofrece pedirla, o se dice que ya está pedida.
+      // Sin campaña: se ofrece pedirla una sola vez, en su primer juego.
+      var clave = teamKey(real);
+      if (PEDIDOS[clave]) return;
+      PEDIDOS[clave] = 1;
+
       if (ASKED[real.toLowerCase()]){
         out.push('<span class="pl waiting"><b>' + real + '</b>' + ASK.waiting + '</span>');
       } else {
@@ -1205,6 +1223,7 @@ function pledgeBits(row){
 }
 
 function paintPledges(){
+  PEDIDOS = {};
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
     var holder = rows[i].querySelector('.pls');
