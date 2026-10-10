@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Demonstration Tournament — calendario</title>
+<meta name="description" content="Las 21 partidas de Demonstration Tournament, en 2 canchas de Puerto Rico, del 21 al 22 de noviembre. Los marcadores según van entrando.">
+<meta name="theme-color" content="#12202E">
+<!-- La vista previa al compartir: sin esto el enlace entra pelado
+     en WhatsApp y nadie lo toca. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="marcadorpr">
+<meta property="og:url" content="https://marcadorpr.com/demonstration-tournament.html">
+<meta property="og:title" content="Demonstration Tournament — calendario y marcadores">
+<meta property="og:description" content="Las 21 partidas de Demonstration Tournament, en 2 canchas de Puerto Rico, del 21 al 22 de noviembre. Los marcadores según van entrando.">
+<meta property="og:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="marcadorpr — torneos, calendarios, cuadros y resultados">
+<meta property="og:locale" content="es_PR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Demonstration Tournament — calendario y marcadores">
+<meta name="twitter:description" content="Las 21 partidas de Demonstration Tournament, en 2 canchas de Puerto Rico, del 21 al 22 de noviembre. Los marcadores según van entrando.">
+<meta name="twitter:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+  background:#fff;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{width:min(900px,94vw);margin:0 auto}
+
+header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
+  padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff;line-height:1.1}
+.mark span{display:block;font-size:.58rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ball)}
+.by{font-size:.95rem;font-weight:900;letter-spacing:-.02em;color:#fff;text-align:right}
+.by span{color:var(--ball)}
+
+.tools{background:#0B1724;padding:9px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tools .wrap{display:flex;gap:6px;flex-wrap:nowrap}
+.chip{white-space:nowrap;border:1px solid #33465A;background:none;color:#C8D6E2;
+  border-radius:999px;padding:5px 12px;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
+.chip.on{background:var(--k,#fff);border-color:var(--k,#fff);color:#fff}
+.chip.all.on{background:#fff;border-color:#fff;color:#0B1724}
+
+main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}
+main .wrap{padding:clamp(16px,3vw,26px) 0 30px}
+
+h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 6px}
+.stat{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 20px;color:var(--mute);font-size:.86rem}
+.stat b{color:var(--ink)}
+
+/* Tabla de posiciones. Números tabulares para que las columnas
+   no bailen, y el equipo con todo el ancho que sobre: en celular
+   un nombre largo tiene que bajar de línea, no cortar la tabla. */
+.tb{margin:0 0 26px}
+.tb h2{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;margin:0 0 8px;
+  padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.tb h2 span{float:right;font-size:.7rem;font-weight:800;color:var(--mute);
+  letter-spacing:.1em;text-transform:uppercase;padding-top:4px}
+.tb .warn{margin:0 0 8px;color:var(--mute);font-size:.78rem}
+.tb table{width:100%;border-collapse:collapse;font-size:.86rem}
+.tb th{font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mute);text-align:right;padding:0 0 5px 12px;white-space:nowrap}
+.tb th.n,.tb th.e{text-align:left}
+.tb td{padding:7px 0 7px 12px;border-top:1px solid var(--line);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.tb td.n{width:1.4rem;padding-left:0;text-align:left;color:var(--mute);
+  font-size:.78rem;font-weight:800}
+.tb td.e{text-align:left;font-weight:800;width:100%;white-space:normal;
+  padding-left:4px;line-height:1.25}
+.tb td.g{font-weight:900}
+.tb tr.hide,.tb.hide{display:none}
+@media(max-width:420px){.tb table{font-size:.8rem}
+  .tb td{padding:6px 0 6px 9px}.tb th{padding-left:9px}.tb td.n{padding-left:0}}
+
+.day{margin-bottom:26px}
+.day h2{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;margin:0 0 8px;
+  padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.day h2 span{float:right;font-size:.7rem;font-weight:800;color:var(--mute);
+  letter-spacing:.1em;text-transform:uppercase;padding-top:4px}
+.rows{display:grid;gap:4px}
+/* Flex en vez de rejilla: con una rejilla de cinco columnas fijas, una
+   categoría larga como "Juvenil Masculino" se salía del borde en vez
+   de bajar de línea. Así cada pieza se acomoda sola. */
+.r{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;
+  padding:8px 10px;border:1px solid var(--line);border-radius:4px;font-size:.88rem}
+.r.p{border-color:var(--ball);background:rgba(255,122,24,.06)}
+.r .t{font-weight:800;font-variant-numeric:tabular-nums;flex:0 0 58px}
+.r .c{color:var(--mute);font-size:.78rem;font-weight:800;flex:0 0 32px}
+.r .m{flex:1 1 180px;min-width:0}
+.r .m b{font-weight:800}
+.r .m i{font-style:normal;color:var(--mute);font-size:.8rem;padding:0 3px}
+.r .j{color:var(--mute);font-size:.72rem;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.r .k{font-size:.58rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:var(--k);border-radius:3px;padding:3px 8px;white-space:nowrap;
+  flex-shrink:0}
+.r.hide{display:none}
+.r .pls{flex:1 1 100%;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.r .pls:empty{display:none}
+.pl{display:inline-block;border:1px solid var(--accent);border-radius:999px;
+  padding:4px 11px;font-size:.74rem;font-weight:800;color:var(--accent);
+  text-decoration:none;background:#fff}
+.pl b{font-weight:900}
+.pl:hover{background:var(--accent);color:#fff}
+.pl.mine{border-color:var(--ink);color:var(--ink);background:#fff}
+.pl.mine:hover{background:var(--ink);color:#fff}
+.pl.want{border-style:dashed;border-color:var(--line);color:var(--mute);
+  font-family:inherit;cursor:pointer}
+.pl.want:hover{border-color:var(--accent);color:var(--accent);background:#fff}
+.pl.waiting{border-style:dashed;border-color:var(--line);color:#9AA8B5;cursor:default}
+
+/* El formulario, encima de la página: el mismo que en Cada Punto, sin
+   mandar a nadie a otro sitio en medio de mirar el calendario. */
+body.locked{overflow:hidden}
+#signupBox{position:fixed;inset:0;z-index:60;display:none;overflow-y:auto;
+  background:rgba(11,23,36,.72);padding:18px 0 40px}
+#signupBox.on{display:block}
+.su-card{position:relative;width:min(460px,92vw);margin:24px auto;background:#fff;
+  border-radius:6px;padding:24px 24px 20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.su-x{position:absolute;top:10px;right:12px;border:none;background:none;font-size:1.6rem;
+  line-height:1;color:var(--mute);cursor:pointer;padding:4px 8px}
+.su-kick{font-size:.62rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.su-h{font-size:1.35rem;font-weight:900;letter-spacing:-.03em;margin:4px 0 6px}
+.su-p{color:var(--mute);font-size:.92rem;margin:0 0 6px}
+.su-card label{display:block;font-size:.8rem;font-weight:700;margin:13px 0 4px}
+.su-card input[type=text],.su-card input[type=email],.su-card input[type=tel]{
+  width:100%;padding:12px;border:2px solid var(--ink);border-radius:4px;
+  font:inherit;font-size:1rem;color:var(--ink);background:#fff}
+.su-card input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(12,110,140,.15)}
+.su-ok{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.85rem;color:var(--mute)}
+.su-ok input{width:20px;height:20px;flex:0 0 20px;margin-top:1px;accent-color:var(--accent);cursor:pointer}
+.su-ok span{cursor:pointer}
+.su-ok a{color:var(--accent)}
+.su-go{display:block;width:100%;margin-top:16px;padding:15px;border:2px solid var(--ink);
+  border-radius:4px;background:var(--ink);color:#fff;font:inherit;font-weight:800;
+  font-size:1rem;cursor:pointer}
+.su-msg{min-height:1.2em;margin:10px 0 0;font-weight:700;font-size:.9rem;text-align:center}
+.su-msg.bad{color:#A8323F}
+.su-fee{color:var(--mute);font-size:.82rem;margin:12px 0 0}
+.su-done{text-align:center;padding:10px 0}
+.su-tick{font-size:2.6rem;line-height:1;margin-bottom:6px}
+.pl.waiting:hover{background:#fff;color:#9AA8B5}
+.r{cursor:default}
+.r.done{background:var(--tint)}
+.r.done.p{background:rgba(255,122,24,.1)}
+.r .sc{display:block;font-size:.8rem;font-weight:900;color:var(--mute);
+  font-variant-numeric:tabular-nums;margin-top:1px}
+.r .sc b{color:var(--ink)}
+.r .m b.fill{color:#0C6E8C}
+.r .won{color:#0B7A5A;font-weight:900}
+.r .won::after{content:' ✓';font-size:.8em}
+.r .lost{color:#9AA8B5;font-weight:500}
+
+/* el marcador: el que ganó, grande y oscuro; el otro, apagado */
+.r .sc{display:block;margin-top:2px;font-variant-numeric:tabular-nums}
+.r .sc .hi{font-size:1.05rem;font-weight:900;color:var(--ink)}
+.r .sc .lo{font-size:.9rem;font-weight:700;color:#9AA8B5}
+.r .sc .d{padding:0 5px;color:#C3D2DD;font-weight:700}
+.r .sc b{font-size:1rem;font-weight:800}
+
+/* y la fila entera se nota jugada */
+.r.done{background:var(--tint);border-color:#C3D2DD}
+.r.done.p{background:rgba(255,122,24,.1);border-color:var(--ball)}
+.r.live{cursor:pointer}
+
+/* Las casillas, dentro de la fila */
+.ed{flex:1 1 100%;display:flex;gap:6px;align-items:center;margin-top:6px}
+.ed.saving{opacity:.5;pointer-events:none}
+.ep{width:58px;padding:9px 6px;border:2px solid var(--ink);border-radius:4px;
+  font:inherit;font-size:1.05rem;font-weight:800;text-align:center;color:var(--ink);
+  background:#fff;font-variant-numeric:tabular-nums}
+.ep:focus{outline:none;border-color:var(--ball);box-shadow:0 0 0 3px rgba(255,122,24,.2)}
+.ep::placeholder{font-size:.68rem;font-weight:700;color:#9AA8B5}
+.edash{color:var(--mute);font-weight:800}
+.esave,.edel{padding:9px 14px;border:2px solid var(--ink);border-radius:4px;
+  background:var(--ink);color:#fff;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer}
+.edel{background:#fff;color:var(--bad,#A8323F);border-color:var(--line)}
+.eclose{margin-left:auto;padding:7px 12px;border:1px solid var(--line);border-radius:4px;
+  background:#fff;color:var(--mute);font:inherit;font-size:1.1rem;line-height:1;cursor:pointer}
+.eclose:hover{border-color:var(--ink);color:var(--ink)}
+
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:70;
+  background:#0B1724;color:#fff;padding:11px 16px;border-radius:999px;font-size:.84rem;
+  font-weight:700;max-width:88vw;box-shadow:0 8px 30px rgba(0,0,0,.3);transition:opacity .4s}
+.toast.go{opacity:0}
+.r.live:hover{border-color:var(--ink)}
+
+/* la barra de abajo, sólo cuando está desbloqueado */
+.lock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#0B1724;
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));display:none}
+.lock.on{display:block}
+.lock .wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lock span{color:#9FB3C4;font-size:.76rem;font-weight:800}
+.lock button{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;
+  padding:6px 13px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+@media(max-width:620px){
+  .r .t{flex:0 0 52px}
+  .r .c{flex:0 0 28px;font-size:.72rem}
+  .r .m{flex:1 1 100%}
+  .r .j{font-size:.68rem}
+}
+
+/* Cada Punto. En un torneo generado esta tarjeta es lo único que le
+   explica el programa a un papá que llegó buscando la hora del juego
+   de su hijo. Sin ella, "prometer" es una palabra suelta al lado de
+   un nombre y nadie le da. */
+.cpad{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  text-decoration:none;color:#fff;background:#12202E;border:3px solid var(--ball);
+  border-radius:6px;padding:20px 22px;margin:26px 0 28px}
+.cpad:hover{background:#0B1724;box-shadow:0 0 0 4px rgba(255,122,24,.18)}
+.cpad-l{flex:1 1 300px;min-width:0}
+.cpad-h{display:block;font-size:1.05rem;font-weight:900;letter-spacing:-.02em;margin-bottom:3px}
+.cpad-p{display:block;color:#B9CBD9;font-size:.9rem;line-height:1.55}
+.cpad-r{flex:0 0 auto;text-align:center}
+.cpad-mk{display:block;font-weight:900;font-size:.95rem;letter-spacing:-.01em}
+.cpad-mk em{font-style:normal;color:#FF8A2B}
+.cpad-mk i{font-style:normal;color:#6FD83C}
+.cpad-go{display:inline-block;margin-top:8px;padding:9px 16px;border:2px solid var(--ball);
+  border-radius:4px;color:var(--ball);font-weight:800;font-size:.86rem}
+.cpad:hover .cpad-go{background:var(--ball);color:#1A0C00}
+@media(max-width:620px){
+  .cpad{padding:17px;margin:22px 0 24px}
+  .cpad-r{flex:1 1 100%;text-align:center}
+  .cpad-go{display:block;text-align:center}
+}
+
+.courts{display:grid;gap:6px;margin:0 0 22px;font-size:.84rem;color:var(--mute)}
+.courts b{color:var(--ink)}
+
+footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
+  padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
+footer b{color:#fff;display:block;font-weight:800}
+footer a{color:#4FD3F0;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="mark"><span>Puerto Rico</span>Demonstration Tournament</div>
+    <div class="by">marcador<span>pr</span></div>
+  </div>
+  <div class="tools">
+    <div class="wrap">
+      <span id="chips"></span>
+      </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
+    <div class="stat" id="stat"></div>
+
+    <div class="courts" id="courts"></div>
+
+    <a class="cpad" href="https://cadapunto.com/?t=demonstration-tournament">
+      <span class="cpad-l">
+        <b class="cpad-h">¿Tu equipo recauda con sus juegos?</b>
+        <span class="cpad-p">Los padrinos prometen unos centavos por cada punto que anota tu
+          equipo. Al terminar el juego les llega un email con el marcador final del juego y el
+          enlace para pagar — todo en línea, sin vender nada. Ganen o pierdan, el programa gana.</span>
+      </span>
+      <span class="cpad-r">
+        <span class="cpad-mk">cada <em>punto</em> <i>cuenta</i></span>
+        <span class="cpad-go">Ver cómo funciona →</span>
+      </span>
+    </a>
+
+<div id="tabla"></div>
+<div id="days"></div>
+  </div>
+</main>
+
+<div id="signupBox"></div>
+
+<div class="lock" id="lock">
+  <div class="wrap">
+    <span id="lockWho">Marcadores desbloqueados</span>
+    <button onclick="lockOff()">Bloquear</button>
+  </div>
+</div>
+
+<footer>
+  <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
+  Marcadores en vivo · Las promesas se hacen en
+  <a href="https://cadapunto.com">Cada Punto</a>
+</footer>
+
+<script>
+// ══ DATOS DEL TORNEO ══════════════════════════════════
+// Generados por el constructor de calendarios. Cambia aquí
+// y la página entera se repinta.
+var TOURNEY = {"name":"Demonstration Tournament","where":"Puerto Rico","courts":[{"id":"C-1","name":"Cancha 1"},{"id":"C-2","name":"Cancha 2"}]};
+var HOME    = null;          // el equipo que se marca, o null
+var GAMES   = [{"no":"J-1","cat":"Mini Junior · 9-10 años","stage":"Grupo A","date":"2026-11-21","time":"9:00AM","court":"C-1","a":"Coquíes","b":"Flamboyanes"},{"no":"J-2","cat":"Mini Junior · 9-10 años","stage":"Grupo A","date":"2026-11-21","time":"10:00AM","court":"C-1","a":"Coquíes","b":"Garzas"},{"no":"J-3","cat":"Mini Junior · 9-10 años","stage":"Grupo A","date":"2026-11-21","time":"11:00AM","court":"C-1","a":"Coquíes","b":"Tiburones"},{"no":"J-4","cat":"Mini Junior · 9-10 años","stage":"Grupo A","date":"2026-11-21","time":"11:00AM","court":"C-2","a":"Flamboyanes","b":"Garzas"},{"no":"J-5","cat":"Mini Junior · 9-10 años","stage":"Grupo A","date":"2026-11-21","time":"10:00AM","court":"C-2","a":"Flamboyanes","b":"Tiburones"},{"no":"J-6","cat":"Mini Junior · 9-10 años","stage":"Grupo A","date":"2026-11-21","time":"9:00AM","court":"C-2","a":"Garzas","b":"Tiburones"},{"no":"J-8","cat":"Junior · 11-12 años","stage":"Grupo A","date":"2026-11-21","time":"12:00PM","court":"C-1","a":"Cemíes","b":"Jueyes"},{"no":"J-9","cat":"Junior · 11-12 años","stage":"Grupo A","date":"2026-11-21","time":"1:00PM","court":"C-1","a":"Cemíes","b":"Pitirres"},{"no":"J-10","cat":"Junior · 11-12 años","stage":"Grupo A","date":"2026-11-21","time":"2:00PM","court":"C-1","a":"Cemíes","b":"Yagrumos"},{"no":"J-11","cat":"Junior · 11-12 años","stage":"Grupo A","date":"2026-11-21","time":"2:00PM","court":"C-2","a":"Jueyes","b":"Pitirres"},{"no":"J-12","cat":"Junior · 11-12 años","stage":"Grupo A","date":"2026-11-21","time":"1:00PM","court":"C-2","a":"Jueyes","b":"Yagrumos"},{"no":"J-13","cat":"Junior · 11-12 años","stage":"Grupo A","date":"2026-11-21","time":"12:00PM","court":"C-2","a":"Pitirres","b":"Yagrumos"},{"no":"J-15","cat":"7mo–8vo grado","stage":"Grupo A","date":"2026-11-21","time":"3:00PM","court":"C-1","a":"Carruchos","b":"Ceibas"},{"no":"J-16","cat":"7mo–8vo grado","stage":"Grupo A","date":"2026-11-22","time":"9:00AM","court":"C-1","a":"Carruchos","b":"Guaraguaos"},{"no":"J-17","cat":"7mo–8vo grado","stage":"Grupo A","date":"2026-11-22","time":"10:00AM","court":"C-1","a":"Carruchos","b":"Manatíes"},{"no":"J-18","cat":"7mo–8vo grado","stage":"Grupo A","date":"2026-11-22","time":"10:00AM","court":"C-2","a":"Ceibas","b":"Guaraguaos"},{"no":"J-19","cat":"7mo–8vo grado","stage":"Grupo A","date":"2026-11-22","time":"9:00AM","court":"C-2","a":"Ceibas","b":"Manatíes"},{"no":"J-20","cat":"7mo–8vo grado","stage":"Grupo A","date":"2026-11-21","time":"3:00PM","court":"C-2","a":"Guaraguaos","b":"Manatíes"},{"no":"J-7","cat":"Mini Junior · 9-10 años","stage":"Final","date":"2026-11-22","time":"11:00AM","court":"C-1","a":"1º Grupo A","b":"2º Grupo A"},{"no":"J-14","cat":"Junior · 11-12 años","stage":"Final","date":"2026-11-22","time":"12:00PM","court":"C-1","a":"1º Grupo A","b":"2º Grupo A"},{"no":"J-21","cat":"7mo–8vo grado","stage":"Final","date":"2026-11-22","time":"1:00PM","court":"C-1","a":"1º Grupo A","b":"2º Grupo A"}];
+var CATCOLOR = {"Mini Junior · 9-10 años":"#1D4FA3","Junior · 11-12 años":"#B08900","7mo–8vo grado":"#5A6B7C"};
+</script>
+<script>
+var CP = 'https://cadapunto.com';     // ahí vive el dinero
+var STR_PLEDGE = ' — prometer';
+var STR_IPLAY  = 'Soy jugador · mi enlace';
+var STR_SAVE = 'OK';
+var STR_DEL  = 'Borrar';
+var STR_BADCODE = 'Código incorrecto.';
+var STR_FAIL = 'No se pudo guardar.';
+var STR_PUSHED = 'Cerrado también en la campaña (vs {O}) — listo para cobrar.';
+var SB_URL='https://sdaphocueugzfvjovuxd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+
+function rpc(name, args){
+  return fetch(SB_URL + '/rest/v1/rpc/' + name, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify(args || {})
+  }).then(function(r){ if(!r.ok) throw new Error('rpc'); return r.json(); });
+}
+
+// El código vive sólo en esta pestaña: en una computadora prestada no
+// se queda abierto.
+function code(){ try { return sessionStorage.getItem('bw-code') || ''; } catch(e){ return ''; } }
+function keep(c){ try { sessionStorage.setItem('bw-code', c); } catch(e){} }
+
+var SCORES = {};
+
+// ══════════════════════════════════════════════════════
+//  Cada equipo cobra lo suyo. Un equipo con campaña enseña
+//  un botón de prometer en cada juego suyo; uno sin campaña
+//  enseña cómo conseguirla. Nada que administrar por los que
+//  no entren.
+// ══════════════════════════════════════════════════════
+var TEAMS = {};
+
+// ══════════════════════════════════════════════════════
+//  Un equipo sin campaña enseña cómo conseguir una. El
+//  coach pide; se aprueba a mano, porque pedir un equipo
+//  es pedir el derecho a cobrar en su nombre.
+// ══════════════════════════════════════════════════════
+var ASKED = {};
+
+function loadAsked(){
+  return rpc('bw_request_states')
+    .then(function(r){ ASKED = r || {}; })
+    .catch(function(e){ console.error('asked', e); });
+}
+
+
+// Un nombre de equipo viene del calendario, y el del programa lo
+// escribe un coach: los dos se escapan antes de pintarlos.
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m];
+  });
+}
+
+function askTeam(name){
+  var team = resolve(name);
+  if (placeholderFor(team)) return;
+
+  var box = document.getElementById('signupBox');
+  box.dataset.team = team;
+  box.innerHTML =
+    '<div class="su-card">' +
+      '<button class="su-x" onclick="closeSignup()" aria-label="cerrar">×</button>' +
+      '<div class="su-kick">' + ASK.kick + '</div>' +
+      '<h3 class="su-h">' + esc(team) + '</h3>' +
+      '<p class="su-p">' + ASK.lede + '</p>' +
+
+      '<label>' + ASK.lProgram + '</label>' +
+      '<input id="suProg" type="text" maxlength="60" value="' + esc(team) + '">' +
+
+      '<label>' + ASK.lCoach + '</label>' +
+      '<input id="suName" type="text" maxlength="60" autocomplete="name">' +
+
+      '<label>' + ASK.lEmail + '</label>' +
+      '<input id="suMail" type="email" maxlength="80" autocomplete="email">' +
+
+      '<label>' + ASK.lPhone + '</label>' +
+      '<input id="suPhone" type="tel" maxlength="25" autocomplete="tel">' +
+
+      '<div class="su-ok">' +
+        '<input id="suTerms" type="checkbox">' +
+        '<span onclick="document.getElementById(\'suTerms\').click()">' + ASK.terms + '</span>' +
+      '</div>' +
+
+      '<button class="su-go" onclick="sendSignup()">' + ASK.send + '</button>' +
+      '<p class="su-msg" id="suMsg"></p>' +
+      '<p class="su-fee">' + ASK.fee + '</p>' +
+    '</div>';
+
+  box.classList.add('on');
+  document.body.classList.add('locked');
+}
+
+function closeSignup(){
+  var box = document.getElementById('signupBox');
+  box.classList.remove('on');
+  box.innerHTML = '';
+  document.body.classList.remove('locked');
+}
+
+function suSay(t, bad){
+  var el = document.getElementById('suMsg');
+  if (el){ el.textContent = t; el.className = 'su-msg' + (bad ? ' bad' : ''); }
+}
+
+function sendSignup(){
+  var box = document.getElementById('signupBox');
+  var team  = box.dataset.team;
+  var prog  = (document.getElementById('suProg').value  || '').trim();
+  var name  = (document.getElementById('suName').value  || '').trim();
+  var email = (document.getElementById('suMail').value  || '').trim();
+  var phone = (document.getElementById('suPhone').value || '').trim();
+  var terms = document.getElementById('suTerms').checked;
+
+  if (!prog)  return suSay(ASK.errProg, true);
+  if (!name || email.indexOf('@') === -1) return suSay(ASK.errWho, true);
+  if (!terms) return suSay(ASK.errTerms, true);
+
+  suSay('…');
+  rpc('bw_request_team', {
+    p_team: team, p_program: prog, p_name: name,
+    p_email: email, p_phone: phone, p_terms: true
+  }).then(function(r){
+    if (!r || !r.ok){
+      if (r && r.reason === 'taken')   return suSay(ASK.taken, true);
+      if (r && r.reason === 'pending') return suSay(ASK.already, true);
+      return suSay(ASK.failed, true);
+    }
+
+    fetch('https://basketball-money-payments.onrender.com/team-signup', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ team: team, program: prog, coach: name,
+                             email: email, phone: phone })
+    }).catch(function(e){ console.error('notice', e); });
+
+    ASKED[team.toLowerCase()] = 'pending';
+    box.querySelector('.su-card').innerHTML =
+      '<button class="su-x" onclick="closeSignup()" aria-label="cerrar">×</button>' +
+      '<div class="su-done">' +
+        '<div class="su-tick">✓</div>' +
+        '<h3 class="su-h">' + ASK.doneH + '</h3>' +
+        '<p class="su-p">' + ASK.doneP.replace('{E}', esc(email)) + '</p>' +
+        '<button class="su-go" onclick="closeSignup()">' + ASK.close + '</button>' +
+      '</div>';
+    paintPledges();
+  }).catch(function(e){ console.error(e); suSay(ASK.failed, true); });
+}
+
+var ASK = {
+  kick:'Recaudar con este equipo',
+  lede:'Tu equipo anota, tu programa cobra. Los padrinos prometen unos centavos por cada punto ' +
+       'que anoten, y pagan después del juego. Ganen o pierdan, el programa gana.',
+  lProgram:'Nombre del programa (lo que verán las familias)',
+  lCoach:'Tu nombre',
+  lEmail:'Tu correo — ahí te escribimos y por ahí entras',
+  lPhone:'Tu teléfono (opcional)',
+  terms:'He leído y acepto los ' +
+        '<a href="https://cadapunto.com/terms.html" target="_blank" rel="noopener">Términos de Uso</a>' +
+        ' y la ' +
+        '<a href="https://cadapunto.com/privacy.html" target="_blank" rel="noopener">Política de Privacidad</a>.',
+  fee:'Nada por adelantado y nada mensual. El 10% de plataforma se le añade al pago del padrino, ' +
+      'nunca se saca de lo del programa.',
+  send:'Pedir mi campaña',
+  close:'Cerrar',
+  errProg:'Escribe el nombre del programa.',
+  errWho:'Tu nombre y tu correo, por favor.',
+  errTerms:'Tienes que aceptar los términos para seguir.',
+  doneH:'Recibido.',
+  doneP:'Te escribimos a {E} para confirmarlo y abrirte la campaña. Normalmente el mismo día.',
+  taken:'Ese equipo ya tiene campaña.',
+  already:'Ya hay una petición para ese equipo. Te escribimos pronto.',
+  failed:'No se pudo enviar. Intenta otra vez.',
+  want:' — info: cómo recaudar',
+  waiting:' — info pedida'
+};
+
+
+
+function teamKey(n){ return norm(n); }
+
+function teamOf(name){
+  var real = resolve(name);
+  return TEAMS[teamKey(real)] || null;
+}
+
+// Los botones de un juego: uno por equipo que tenga campaña.
+function T(k){ return STR_PLEDGE; }
+
+function pledgeBits(row){
+  var out = [];
+  var mine = [];                       // un "soy jugador" por equipo
+  var sides = [row.dataset.a, row.dataset.b];
+
+  sides.forEach(function(side, i){
+    var real = resolve(side);
+    if (placeholderFor(real)) return;          // todavía es un hueco
+    var t = TEAMS[teamKey(real)];
+
+    if (!t){
+      // Sin campaña: se ofrece pedirla, o se dice que ya está pedida.
+      if (ASKED[real.toLowerCase()]){
+        out.push('<span class="pl waiting"><b>' + real + '</b>' + ASK.waiting + '</span>');
+      } else {
+        out.push('<button class="pl want" onclick="askTeam(\'' +
+                   real.replace(/'/g, "\\'") + '\')">' +
+                   '<b>' + real + '</b>' + ASK.want +
+                 '</button>');
+      }
+      return;
+    }
+
+    // Para ese equipo, el rival es el otro lado — que es como está
+    // puesto el juego en su propia campaña.
+    var foe = resolve(sides[i === 0 ? 1 : 0]);
+
+    var href = CP + '/scoreboard.html?c=' + t.campaign +
+               '&on=' + encodeURIComponent(row.dataset.on || '') +
+               '&vs=' + encodeURIComponent(foe);
+
+    out.push('<a class="pl" href="' + href + '">' +
+               '<b>' + real + '</b>' + STR_PLEDGE +
+             '</a>');
+
+    // Y para quien juega en ese equipo: su propio enlace de padrinos.
+    if (mine.indexOf(t.campaign) === -1){
+      mine.push(t.campaign);
+      out.push('<a class="pl mine" href="' + CP + '/jugador.html?c=' + t.campaign + '">' +
+                 STR_IPLAY +
+               '</a>');
+    }
+  });
+  return out.join('');
+}
+
+function paintPledges(){
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    var holder = rows[i].querySelector('.pls');
+    if (!holder) continue;
+    var done = rows[i].classList.contains('done');
+    holder.innerHTML = done ? '' : pledgeBits(rows[i]);
+  }
+}
+
+function loadTeams(){
+  return rpc('bw_teams_board')
+    .then(function(b){
+      TEAMS = {};
+      Object.keys(b || {}).forEach(function(k){ TEAMS[teamKey(k)] = b[k]; });
+    })
+    .catch(function(e){ console.error('teams', e); });
+}
+
+
+
+// ══════════════════════════════════════════════════════
+//  "Ganador J-9" deja de ser un hueco en cuanto se pone
+//  el marcador de J-9. Y como un ganador puede depender de
+//  otro ganador, se resuelve hacia atrás hasta encontrar un
+//  nombre de verdad.
+// ══════════════════════════════════════════════════════
+var BYNO = {};    // J-9 → { a:'CNSC Red', b:'DAC-A' }
+// Ojo: NO llamarlo GAMES. Arriba ya existe var GAMES con el
+// calendario entero, y una segunda declaración lo borraba: la
+// página salía en blanco con sólo las canchas.
+
+function indexGames(){
+  // Desde los datos primero, no sólo desde el DOM.
+  GAMES.forEach(function(g){ BYNO[norm(g.no)] = { a: g.a, b: g.b }; });
+
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    BYNO[norm(rows[i].dataset.j)] = { a: rows[i].dataset.a, b: rows[i].dataset.b };
+  }
+}
+
+function norm(s){ return String(s || '').replace(/#/g, '').trim().toUpperCase(); }
+
+function placeholderFor(name){
+  var m = norm(name).match(/^GANADOR\s+(J-\S+)$/);
+  return m ? m[1] : null;
+}
+
+// Devuelve el nombre real si ya se sabe, o el texto original si no.
+// El guardia de profundidad evita que dos juegos que se apunten el uno
+// al otro cuelguen la página.
+function resolve(name, depth){
+  depth = depth || 0;
+  if (depth > 8) return name;
+
+  var key = placeholderFor(name);
+  if (!key) return name;
+
+  var g = BYNO[key], s = SCORES[key];
+  if (!g || !s || s.a === s.b) return name;
+
+  var winner = s.a > s.b ? g.a : g.b;
+  return resolve(winner, depth + 1);
+}
+
+
+
+function paint(){
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    var r = rows[i];
+    var s = SCORES[norm(r.dataset.j)] || SCORES[r.dataset.j];
+    var sa = r.querySelector('.sa'), sb = r.querySelector('.sb'), sc = r.querySelector('.sc');
+
+    // Los huecos del cuadro se rellenan solos según entran marcadores.
+    var na = resolve(r.dataset.a), nb = resolve(r.dataset.b);
+    sa.textContent = na;
+    sb.textContent = nb;
+    sa.classList.toggle('fill', na !== r.dataset.a);
+    sb.classList.toggle('fill', nb !== r.dataset.b);
+
+    r.classList.toggle('live', !!code());
+    sa.className = 'sa'; sb.className = 'sb';
+
+    if (!s){ r.classList.remove('done'); sc.textContent = ''; continue; }
+
+    r.classList.add('done');
+
+    if (s.a > s.b){
+      sa.className = 'sa won'; sb.className = 'sb lost';
+      sc.innerHTML = '<b class="hi">' + s.a + '</b><span class="d">–</span><b class="lo">' + s.b + '</b>';
+    } else if (s.b > s.a){
+      sb.className = 'sb won'; sa.className = 'sa lost';
+      sc.innerHTML = '<b class="lo">' + s.a + '</b><span class="d">–</span><b class="hi">' + s.b + '</b>';
+    } else {
+      sc.innerHTML = '<b>' + s.a + '</b><span class="d">–</span><b>' + s.b + '</b>';
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  TABLA DE POSICIONES
+//  No guarda nada: se calcula entera cada vez, con las
+//  filas que ya están en la página y los marcadores que
+//  ya bajaron. Si no hay marcadores, no hay tabla.
+// ══════════════════════════════════════════════════════
+
+// El margen de cada juego se cuenta hasta aquí y no más. Sin
+// tope, ganar por cuarenta sube en la tabla y además recauda
+// más en Cada Punto — y no queremos publicar ese incentivo.
+var DIF_CAP = 15;
+
+// Lo que resuelve el cuadro no va a la tabla: ahí manda el bracket.
+// Todo lo demás sí. Se excluye por lista conocida y no al revés: si
+// mañana una liga marca sus juegos como "Jornada 3", la tabla tiene
+// que contarlos, no borrarlos en silencio.
+var BRACKET = /^(Final|Semifinal|Cuartos|Ronda\s)/i;
+
+function tableBucket(stage){
+  var s = String(stage || '').trim();
+  if (BRACKET.test(s)) return null;               // null = no cuenta
+  var m = s.match(/^Grupo\s+(\S+)/i);
+  // Un grupo lleva su propia tabla. Lo demás — liga, jornada, nada —
+  // cae en la tabla única de la categoría.
+  return m ? 'Grupo ' + m[1].toUpperCase() : '';
+}
+
+function blankRow(name){
+  return { name: name, pj: 0, g: 0, p: 0, pf: 0, pc: 0, dif: 0, h2h: [] };
+}
+
+// Devuelve [{ key, cat, group, teams:[...], jugados, total }]
+function standings(){
+  var pots = {};   // clave de tabla → { cat, group, teams, jugados, total }
+
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    var r = rows[i];
+    var bucket = tableBucket(r.dataset.stage);
+    if (bucket === null) continue;
+
+    var cat = r.dataset.cat || '';
+    var key = cat + (bucket ? ' · ' + bucket : '');
+    var pot = pots[key] || (pots[key] = {
+      key: key, cat: cat, group: bucket, teams: {}, jugados: 0, total: 0
+    });
+
+    // Los huecos del cuadro ya resueltos cuentan con su nombre real.
+    var na = resolve(r.dataset.a), nb = resolve(r.dataset.b);
+    if (placeholderFor(na) || placeholderFor(nb)) continue;  // aún sin dueño
+
+    pot.total++;
+    var ta = pot.teams[na] || (pot.teams[na] = blankRow(na));
+    var tb = pot.teams[nb] || (pot.teams[nb] = blankRow(nb));
+
+    var s = SCORES[norm(r.dataset.j)];
+    if (!s || s.a == null || s.b == null) continue;
+
+    pot.jugados++;
+    var cap = function(d){ return Math.max(-DIF_CAP, Math.min(DIF_CAP, d)); };
+
+    ta.pj++; tb.pj++;
+    ta.pf += s.a; ta.pc += s.b;
+    tb.pf += s.b; tb.pc += s.a;
+    ta.dif += cap(s.a - s.b);
+    tb.dif += cap(s.b - s.a);
+    if (s.a > s.b){ ta.g++; tb.p++; }
+    else if (s.b > s.a){ tb.g++; ta.p++; }
+
+    // El margen se guarda ya con tope: la tabla chiquita del
+    // desempate tiene que castigar la goleada igual que la grande.
+    ta.h2h.push({ foe: nb, us: s.a, them: s.b, m: cap(s.a - s.b) });
+    tb.h2h.push({ foe: na, us: s.b, them: s.a, m: cap(s.b - s.a) });
+  }
+
+  return Object.keys(pots).sort().map(function(k){
+    var pot = pots[k];
+    var list = Object.keys(pot.teams).map(function(n){ return pot.teams[n]; });
+    return {
+      key: pot.key, cat: pot.cat, group: pot.group,
+      jugados: pot.jugados, total: pot.total,
+      teams: rank(list)
+    };
+  });
+}
+
+// ── Desempate ────────────────────────────────────────
+// 1. más ganados
+// 2. entre los empatados nada más, quién le ganó a quién
+// 3. diferencia con tope
+// 4. puntos a favor
+//
+// El paso 2 se hace con una tabla chiquita, no mirando un
+// solo juego: en un grupo de cuatro el empate normal no es
+// de dos equipos, es de tres y en círculo — A le ganó a B,
+// B a C, C a A. Buscando un solo resultado eso no se
+// resuelve y la tabla parece estar mala. Con la tabla
+// chiquita se resuelve casi siempre, y cuando de verdad es
+// un círculo cae sola al paso 3.
+function rank(list){
+  var out = [];
+  var byWins = list.slice().sort(function(x, y){ return y.g - x.g; });
+
+  var i = 0;
+  while (i < byWins.length){
+    var j = i;
+    while (j + 1 < byWins.length && byWins[j + 1].g === byWins[i].g) j++;
+    var block = byWins.slice(i, j + 1);
+    out = out.concat(block.length > 1 ? breakTie(block) : block);
+    i = j + 1;
+  }
+
+  out.forEach(function(t, n){ t.pos = n + 1; });
+  return out;
+}
+
+function breakTie(block){
+  var inside = {};
+  block.forEach(function(t){ inside[t.name] = true; });
+
+  // La tabla chiquita sólo vale si todos los empatados jugaron
+  // entre sí. En un grupo siempre es así. En una liga con calendario
+  // desigual, no: comparar por un cruce que la mitad no jugó pone
+  // por debajo a un equipo con mejor diferencia sin que nadie le
+  // haya ganado. Si falta un cruce, se salta al paso 3.
+  var todos = block.every(function(t){
+    var jugo = {};
+    t.h2h.forEach(function(x){ if (inside[x.foe]) jugo[x.foe] = 1; });
+    return block.every(function(o){ return o === t || jugo[o.name]; });
+  });
+
+  // Tabla chiquita: sólo los juegos entre los empatados.
+  block.forEach(function(t){
+    t.mg = 0; t.mdif = 0;
+    if (!todos) return;
+    t.h2h.forEach(function(x){
+      if (!inside[x.foe]) return;
+      if (x.us > x.them) t.mg++;
+      t.mdif += x.m;
+    });
+  });
+
+  return block.slice().sort(function(x, y){
+    return (y.mg - x.mg) || (y.mdif - x.mdif) ||
+           (y.dif - x.dif) || (y.pf - x.pf) ||
+           x.name.localeCompare(y.name);
+  });
+}
+
+// Pintar las tablas. Mientras falten marcadores lo dice arriba
+// de cada una: una tabla a medias tiene que leerse incompleta,
+// no equivocada.
+function paintTable(){
+  var box = document.getElementById('tabla');
+  if (!box) return;
+
+  var tables = standings().filter(function(t){ return t.jugados > 0; });
+  if (!tables.length){ box.innerHTML = ''; return; }
+
+  box.innerHTML = tables.map(function(t){
+    var falta = t.total - t.jugados;
+    return '<section class="tb" data-cat="' + esc(t.cat) + '">' +
+      '<h2>' + esc(t.key || 'Posiciones') +
+        '<span>' + t.jugados + ' de ' + t.total + ' jugados</span></h2>' +
+      (falta ? '<p class="warn">' +
+               (falta === 1 ? 'Falta 1 marcador — la tabla cambia cuando entre.'
+                            : 'Faltan ' + falta + ' marcadores — la tabla cambia cuando entren.') +
+               '</p>' : '') +
+      '<table><thead><tr><th class="n"></th><th class="e">Equipo</th>' +
+        '<th>PJ</th><th>G</th><th>P</th><th>DIF</th><th>PF</th></tr></thead><tbody>' +
+      t.teams.map(function(x){
+        return '<tr><td class="n">' + x.pos + '</td>' +
+          '<td class="e">' + esc(x.name) + '</td>' +
+          '<td>' + x.pj + '</td>' +
+          '<td class="g">' + x.g + '</td>' +
+          '<td>' + x.p + '</td>' +
+          '<td>' + (x.dif > 0 ? '+' + x.dif : x.dif) + '</td>' +
+          '<td>' + x.pf + '</td></tr>';
+      }).join('') +
+      '</tbody></table></section>';
+  }).join('');
+}
+
+function load(){
+  Promise.all([ rpc('bw_board'), loadTeams(), loadAsked() ])
+    .then(function(r){ SCORES = r[0] || {}; paint(); paintTable(); paintPledges(); })
+    .catch(function(e){ console.error(e); });
+}
+
+// ══════════════════════════════════════════════════════
+//  Poner un marcador sin salir de la fila: dos casillas y
+//  guardar. Ochenta juegos en cinco días, de pie en un
+//  gimnasio — cada toque de menos cuenta.
+// ══════════════════════════════════════════════════════
+function tap(row){
+  if (!code()) return;                 // sin código no se toca nada
+  if (row.querySelector('.ed')) return;   // ya está abierta
+
+  var j = norm(row.dataset.j);
+  var cur = SCORES[j];
+
+  var ed = document.createElement('span');
+  ed.className = 'ed';
+  ed.innerHTML =
+    '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
+      'value="' + (cur ? cur.a : '') + '" placeholder="' + esc(shortName(row.dataset.a)) + '">' +
+    '<span class="edash">–</span>' +
+    '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
+      'value="' + (cur ? cur.b : '') + '" placeholder="' + esc(shortName(row.dataset.b)) + '">' +
+    '<button class="esave">' + STR_SAVE + '</button>' +
+    (cur ? '<button class="edel">' + STR_DEL + '</button>' : '') +
+    '<button class="eclose" aria-label="cerrar">×</button>';
+
+  row.appendChild(ed);
+
+  var boxes = ed.querySelectorAll('.ep');
+
+  // Evitar que tocar dentro vuelva a disparar la fila.
+  ed.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  // Tres dígitos y salta sola a la otra; Enter guarda.
+  boxes[0].addEventListener('input', function(){
+    if (this.value.length >= 2 && Number(this.value) > 9) boxes[1].focus();
+  });
+  Array.prototype.forEach.call(boxes, function(b){
+    b.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ e.preventDefault(); save(); }
+      if (e.key === 'Escape'){ e.preventDefault(); ed.remove(); }
+    });
+  });
+
+  ed.querySelector('.esave').addEventListener('click', save);
+  ed.querySelector('.eclose').addEventListener('click', function(){ ed.remove(); });
+  var del = ed.querySelector('.edel');
+  if (del) del.addEventListener('click', function(){
+    rpc('bw_clear_score', { p_code: code(), p_game: j })
+      .then(function(){ delete SCORES[j]; ed.remove(); paint(); paintTable(); paintPledges(); });
+  });
+
+  boxes[0].focus();
+  boxes[0].select();
+
+  function save(){
+    var a = boxes[0].value.trim(), b = boxes[1].value.trim();
+    if (!/^\d+$/.test(a) || !/^\d+$/.test(b)){
+      boxes[!/^\d+$/.test(a) ? 0 : 1].focus();
+      return;
+    }
+
+    ed.classList.add('saving');
+    rpc('bw_set_score', {
+      p_code: code(), p_game: j,
+      p_a: parseInt(a, 10), p_b: parseInt(b, 10),
+      p_team_a: resolve(row.dataset.a),
+      p_team_b: resolve(row.dataset.b),
+      p_on: row.dataset.on || null
+    }).then(function(r){
+      ed.classList.remove('saving');
+      if (!r || !r.ok){
+        if (r && r.reason === 'code'){ lockOff(); alert(STR_BADCODE); return; }
+        alert(STR_FAIL);
+        return;
+      }
+      SCORES[j] = { a: parseInt(a, 10), b: parseInt(b, 10) };
+      ed.remove();
+      paint(); paintTable(); paintPledges();
+      if (r.pushed) toast(STR_PUSHED.replace('{O}', r.pushed));
+    }).catch(function(e){
+      ed.classList.remove('saving');
+      console.error(e); alert(STR_FAIL);
+    });
+  }
+}
+
+// "Ganador J-9" no cabe de marcador de posición; el nombre corto sí.
+function shortName(n){
+  var r = resolve(n);
+  if (placeholderFor(r)) return '?';
+  return r.length > 9 ? r.slice(0, 9) : r;
+}
+
+// Un aviso que se va solo: un alert por juego, ochenta veces, es
+// insoportable de pie en un gimnasio.
+function toast(msg){
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.classList.add('go'); }, 2600);
+  setTimeout(function(){ t.remove(); }, 3200);
+}
+
+// Desbloquear con doble toque en el escudo: no hace falta un botón
+// que todo el mundo vea.
+function unlock(){
+  var c = prompt('Código de marcadores:');
+  if (c === null) return;
+  c = c.trim();
+  if (!c) return;
+  rpc('bw_check', { p_code: c }).then(function(ok){
+    if (!ok){ alert('Código incorrecto.'); return; }
+    keep(c);
+    document.getElementById('lock').classList.add('on');
+    paint();
+  });
+}
+
+function lockOff(){
+  try { sessionStorage.removeItem('bw-code'); } catch(e){}
+  document.getElementById('lock').classList.remove('on');
+  paint();
+}
+
+// El arranque va al final del script, después de que todo esté
+// definido. Estaba aquí arriba y build() corría antes de que
+// var DAYNAME tuviera valor: la página reventaba en el primer
+// nombre de día.
+
+
+// ══════════════════════════════════════════════════════
+//  El calendario se pinta de los datos de arriba. Antes
+//  estaban las ochenta filas escritas a mano, que es lo
+//  que hacía falta un humano para montar un torneo.
+// ══════════════════════════════════════════════════════
+var DAYNAME = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+function dayLabel(iso){
+  var d = new Date(iso + 'T12:00:00');
+  var m = d.toLocaleDateString('es-PR', { month:'long' });
+  return DAYNAME[d.getDay()].charAt(0).toUpperCase() + DAYNAME[d.getDay()].slice(1) +
+         ' ' + d.getDate() + ' de ' + m;
+}
+
+function mins(t){
+  var h = parseInt(t, 10) % 12;
+  if (/PM/i.test(t)) h += 12;
+  return h * 60 + (parseInt(t.split(':')[1], 10) || 0);
+}
+
+function build(){
+  // La cabecera, de los datos.
+  var days = [], cats = [], courts = [], teams = {};
+  GAMES.forEach(function(g){
+    if (g.date && days.indexOf(g.date) === -1) days.push(g.date);
+    if (g.cat && cats.indexOf(g.cat) === -1) cats.push(g.cat);
+    if (g.court && courts.indexOf(g.court) === -1) courts.push(g.court);
+    [g.a, g.b].forEach(function(t){
+      if (t && !/^(Ganador|\d+º)/.test(t)) teams[t] = 1;
+    });
+  });
+  days.sort(); courts.sort();
+
+  document.getElementById('h1').textContent =
+    'Los ' + GAMES.length + ' juegos' +
+    // \w no cubre acentos: con "sábado" y "miércoles" el día se
+    // quedaba pegado. \S+ corta la primera palabra sea cual sea.
+    rango(days);
+
+  // El mes se dice una sola vez si es el mismo: "del 21 al 22 de
+  // noviembre", no "del 21 de noviembre al 22 de noviembre". Igual
+  // que la descripción que va en WhatsApp, que ya lo hacía así.
+  function rango(days){
+    if (!days.length) return '';
+    var a = dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, '');
+    var b = dayLabel(days[days.length - 1]).toLowerCase().replace(/^\S+\s/, '');
+    if (days.length === 1) return ', el ' + a;
+    var ma = a.replace(/^\d+\s+de\s+/, ''), mb = b.replace(/^\d+\s+de\s+/, '');
+    if (ma === mb) return ', del ' + a.replace(/\s+de\s+.+$/, '') + ' al ' + b;
+    return ', del ' + a + ' al ' + b;
+  }
+
+  document.getElementById('lede').textContent =
+    courts.length + ' cancha' + (courts.length === 1 ? '' : 's') +
+    (TOURNEY.where ? ' en ' + TOURNEY.where : '') + ', ' +
+    cats.length + ' categoría' + (cats.length === 1 ? '' : 's') + ', ' +
+    Object.keys(teams).length + ' equipos.';
+
+  document.getElementById('stat').innerHTML =
+    '<span><b>' + GAMES.length + '</b> juegos</span>' +
+    '<span><b>' + cats.length + '</b> categorías</span>' +
+    '<span><b>' + courts.length + '</b> canchas</span>' +
+    '<span><b>' + days.length + '</b> días</span>';
+
+  document.getElementById('courts').innerHTML =
+    (TOURNEY.courts || []).map(function(c){
+      return '<div><b>' + esc(c.id) + '</b> — ' + esc(c.name || c.id) + '</div>';
+    }).join('');
+
+  document.getElementById('chips').innerHTML =
+    '<button class="chip all on" data-f="" onclick="filt(this)">Todo</button>' +
+    cats.map(function(c){
+      return '<button class="chip" data-f="' + esc(c) + '" onclick="filt(this)" ' +
+             'style="--k:' + (CATCOLOR[c] || '#12202E') + '">' + esc(c) + '</button>';
+    }).join('');
+
+  var html = '';
+  days.forEach(function(d){
+    var list = GAMES.filter(function(g){ return g.date === d; })
+                    .sort(function(a, b){
+                      var t = mins(a.time) - mins(b.time);
+                      return t !== 0 ? t : String(a.court).localeCompare(String(b.court));
+                    });
+    if (!list.length) return;
+
+    html += '<section class="day"><h2>' + dayLabel(d) +
+            ' <span>' + list.length + ' juegos</span></h2><div class="rows">';
+
+    list.forEach(function(g){
+      var mine = HOME && (String(g.a).indexOf(HOME) === 0 || String(g.b).indexOf(HOME) === 0);
+      html +=
+        '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
+          'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
+          'data-on="' + esc(g.date) + '" data-a="' + esc(g.a) + '" data-b="' + esc(g.b) + '" ' +
+          'data-stage="' + esc(g.stage || '') + '" ' +
+          'onclick="tap(this)">' +
+          '<span class="t">' + esc(g.time) + '</span>' +
+          '<span class="c">' + esc(g.court) + '</span>' +
+          '<span class="m"><b class="sa">' + esc(g.a) + '</b> <i>vs</i> ' +
+            '<b class="sb">' + esc(g.b) + '</b><span class="sc"></span></span>' +
+          '<span class="pls"></span>' +
+          '<span class="j">' + esc(g.no) + (g.stage ? ' · ' + esc(g.stage) : '') + '</span>' +
+          '<span class="k" style="--k:' + (CATCOLOR[g.cat] || '#12202E') + '">' + esc(g.cat) + '</span>' +
+        '</div>';
+    });
+
+    html += '</div></section>';
+  });
+
+  document.getElementById('days').innerHTML = html;
+}
+
+// Filtrar por categoría: la lista completa es larga, y una familia
+// sólo quiere la suya.
+function filt(btn){
+  var want = btn.dataset.f || '';
+  var chips = document.querySelectorAll('.chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.remove('on');
+  btn.classList.add('on');
+
+  var rows = document.querySelectorAll('.r');
+  for (var j = 0; j < rows.length; j++){
+    var show = !want || rows[j].dataset.cat === want;
+    rows[j].classList.toggle('hide', !show);
+  }
+
+  // Las tablas siguen al filtro igual que las filas.
+  var tbs = document.querySelectorAll('.tb');
+  for (var m = 0; m < tbs.length; m++){
+    tbs[m].classList.toggle('hide', !!want && tbs[m].dataset.cat !== want);
+  }
+
+  // Un día sin juegos de esa categoría no hace falta enseñarlo.
+  var days = document.querySelectorAll('.day');
+  for (var k = 0; k < days.length; k++){
+    var any = days[k].querySelectorAll('.r:not(.hide)').length;
+    days[k].style.display = any ? '' : 'none';
+  }
+}
+
+build();
+indexGames();
+document.querySelector('.mark').addEventListener('dblclick', unlock);
+if (code()) document.getElementById('lock').classList.add('on');
+load();
+</script>
+</body>
+</html>
