@@ -1622,13 +1622,20 @@ function build(){
     'Los ' + GAMES.length + ' juegos' +
     // \w no cubre acentos: con "sábado" y "miércoles" el día se
     // quedaba pegado. \S+ corta la primera palabra sea cual sea.
-    // Un torneo que cabe en un día decía "del 7 de noviembre al 7 de
-    // noviembre". Si es un solo día, se dice una sola vez.
-    (!days.length ? ''
-      : days.length === 1
-        ? ', ' + dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, 'el ')
-        : ', ' + dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, 'del ') +
-          ' al ' + dayLabel(days[days.length-1]).toLowerCase().replace(/^\S+\s/, ''));
+    rango(days);
+
+  // El mes se dice una sola vez si es el mismo: "del 21 al 22 de
+  // noviembre", no "del 21 de noviembre al 22 de noviembre". Igual
+  // que la descripción que va en WhatsApp, que ya lo hacía así.
+  function rango(days){
+    if (!days.length) return '';
+    var a = dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, '');
+    var b = dayLabel(days[days.length - 1]).toLowerCase().replace(/^\S+\s/, '');
+    if (days.length === 1) return ', el ' + a;
+    var ma = a.replace(/^\d+\s+de\s+/, ''), mb = b.replace(/^\d+\s+de\s+/, '');
+    if (ma === mb) return ', del ' + a.replace(/\s+de\s+.+$/, '') + ' al ' + b;
+    return ', del ' + a + ' al ' + b;
+  }
 
   document.getElementById('lede').textContent =
     courts.length + ' cancha' + (courts.length === 1 ? '' : 's') +
