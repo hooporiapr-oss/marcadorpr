@@ -679,6 +679,30 @@ h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-
 .stat{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 20px;color:var(--mute);font-size:.86rem}
 .stat b{color:var(--ink)}
 
+/* Tabla de posiciones. Números tabulares para que las columnas
+   no bailen, y el equipo con todo el ancho que sobre: en celular
+   un nombre largo tiene que bajar de línea, no cortar la tabla. */
+.tb{margin:0 0 26px}
+.tb h2{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;margin:0 0 8px;
+  padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.tb h2 span{float:right;font-size:.7rem;font-weight:800;color:var(--mute);
+  letter-spacing:.1em;text-transform:uppercase;padding-top:4px}
+.tb .warn{margin:0 0 8px;color:var(--mute);font-size:.78rem}
+.tb table{width:100%;border-collapse:collapse;font-size:.86rem}
+.tb th{font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mute);text-align:right;padding:0 0 5px 12px;white-space:nowrap}
+.tb th.n,.tb th.e{text-align:left}
+.tb td{padding:7px 0 7px 12px;border-top:1px solid var(--line);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.tb td.n{width:1.4rem;padding-left:0;text-align:left;color:var(--mute);
+  font-size:.78rem;font-weight:800}
+.tb td.e{text-align:left;font-weight:800;width:100%;white-space:normal;
+  padding-left:4px;line-height:1.25}
+.tb td.g{font-weight:900}
+.tb tr.hide,.tb.hide{display:none}
+@media(max-width:420px){.tb table{font-size:.8rem}
+  .tb td{padding:6px 0 6px 9px}.tb th{padding-left:9px}.tb td.n{padding-left:0}}
+
 .day{margin-bottom:26px}
 .day h2{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;margin:0 0 8px;
   padding-bottom:6px;border-bottom:2px solid var(--ink)}
@@ -837,10 +861,7 @@ footer a{color:#4FD3F0;text-decoration:none}
 
     <div class="courts" id="courts"></div>
 
-      <div><b>C-2</b> — Cancha 2 · Bo. Factor 1</div>
-      <div><b>C-3</b> — Cancha 3 · Bo. Garrochales, Padre Egidio</div>
-    </div>
-
+<div id="tabla"></div>
 <div id="days"></div>
   </div>
 </main>
@@ -1208,9 +1229,192 @@ function paint(){
   }
 }
 
+// ══════════════════════════════════════════════════════
+//  TABLA DE POSICIONES
+//  No guarda nada: se calcula entera cada vez, con las
+//  filas que ya están en la página y los marcadores que
+//  ya bajaron. Si no hay marcadores, no hay tabla.
+// ══════════════════════════════════════════════════════
+
+// El margen de cada juego se cuenta hasta aquí y no más. Sin
+// tope, ganar por cuarenta sube en la tabla y además recauda
+// más en Cada Punto — y no queremos publicar ese incentivo.
+var DIF_CAP = 15;
+
+// Lo que resuelve el cuadro no va a la tabla: ahí manda el bracket.
+// Todo lo demás sí. Se excluye por lista conocida y no al revés: si
+// mañana una liga marca sus juegos como "Jornada 3", la tabla tiene
+// que contarlos, no borrarlos en silencio.
+var BRACKET = /^(Final|Semifinal|Cuartos|Ronda\s)/i;
+
+function tableBucket(stage){
+  var s = String(stage || '').trim();
+  if (BRACKET.test(s)) return null;               // null = no cuenta
+  var m = s.match(/^Grupo\s+(\S+)/i);
+  // Un grupo lleva su propia tabla. Lo demás — liga, jornada, nada —
+  // cae en la tabla única de la categoría.
+  return m ? 'Grupo ' + m[1].toUpperCase() : '';
+}
+
+function blankRow(name){
+  return { name: name, pj: 0, g: 0, p: 0, pf: 0, pc: 0, dif: 0, h2h: [] };
+}
+
+// Devuelve [{ key, cat, group, teams:[...], jugados, total }]
+function standings(){
+  var pots = {};   // clave de tabla → { cat, group, teams, jugados, total }
+
+  var rows = document.querySelectorAll('.r');
+  for (var i = 0; i < rows.length; i++){
+    var r = rows[i];
+    var bucket = tableBucket(r.dataset.stage);
+    if (bucket === null) continue;
+
+    var cat = r.dataset.cat || '';
+    var key = cat + (bucket ? ' · ' + bucket : '');
+    var pot = pots[key] || (pots[key] = {
+      key: key, cat: cat, group: bucket, teams: {}, jugados: 0, total: 0
+    });
+
+    // Los huecos del cuadro ya resueltos cuentan con su nombre real.
+    var na = resolve(r.dataset.a), nb = resolve(r.dataset.b);
+    if (placeholderFor(na) || placeholderFor(nb)) continue;  // aún sin dueño
+
+    pot.total++;
+    var ta = pot.teams[na] || (pot.teams[na] = blankRow(na));
+    var tb = pot.teams[nb] || (pot.teams[nb] = blankRow(nb));
+
+    var s = SCORES[norm(r.dataset.j)];
+    if (!s || s.a == null || s.b == null) continue;
+
+    pot.jugados++;
+    var cap = function(d){ return Math.max(-DIF_CAP, Math.min(DIF_CAP, d)); };
+
+    ta.pj++; tb.pj++;
+    ta.pf += s.a; ta.pc += s.b;
+    tb.pf += s.b; tb.pc += s.a;
+    ta.dif += cap(s.a - s.b);
+    tb.dif += cap(s.b - s.a);
+    if (s.a > s.b){ ta.g++; tb.p++; }
+    else if (s.b > s.a){ tb.g++; ta.p++; }
+
+    // El margen se guarda ya con tope: la tabla chiquita del
+    // desempate tiene que castigar la goleada igual que la grande.
+    ta.h2h.push({ foe: nb, us: s.a, them: s.b, m: cap(s.a - s.b) });
+    tb.h2h.push({ foe: na, us: s.b, them: s.a, m: cap(s.b - s.a) });
+  }
+
+  return Object.keys(pots).sort().map(function(k){
+    var pot = pots[k];
+    var list = Object.keys(pot.teams).map(function(n){ return pot.teams[n]; });
+    return {
+      key: pot.key, cat: pot.cat, group: pot.group,
+      jugados: pot.jugados, total: pot.total,
+      teams: rank(list)
+    };
+  });
+}
+
+// ── Desempate ────────────────────────────────────────
+// 1. más ganados
+// 2. entre los empatados nada más, quién le ganó a quién
+// 3. diferencia con tope
+// 4. puntos a favor
+//
+// El paso 2 se hace con una tabla chiquita, no mirando un
+// solo juego: en un grupo de cuatro el empate normal no es
+// de dos equipos, es de tres y en círculo — A le ganó a B,
+// B a C, C a A. Buscando un solo resultado eso no se
+// resuelve y la tabla parece estar mala. Con la tabla
+// chiquita se resuelve casi siempre, y cuando de verdad es
+// un círculo cae sola al paso 3.
+function rank(list){
+  var out = [];
+  var byWins = list.slice().sort(function(x, y){ return y.g - x.g; });
+
+  var i = 0;
+  while (i < byWins.length){
+    var j = i;
+    while (j + 1 < byWins.length && byWins[j + 1].g === byWins[i].g) j++;
+    var block = byWins.slice(i, j + 1);
+    out = out.concat(block.length > 1 ? breakTie(block) : block);
+    i = j + 1;
+  }
+
+  out.forEach(function(t, n){ t.pos = n + 1; });
+  return out;
+}
+
+function breakTie(block){
+  var inside = {};
+  block.forEach(function(t){ inside[t.name] = true; });
+
+  // La tabla chiquita sólo vale si todos los empatados jugaron
+  // entre sí. En un grupo siempre es así. En una liga con calendario
+  // desigual, no: comparar por un cruce que la mitad no jugó pone
+  // por debajo a un equipo con mejor diferencia sin que nadie le
+  // haya ganado. Si falta un cruce, se salta al paso 3.
+  var todos = block.every(function(t){
+    var jugo = {};
+    t.h2h.forEach(function(x){ if (inside[x.foe]) jugo[x.foe] = 1; });
+    return block.every(function(o){ return o === t || jugo[o.name]; });
+  });
+
+  // Tabla chiquita: sólo los juegos entre los empatados.
+  block.forEach(function(t){
+    t.mg = 0; t.mdif = 0;
+    if (!todos) return;
+    t.h2h.forEach(function(x){
+      if (!inside[x.foe]) return;
+      if (x.us > x.them) t.mg++;
+      t.mdif += x.m;
+    });
+  });
+
+  return block.slice().sort(function(x, y){
+    return (y.mg - x.mg) || (y.mdif - x.mdif) ||
+           (y.dif - x.dif) || (y.pf - x.pf) ||
+           x.name.localeCompare(y.name);
+  });
+}
+
+// Pintar las tablas. Mientras falten marcadores lo dice arriba
+// de cada una: una tabla a medias tiene que leerse incompleta,
+// no equivocada.
+function paintTable(){
+  var box = document.getElementById('tabla');
+  if (!box) return;
+
+  var tables = standings().filter(function(t){ return t.jugados > 0; });
+  if (!tables.length){ box.innerHTML = ''; return; }
+
+  box.innerHTML = tables.map(function(t){
+    var falta = t.total - t.jugados;
+    return '<section class="tb" data-cat="' + esc(t.cat) + '">' +
+      '<h2>' + esc(t.key || 'Posiciones') +
+        '<span>' + t.jugados + ' de ' + t.total + ' jugados</span></h2>' +
+      (falta ? '<p class="warn">' +
+               (falta === 1 ? 'Falta 1 marcador — la tabla cambia cuando entre.'
+                            : 'Faltan ' + falta + ' marcadores — la tabla cambia cuando entren.') +
+               '</p>' : '') +
+      '<table><thead><tr><th class="n"></th><th class="e">Equipo</th>' +
+        '<th>PJ</th><th>G</th><th>P</th><th>DIF</th><th>PF</th></tr></thead><tbody>' +
+      t.teams.map(function(x){
+        return '<tr><td class="n">' + x.pos + '</td>' +
+          '<td class="e">' + esc(x.name) + '</td>' +
+          '<td>' + x.pj + '</td>' +
+          '<td class="g">' + x.g + '</td>' +
+          '<td>' + x.p + '</td>' +
+          '<td>' + (x.dif > 0 ? '+' + x.dif : x.dif) + '</td>' +
+          '<td>' + x.pf + '</td></tr>';
+      }).join('') +
+      '</tbody></table></section>';
+  }).join('');
+}
+
 function load(){
   Promise.all([ rpc('bw_board'), loadTeams(), loadAsked() ])
-    .then(function(r){ SCORES = r[0] || {}; paint(); paintPledges(); })
+    .then(function(r){ SCORES = r[0] || {}; paint(); paintTable(); paintPledges(); })
     .catch(function(e){ console.error(e); });
 }
 
@@ -1261,7 +1465,7 @@ function tap(row){
   var del = ed.querySelector('.edel');
   if (del) del.addEventListener('click', function(){
     rpc('bw_clear_score', { p_code: code(), p_game: j })
-      .then(function(){ delete SCORES[j]; ed.remove(); paint(); paintPledges(); });
+      .then(function(){ delete SCORES[j]; ed.remove(); paint(); paintTable(); paintPledges(); });
   });
 
   boxes[0].focus();
@@ -1290,7 +1494,7 @@ function tap(row){
       }
       SCORES[j] = { a: parseInt(a, 10), b: parseInt(b, 10) };
       ed.remove();
-      paint(); paintPledges();
+      paint(); paintTable(); paintPledges();
       if (r.pushed) toast(STR_PUSHED.replace('{O}', r.pushed));
     }).catch(function(e){
       ed.classList.remove('saving');
@@ -1381,8 +1585,13 @@ function build(){
     'Los ' + GAMES.length + ' juegos' +
     // \w no cubre acentos: con "sábado" y "miércoles" el día se
     // quedaba pegado. \S+ corta la primera palabra sea cual sea.
-    (days.length ? ', ' + dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, 'del ') +
-      ' al ' + dayLabel(days[days.length-1]).toLowerCase().replace(/^\S+\s/, '') : '');
+    // Un torneo que cabe en un día decía "del 7 de noviembre al 7 de
+    // noviembre". Si es un solo día, se dice una sola vez.
+    (!days.length ? ''
+      : days.length === 1
+        ? ', ' + dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, 'el ')
+        : ', ' + dayLabel(days[0]).toLowerCase().replace(/^\S+\s/, 'del ') +
+          ' al ' + dayLabel(days[days.length-1]).toLowerCase().replace(/^\S+\s/, ''));
 
   document.getElementById('lede').textContent =
     courts.length + ' cancha' + (courts.length === 1 ? '' : 's') +
@@ -1426,6 +1635,7 @@ function build(){
         '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
           'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
           'data-on="' + esc(g.date) + '" data-a="' + esc(g.a) + '" data-b="' + esc(g.b) + '" ' +
+          'data-stage="' + esc(g.stage || '') + '" ' +
           'onclick="tap(this)">' +
           '<span class="t">' + esc(g.time) + '</span>' +
           '<span class="c">' + esc(g.court) + '</span>' +
@@ -1455,6 +1665,12 @@ function filt(btn){
   for (var j = 0; j < rows.length; j++){
     var show = !want || rows[j].dataset.cat === want;
     rows[j].classList.toggle('hide', !show);
+  }
+
+  // Las tablas siguen al filtro igual que las filas.
+  var tbs = document.querySelectorAll('.tb');
+  for (var m = 0; m < tbs.length; m++){
+    tbs[m].classList.toggle('hide', !!want && tbs[m].dataset.cat !== want);
   }
 
   // Un día sin juegos de esa categoría no hace falta enseñarlo.
