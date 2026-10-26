@@ -901,6 +901,23 @@ body.locked{overflow:hidden}
   .cpad-go{display:block;text-align:center}
 }
 
+/* El gimnasio. Misma tarjeta que la de Cada Punto, en verde agua en
+   vez de naranja, y va DEBAJO de ella.
+
+   Está aquí porque un calendario se visita una vez: se mira la hora
+   del juego y se cierra. Esto es lo único de la página que da una
+   razón para volver el día que no hay juego, y es gratis, así que no
+   le pide nada a nadie para enseñar lo que hace.
+
+   Sin equipo en la cola: quien llega desde un calendario no es de
+   ningún programa todavía, así que entra por la puerta de la calle
+   igual que desde la portada de Cada Punto. */
+.gym{--ball:#00D9A5}
+.gym .cpad-mk em,.gym .cpad-mk i{color:#00D9A5}
+.gym:hover{box-shadow:0 0 0 4px rgba(0,217,165,.18)}
+.gym .cpad-go{color:#00D9A5;border-color:#00D9A5}
+.gym:hover .cpad-go{background:#00D9A5;color:#04201A}
+
 .courts{display:grid;gap:6px;margin:0 0 22px;font-size:.84rem;color:var(--mute)}
 .courts b{color:var(--ink)}
 
@@ -927,12 +944,13 @@ footer a{color:#4FD3F0;text-decoration:none}
 
     <div class="courts" id="courts"></div>
 
-    <a class="cpad" href="https://cadapunto.com/?t=__SLUG__">
+    <a class="cpad" href="https://cadapunto.com/ayuda.html?t=__SLUG__">
       <span class="cpad-l">
         <b class="cpad-h">¿Tu equipo recauda con sus juegos?</b>
         <span class="cpad-p">Los padrinos prometen unos centavos por cada punto que anota tu
           equipo. Al terminar el juego les llega un email con el marcador final del juego y el
-          enlace para pagar — todo en línea, sin vender nada. Ganen o pierdan, el programa gana.</span>
+          enlace para pagarle al programa directo — sin vender nada y sin que el dinero pase
+          por nadie más. Ganen o pierdan, el programa gana.</span>
       </span>
       <span class="cpad-r">
         <span class="cpad-mk">cada <em>punto</em> <i>cuenta</i></span>
@@ -940,10 +958,37 @@ footer a{color:#4FD3F0;text-decoration:none}
       </span>
     </a>
 
+
 <div class="tabs" id="tabs" role="tablist"></div>
 
 <div id="tabla"></div>
 <div id="days"></div>
+
+<!-- EL GIMNASIO VA AQUÍ ABAJO Y NO ARRIBA, y la diferencia importa.
+
+     Arriba estuvo un minuto y se quitó: con las dos tarjetas antes
+     del calendario, un papá que abre esto para ver a qué hora juega
+     su hijo tiene que pasar por delante de las dos para llegar a lo
+     que vino a buscar. La de Cada Punto se queda arriba porque es la
+     que le explica el programa al que no sabe qué es esto; ésta no
+     explica nada que haga falta para leer un calendario.
+
+     Y además aquí funciona mejor: ya encontró la hora. Es el momento
+     en que se puede ofrecer algo para volver el día que no hay
+     juego, que es lo único de esta página que da una razón de
+     volver. -->
+<a class="cpad gym" href="https://hooporia.mobi/fortress-mobile-hub.html?e=demo">
+  <span class="cpad-l">
+    <b class="cpad-h">Cuatro minutos, y gratis</b>
+    <span class="cpad-p">Cuatro estaciones que entrenan memoria, reconocimiento y reacción —
+      lo que un jugador usa antes de tocar el balón. Se juega desde el teléfono, no hay que
+      inscribirse y no cuesta nada. El tablero guarda lo que va subiendo.</span>
+  </span>
+  <span class="cpad-r">
+    <span class="cpad-mk">cognitivo <em>gym</em></span>
+    <span class="cpad-go">Entrar →</span>
+  </span>
+</a>
   </div>
 </main>
 
@@ -1103,7 +1148,7 @@ function sendSignup(){
       return suSay(ASK.failed, true);
     }
 
-    fetch('https://basketball-money-payments.onrender.com/team-signup', {
+    fetch('https://hooporia-server.onrender.com/team-signup', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({ team: team, program: prog, coach: name,
@@ -1135,8 +1180,8 @@ var ASK = {
         '<a href="https://cadapunto.com/terms.html" target="_blank" rel="noopener">Términos de Uso</a>' +
         ' y la ' +
         '<a href="https://cadapunto.com/privacy.html" target="_blank" rel="noopener">Política de Privacidad</a>.',
-  fee:'Nada por adelantado y nada mensual. El 10% de plataforma se le añade al pago del padrino, ' +
-      'nunca se saca de lo del programa.',
+  fee:'Nada por adelantado y nada mensual. Cinco dólares por cada juego en el que se pongan promesas, y un juego sin promesas no se factura. ' +
+      'A los padrinos no se les cobra nada: lo que prometen va completo al programa.',
   send:'Pedir mi campaña',
   close:'Cerrar',
   errProg:'Escribe el nombre del programa.',
