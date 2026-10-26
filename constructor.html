@@ -571,7 +571,22 @@ function show(){
 
   '<button class="btn" onclick="download()">Bajar la página del calendario</button>' +
   '<p class="hint">Sale un archivo .html. Súbelo al repo de marcadorpr y añádelo a la lista de ' +
-    'eventos en index.html.</p>';
+    'eventos en index.html.</p>' +
+
+  /* Registrar va DESPUÉS de bajar y con su propio botón: bajar te da
+     un fichero, registrar escribe en la base, y hay días en que
+     quieres una cosa y no la otra. Rehacer un calendario para mover
+     un día no debería obligarte a bajarlo otra vez. */
+  '<h2 style="margin-top:30px">Registrarlo en Cada Punto</h2>' +
+  '<p class="hint" style="margin:0 0 10px">Escribe el calendario entero en la base — los ' +
+    'juegos que ya se jugaron y los que no. Es lo que hace que este torneo salga en el admin ' +
+    'con sus juegos, sus promesas y lo que lleva recaudado. Volver a registrarlo reemplaza ' +
+    'el calendario anterior.</p>' +
+  '<label>Código de marcadores</label>' +
+  '<input id="regCode" type="password" autocomplete="off" value="' +
+    esc(codigoGuardado()) + '">' +
+  '<button class="btn line" onclick="registrar()">Registrar el torneo</button>' +
+  '<p class="hint" id="regMsg" style="font-weight:800;min-height:1.3em"></p>';
 
   document.getElementById('out').innerHTML = html;
   document.getElementById('out').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -631,6 +646,100 @@ function download(){
   a.download = slug + '.html';
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  REGISTRAR EL TORNEO
+//
+//  Hasta ahora este constructor no escribía una sola fila: montaba
+//  la página, la bajabas, la subías, y el torneo existía únicamente
+//  como un fichero. El admin de Cada Punto no tenía de dónde saber
+//  que existía — lo único que ataba un juego a su torneo era el
+//  prefijo de su número, y eso sólo llega a la base cuando alguien
+//  le pone un marcador o una promesa.
+//
+//  Registrarlo escribe el calendario entero, incluidos los juegos
+//  que nadie va a jugar hasta el domingo. Es lo que deja al admin
+//  enseñar un torneo por fila.
+//
+//  Va APARTE de bajar la página, y a propósito: son dos cosas
+//  distintas —una escribe en la base, la otra te da un fichero— y
+//  juntarlas significaría que no se puede rehacer un calendario sin
+//  volver a bajarlo, ni bajarlo sin volver a registrarlo.
+// ══════════════════════════════════════════════════════════════
+var SB_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+
+function rpcC(nombre, args){
+  return fetch(SB_URL + '/rest/v1/rpc/' + nombre, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY,
+               'Content-Type': 'application/json' },
+    body: JSON.stringify(args || {})
+  }).then(function(r){ if (!r.ok) throw new Error('rpc'); return r.json(); });
+}
+
+/* El código vive sólo en esta pestaña, como en las páginas de
+   torneo: en una computadora prestada no se queda abierto. */
+function codigoGuardado(){
+  try { return sessionStorage.getItem('bw-code') || '' } catch (e){ return '' }
+}
+
+function registrar(){
+  if (!RESULT) return;
+
+  var caja = document.getElementById('regMsg');
+  var dicho = function(t, malo){
+    caja.textContent = t;
+    caja.style.color = malo ? '#A8323F' : '#0B7A5A';
+  };
+
+  var code = (document.getElementById('regCode').value || '').trim()
+             || codigoGuardado();
+  if (!code) return dicho('Pon el código de marcadores.', true);
+
+  var slug = RESULT.tourney.name.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'torneo';
+
+  dicho('…');
+  rpcC('bw_register_tournament', {
+    p_code: code,
+    p_id: slug,
+    p_nombre: RESULT.tourney.name,
+    p_pueblo: RESULT.tourney.where,
+    p_prefijo: RESULT.prefix,
+    p_juegos: RESULT.games
+  }).then(function(r){
+    if (!r || !r.ok){
+      if (r && r.reason === 'code') return dicho('Código incorrecto.', true);
+      if (r && r.reason === 'faltan-datos') return dicho('Al torneo le falta el nombre.', true);
+      return dicho('No se pudo registrar.', true);
+    }
+
+    try { sessionStorage.setItem('bw-code', code) } catch (e){}
+
+    /* EL CHOQUE DE PREFIJOS SE DICE AQUÍ Y NO EN NINGÚN OTRO SITIO.
+       Dos torneos cuyas iniciales coinciden —«Copa Loíza» y «Copa
+       Lajas», los dos CL— tendrían juegos con el mismo número, y los
+       marcadores se guardan por número: el segundo nacería con los
+       del primero encima.
+
+       Éste es el único momento en que arreglarlo es barato, porque
+       quien está delante es quien le puso el nombre y puede
+       cambiárselo ahora mismo. Después hay que tocar la base. */
+    if (r.choque){
+      dicho('Registrado (' + r.juegos + ' juegos), PERO el prefijo ' +
+            RESULT.prefix + ' ya lo usa «' + r.choque + '». Los dos torneos ' +
+            'tendrían juegos con el mismo número y los marcadores se mezclarían. ' +
+            'Cámbiale el nombre a este torneo y vuelve a generar.', true);
+      return;
+    }
+    dicho('Registrado: ' + r.juegos + ' juegos. Ya sale en el admin.');
+  }).catch(function(e){
+    console.error(e);
+    dicho('No se pudo registrar. Mira la conexión.', true);
+  });
 }
 
 // ── arranque ────────────────────────────────────────────────
