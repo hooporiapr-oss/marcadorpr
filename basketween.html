@@ -479,7 +479,7 @@ function sendSignup(){
       return suSay(ASK.failed, true);
     }
 
-    fetch('https://basketball-money-payments.onrender.com/team-signup', {
+    fetch('https://hooporia-server.onrender.com/team-signup', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({ team: team, program: prog, coach: name,
@@ -512,8 +512,8 @@ var ASK = {
         '<a href="https://cadapunto.com/terms.html" target="_blank" rel="noopener">Términos de Uso</a>' +
         ' y la ' +
         '<a href="https://cadapunto.com/privacy.html" target="_blank" rel="noopener">Política de Privacidad</a>.',
-  fee:'Nada por adelantado y nada mensual. El 20% de plataforma se le añade al pago del padrino, ' +
-      'nunca se saca de lo del programa.',
+  fee:'Nada por adelantado y nada mensual. Cinco dólares por cada juego en el que se pongan promesas, y un juego sin promesas no se factura. ' +
+      'A los padrinos no se les cobra nada: lo que prometen va completo al programa.',
   send:'Pedir mi campaña',
   close:'Cerrar',
   errProg:'Escribe el nombre del programa.',
@@ -781,7 +781,13 @@ function pushForward(){
     if (SCORES[norm(r.dataset.j)]) continue;        // ése ya se jugó
 
     var a = resolve(r.dataset.a), b = resolve(r.dataset.b);
-    if (placeholderFor(a) && placeholderFor(b)) continue;   // no se sabe ninguno
+    // Hasta que no se sepan LOS DOS, el juego no se manda. Con && aquí
+    // bastaba con que se supiera uno, y entonces el juego entraba en la
+    // campaña del que ya estaba con el rival escrito tal cual:
+    // "GANADOR J-43". El padrino lo veía así en el tablero y prometía
+    // contra un hueco; y cuando J-43 por fin se jugaba, este mismo
+    // código volvía a mandar el juego con el nombre de verdad.
+    if (placeholderFor(a) || placeholderFor(b)) continue;   // falta saber uno
 
     // ¿Alguno de los dos tiene campaña? Entonces ese juego ya es real
     // para ellos, con el rival y la fecha del calendario.
