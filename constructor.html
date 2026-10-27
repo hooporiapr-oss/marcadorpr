@@ -825,15 +825,17 @@ function show(){
     }).join('') +
   '</table>' +
 
-  '<button class="btn" onclick="download()">Bajar la página del calendario</button>' +
-  '<p class="hint">Sale un archivo .html. Súbelo al repo de marcadorpr y añádelo a la lista de ' +
-    'eventos en index.html.</p>' +
+  /* REGISTRAR VA PRIMERO, Y LA DESCARGA DEPENDE DE ÉL.
+     Antes bajar era el botón grande y registrar el pequeño de abajo,
+     así que el camino obvio producía un fichero y ninguna copia: un
+     torneo entero podía existir sólo como un .html en la carpeta de
+     descargas de alguien, invisible en el admin. Pasó con Copa Puerto
+     Rico el primer día.
 
-  /* Registrar va DESPUÉS de bajar y con su propio botón: bajar te da
-     un fichero, registrar escribe en la base, y hay días en que
-     quieres una cosa y no la otra. Rehacer un calendario para mover
-     un día no debería obligarte a bajarlo otra vez. */
-  '<h2 style="margin-top:30px">Registrarlo en Cada Punto</h2>' +
+     Ahora el orden dice la verdad: la base es el registro y el
+     fichero es una foto de él. Y como la foto se saca DESPUÉS, no
+     puede salir de una versión distinta de la registrada. */
+  '<h2 style="margin-top:30px">1 · Registrar el torneo</h2>' +
   '<p class="hint" style="margin:0 0 10px">Escribe el calendario entero en la base — los ' +
     'juegos que ya se jugaron y los que no. Es lo que hace que este torneo salga en el admin ' +
     'con sus juegos, sus promesas y lo que lleva recaudado. Volver a registrarlo reemplaza ' +
@@ -841,15 +843,50 @@ function show(){
   '<label>Código de marcadores</label>' +
   '<input id="regCode" type="password" autocomplete="off" value="' +
     esc(codigoGuardado()) + '">' +
-  '<button class="btn line" onclick="registrar()">Registrar el torneo</button>' +
-  '<p class="hint" id="regMsg" style="font-weight:800;min-height:1.3em"></p>';
+  '<button class="btn" onclick="registrar()">Registrar el torneo</button>' +
+  '<p class="hint" id="regMsg" style="font-weight:800;min-height:1.3em"></p>' +
+
+  '<h2 style="margin-top:28px">2 · Bajar la página del calendario</h2>' +
+  '<button class="btn line" id="btnBajar" disabled onclick="download()">' +
+    'Bajar la página del calendario</button>' +
+  '<p class="hint" id="bajarMsg">Primero regístralo. La página que se baja es una foto de lo ' +
+    'registrado, así que se saca después — si no, el fichero y el admin podrían no decir lo ' +
+    'mismo.</p>';
+
+  // Un calendario recién generado todavía no está registrado, aunque
+  // el anterior lo estuviera: lo que se registró era otro.
+  REGISTRADO = false;
 
   document.getElementById('out').innerHTML = html;
   document.getElementById('out').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
+/* Si está registrado el calendario que hay ahora mismo en RESULT. Se
+   apaga al generar y se enciende al registrar, así que cambiar una
+   hora y volver a generar vuelve a pedir el registro — que es lo
+   correcto: el fichero de antes ya no es foto de nada. */
+var REGISTRADO = false;
+
+function permitirBajar(){
+  REGISTRADO = true;
+  var b = document.getElementById('btnBajar');
+  if (b){ b.disabled = false; b.className = 'btn'; }
+  var m = document.getElementById('bajarMsg');
+  if (m) m.textContent = 'Ya está registrado. Sale un archivo .html listo para subir a ' +
+                         'marcadorpr.';
+}
+
 function download(){
   var r = RESULT;
+
+  /* El botón está apagado hasta que se registra, pero la guardia va
+     también aquí: un botón apagado se enciende desde la consola en
+     dos segundos, y lo que no puede pasar es que exista un calendario
+     publicado que el admin no conozca. */
+  if (!REGISTRADO){
+    alert('Regístralo primero. La página que se baja es una foto del calendario registrado.');
+    return;
+  }
 
   var slug = r.tourney.name.toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -991,13 +1028,20 @@ function registrar(){
        quien está delante es quien le puso el nombre y puede
        cambiárselo ahora mismo. Después hay que tocar la base. */
     if (r.choque){
+      /* El choque sí deja bajar: el torneo quedó registrado y la
+         página es foto fiel de lo que hay en la base. Lo que avisa es
+         que los números chocan con otro torneo, y eso se arregla
+         cambiándole el nombre y volviendo a generar — pero la
+         decisión es suya, no nuestra. */
+      permitirBajar();
       dicho('Registrado (' + r.juegos + ' juegos), PERO el prefijo ' +
             RESULT.prefix + ' ya lo usa «' + r.choque + '». Los dos torneos ' +
             'tendrían juegos con el mismo número y los marcadores se mezclarían. ' +
             'Cámbiale el nombre a este torneo y vuelve a generar.', true);
       return;
     }
-    dicho('Registrado: ' + r.juegos + ' juegos. Ya sale en el admin.');
+    permitirBajar();
+    dicho('Registrado: ' + r.juegos + ' juegos. Ya sale en el admin. Ya puedes bajar la página.');
   }).catch(function(e){
     console.error(e);
     dicho('No se pudo registrar. Mira la conexión.', true);
