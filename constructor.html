@@ -173,6 +173,29 @@ footer b{color:#fff;display:block;font-weight:800}
 // Un cuadro de 16 con 12 equipos no son cuatro rondas de todos:
 // los cuatro primeros pasan directo. Los byes van arriba, que es
 // como se siembra un cuadro.
+// El orden del cuadro: 1 contra el último, 2 contra el penúltimo, y
+// así hacia dentro. Se arma doblando — [1,2] → [1,4,3,2] → [1,8,5,4,
+// 3,6,7,2] — que es el orden en que se siembra un bracket de verdad.
+//
+// Lo que esto arregla: antes los byes se ponían seguidos arriba, así
+// que en un cuadro de 16 con 12 equipos los sembrados 1 y 2 caían en
+// la misma mitad y se eliminaban en cuartos. Con doce equipos eso
+// dejaba fuera a dos de los cuatro mejores antes de las semifinales.
+// Ahora el 1 entra por arriba y el 2 por abajo: sólo se pueden
+// encontrar en la final, que es de lo que sirve sembrar.
+function ordenSiembra(size){
+  var o = [1];
+  while (o.length < size){
+    var n = o.length * 2, sig = [];
+    for (var i = 0; i < o.length; i++){
+      sig.push(o[i]);
+      sig.push(n + 1 - o[i]);
+    }
+    o = sig;
+  }
+  return o;
+}
+
 function knockout(teams, prefix, startNo){
   var n = teams.length;
   if (n < 2) return { games: [], nextNo: startNo };
@@ -182,23 +205,32 @@ function knockout(teams, prefix, startNo){
   var byes = size - n;
 
   var games = [], no = startNo;
+  var orden = ordenSiembra(size);
 
-  // Primera ronda: los que no tienen bye.
+  // Primera ronda, por parejas del cuadro. Una pareja donde al
+  // sembrado le toca un hueco vacío no se juega: pasa directo.
+  //
+  // Las dos nunca pueden ser huecos: los dos números de una pareja
+  // suman size+1, y size es siempre menor que 2n, así que al menos
+  // uno de los dos es un equipo de verdad.
   var slots = [];          // lo que pasa a la ronda siguiente
-  var i = 0;
 
-  for (var b = 0; b < byes; b++){
-    slots.push({ team: teams[i++] });          // pasa directo
-  }
-  while (i < n){
-    var a = teams[i++], c = teams[i++];
-    var g = {
-      no: prefix + '-' + no, round: 1,
-      a: { team: a }, b: { team: c }
-    };
-    games.push(g);
-    slots.push({ from: g.no });
-    no++;
+  for (var i = 0; i < size; i += 2){
+    var sa = orden[i], sb = orden[i + 1];
+    var ta = sa <= n ? teams[sa - 1] : null;
+    var tb = sb <= n ? teams[sb - 1] : null;
+
+    if (ta && tb){
+      var g = {
+        no: prefix + '-' + no, round: 1,
+        a: { team: ta }, b: { team: tb }
+      };
+      games.push(g);
+      slots.push({ from: g.no });
+      no++;
+    } else {
+      slots.push({ team: ta || tb });          // pasa directo
+    }
   }
 
   // Rondas siguientes: cada juego sale de dos ranuras de la anterior.
@@ -423,8 +455,15 @@ function addDiv(name, teams){
       '<div><label># Equipos</label>' +
         '<select id="dq' + id + '" onchange="drawTeams(' + id + ')"></select></div>' +
       '<div><label>Formato</label>' +
+        /* Todos contra todos ya lo sabía hacer el motor —un grupo con
+           todos dentro y nadie que pase— pero no había manera de
+           pedirlo: la casilla de equipos por grupo llegaba hasta
+           seis. Era el formato que más falta hace, porque una liga
+           de ocho sábados es eso y no un cuadro. */
         '<select id="df' + id + '" onchange="divMode(' + id + ')">' +
           '<option value="ko">Eliminación directa</option>' +
+          '<option value="rr">Todos contra todos</option>' +
+          '<option value="rrf">Todos contra todos, y una final</option>' +
           '<option value="pools">Grupos y luego eliminación</option>' +
         '</select></div>' +
     '</div>' +
@@ -601,6 +640,15 @@ function divCount(id){
   if (t.length < 2){ el.textContent = 'Hacen falta al menos 2 equipos.'; return; }
 
   var mode = document.getElementById('df' + id).value;
+
+  if (mode === 'rr' || mode === 'rrf'){
+    var liga = t.length * (t.length - 1) / 2;
+    el.textContent = t.length + ' equipos · ' + (mode === 'rrf' ? liga + 1 : liga) +
+      ' juegos · cada equipo juega ' + (t.length - 1) +
+      (mode === 'rrf' ? ', y una final' : '');
+    return;
+  }
+
   if (mode === 'ko'){
     var size = 1; while (size < t.length) size *= 2;
     el.textContent = t.length + ' equipos · ' + (t.length - 1) + ' juegos · ' +
@@ -740,11 +788,18 @@ function generate(){
 
     colour[name] = PALETTE[ci++ % PALETTE.length];
 
-    var mode = document.getElementById('df' + id).value;
-    var built = mode === 'pools'
-      ? pools(teams, Number(document.getElementById('dps' + id).value) || 4,
-                     Number(document.getElementById('dpa' + id).value) || 2, PFX, no)
-      : knockout(teams, PFX, no);
+    /* Todos contra todos es un solo grupo con todos dentro. Con uno
+       que pase, pools() no arma cuadro ninguno y queda la liga sola;
+       con dos, arma un único juego entre el primero y el segundo,
+       que es la final. No hace falta motor nuevo. */
+    var mode = document.getElementById('df' + id).value, built;
+    if (mode === 'rr')         built = pools(teams, teams.length, 1, PFX, no);
+    else if (mode === 'rrf')   built = pools(teams, teams.length, 2, PFX, no);
+    else if (mode === 'pools') built = pools(teams,
+                                   Number(document.getElementById('dps' + id).value) || 4,
+                                   Number(document.getElementById('dpa' + id).value) || 2,
+                                   PFX, no);
+    else                       built = knockout(teams, PFX, no);
 
     // Cada juego se lleva las canchas en que su categoría puede jugar.
     var permitidas = courtsOf(id);
@@ -1882,7 +1937,16 @@ function indexGames(){
   }
 }
 
-function norm(s){ return String(s || '').replace(/#/g, '').trim().toUpperCase(); }
+function norm(s){
+  /* Sin acentos a propósito. Esto compara nombres de equipo contra los
+     de Cada Punto, y los escribe gente distinta: el calendario lo teclea
+     un coach y la campaña la escribió otro. «Canóvanas» y «Canovanas»
+     tienen que ser el mismo equipo, o el botón de prometer no sale y
+     nadie ve un error — la página ofrece inscribir a un equipo que ya
+     recauda. Los números de juego son ASCII, así que esto no los toca. */
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/#/g, '').trim().toUpperCase();
+}
 
 function placeholderFor(name){
   // El prefijo ya no es siempre J: cada torneo trae el suyo.
