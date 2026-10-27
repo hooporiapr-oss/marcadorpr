@@ -251,6 +251,16 @@ body.locked{overflow:hidden}
 .cpad-go{display:inline-block;margin-top:8px;padding:9px 16px;border:2px solid var(--ball);
   border-radius:4px;color:var(--ball);font-weight:800;font-size:.86rem}
 .cpad:hover .cpad-go{background:var(--ball);color:#1A0C00}
+
+/* El gimnasio. Misma tarjeta que la de Cada Punto, en verde agua en
+   vez de naranja. Añadida el 26 de octubre de 2026, igual que en el
+   constructor: los torneos que se generen desde hoy la traen, y
+   estos dos se la quedaron sin porque ya estaban subidos. */
+.gym{--ball:#00D9A5}
+.gym .cpad-mk em,.gym .cpad-mk i{color:#00D9A5}
+.gym:hover{box-shadow:0 0 0 4px rgba(0,217,165,.18)}
+.gym .cpad-go{color:#00D9A5;border-color:#00D9A5}
+.gym:hover .cpad-go{background:#00D9A5;color:#04201A}
 @media(max-width:620px){
   .cpad{padding:17px;margin:22px 0 24px}
   .cpad-r{flex:1 1 100%;text-align:center}
@@ -300,6 +310,23 @@ footer a{color:#4FD3F0;text-decoration:none}
 
 <div id="tabla"></div>
 <div id="days"></div>
+<!-- El gimnasio, DEBAJO del calendario. Un calendario se visita una
+     vez: se mira la hora del juego y se cierra. Esto es lo único de
+     la página que da una razón para volver el día que no hay juego.
+     Debajo y no encima, porque quien abre esto viene a buscar una
+     hora y no hay que ponerle nada por delante. -->
+<a class="cpad gym" href="https://hooporia.mobi/fortress-mobile-hub.html?e=demo">
+  <span class="cpad-l">
+    <b class="cpad-h">Cuatro minutos, y gratis</b>
+    <span class="cpad-p">Cuatro estaciones que entrenan memoria, reconocimiento y reacción —
+      lo que un jugador usa antes de tocar el balón. Se juega desde el teléfono, no hay que
+      inscribirse y no cuesta nada. El tablero guarda lo que va subiendo.</span>
+  </span>
+  <span class="cpad-r">
+    <span class="cpad-mk">cognitivo <em>gym</em></span>
+    <span class="cpad-go">Entrar →</span>
+  </span>
+</a>
   </div>
 </main>
 
