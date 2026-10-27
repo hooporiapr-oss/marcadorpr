@@ -1012,6 +1012,14 @@ function registrar(){
       if (r && r.reason === 'build')
         return dicho('Ese código apunta marcadores pero no monta calendarios. ' +
                      'Hace falta uno con permiso para montar el calendario.', true);
+      /* El nombre decide el id, así que dos torneos que se llamen
+         igual escriben en el mismo sitio — y registrar reemplaza el
+         calendario entero. Se niega y se dice de quién es, porque lo
+         que hay que hacer es ponerle otro nombre a éste. */
+      if (r && r.reason === 'ajeno')
+        return dicho('Ya hay un torneo registrado con ese nombre, y es de ' +
+                     (r.dueno || 'otra persona') + '. Ponle otro nombre al tuyo ' +
+                     '—el pueblo o el año sirven— y vuelve a generar.', true);
       if (r && r.reason === 'faltan-datos') return dicho('Al torneo le falta el nombre.', true);
       return dicho('No se pudo registrar.', true);
     }
