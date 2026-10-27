@@ -698,7 +698,16 @@ function indexGames(){
   }
 }
 
-function norm(s){ return String(s || '').replace(/#/g, '').trim().toUpperCase(); }
+function norm(s){
+  /* Sin acentos a propósito. Esto compara nombres de equipo contra los
+     de Cada Punto, y los escribe gente distinta: el calendario lo teclea
+     un coach y la campaña la escribió otro. «Canóvanas» y «Canovanas»
+     tienen que ser el mismo equipo, o el botón de prometer no sale y
+     nadie ve un error — la página ofrece inscribir a un equipo que ya
+     recauda. Los números de juego son ASCII, así que esto no los toca. */
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/#/g, '').trim().toUpperCase();
+}
 
 function placeholderFor(name){
   var m = norm(name).match(/^GANADOR\s+(J-\S+)$/);
