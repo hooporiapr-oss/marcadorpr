@@ -52,6 +52,18 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .div .x:hover{color:var(--bad)}
 .count{font-size:.78rem;color:var(--mute);margin-top:4px}
 
+/* Una fila por cancha: el identificador a la izquierda, puesto por el
+   constructor, y al lado el único campo que hay que escribir. */
+.cr{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center;margin-bottom:8px}
+.cr .tag{font-weight:900;font-size:.92rem;text-align:center;padding:10px 0;border-radius:4px;
+  background:var(--ink);color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+
+/* Las mismas filas para los equipos, con el número de siembra. Va más
+   claro que la cancha: es un índice, no una etiqueta. */
+.cr.t{grid-template-columns:34px 1fr;margin-bottom:6px}
+.cr.t .tag{background:var(--tint);color:var(--mute);border:2px solid var(--line);
+  padding:8px 0;font-size:.82rem}
+
 .btn{display:block;width:100%;padding:15px;border:2px solid var(--ink);border-radius:4px;
   background:var(--ink);color:#fff;font:inherit;font-weight:800;font-size:1rem;cursor:pointer;
   margin-top:14px;text-align:center;text-decoration:none}
@@ -93,8 +105,8 @@ footer b{color:#fff;display:block;font-weight:800}
 
     <h2>El torneo</h2>
     <div class="row two">
-      <div><label>Nombre</label><input id="tName" value="Torneo Preparatorio"></div>
-      <div><label>Pueblo</label><input id="tWhere" value="Arecibo"></div>
+      <div><label>Nombre</label><input id="tName"></div>
+      <div><label>Pueblo</label><input id="tWhere"></div>
     </div>
     <div class="row two">
       <div><label>Primer día</label><input id="tFrom" type="date"></div>
@@ -106,14 +118,16 @@ footer b{color:#fff;display:block;font-weight:800}
       <div><label>Última hora</label>
         <select id="tEnd"></select></div>
       <div><label>Equipo de casa (opcional)</label>
-        <input id="tHome" placeholder="Paradiso"></div>
+        <input id="tHome"></div>
     </div>
-    <p class="hint">El equipo de casa se marca en el calendario, como está Paradiso en Basketween.</p>
+    <p class="hint">El equipo de casa se marca en el calendario, para que se vean de un golpe
+      los juegos en que juega.</p>
 
-    <label>Canchas — una por línea, con su nombre después de una coma</label>
-    <textarea id="tCourts" style="min-height:80px">C-1, Cancha 1 · Bo. Factor 1
-C-2, Cancha 2 · Bo. Factor 1
-C-3, Cancha 3 · Bo. Garrochales</textarea>
+    <label>Cuántas canchas</label>
+    <select id="tCourtN" onchange="drawCourts()" style="max-width:120px"></select>
+    <div id="courtRows" style="margin-top:14px"></div>
+    <p class="hint">C-1, C-2… es lo que sale en la casilla de cada juego del calendario. El
+      nombre completo sale una sola vez, en la lista de canchas encima del calendario.</p>
 
     <h2>Categorías</h2>
     <div id="divs"></div>
@@ -364,7 +378,9 @@ function esc(s){
 }
 
 function hours(){
-  var out = '';
+  // Arranca en blanco: la hora de un torneo la pone quien lo monta, y
+  // una hora puesta de antemano es una hora que nadie miró.
+  var out = '<option value=""></option>';
   for (var h = 8; h <= 22; h++){
     var hh = h % 12 || 12, ap = h < 12 ? 'AM' : 'PM';
     out += '<option value="' + h + '">' + hh + ':00' + ap + '</option>';
@@ -381,9 +397,11 @@ function addDiv(name, teams){
   box.innerHTML =
     '<button class="x" onclick="dropDiv(' + id + ')" aria-label="quitar">×</button>' +
     '<h3>Categoría</h3>' +
-    '<div class="row two">' +
-      '<div><label>Nombre</label><input id="dn' + id + '" value="' + esc(name || '') + '" ' +
-        'placeholder="Juniors"></div>' +
+    '<div class="row three">' +
+      '<div><label>Tipo</label><input id="dn' + id + '" value="' + esc(name || '') + '" ' +
+        'placeholder="Mini, Junior Femenino…"></div>' +
+      '<div><label># Equipos</label>' +
+        '<select id="dq' + id + '" onchange="drawTeams(' + id + ')"></select></div>' +
       '<div><label>Formato</label>' +
         '<select id="df' + id + '" onchange="divMode(' + id + ')">' +
           '<option value="ko">Eliminación directa</option>' +
@@ -394,11 +412,26 @@ function addDiv(name, teams){
       '<div><label>Equipos por grupo</label><input id="dps' + id + '" type="number" value="4" min="3" max="6"></div>' +
       '<div><label>Cuántos pasan de cada grupo</label><input id="dpa' + id + '" type="number" value="2" min="1" max="4"></div>' +
     '</div>' +
-    '<label>Equipos — uno por línea, en orden de siembra</label>' +
-    '<textarea id="dt' + id + '" oninput="divCount(' + id + ')">' + esc(teams || '') + '</textarea>' +
+    '<label>Equipos — en orden de siembra</label>' +
+    '<div id="dt' + id + '"></div>' +
     '<div class="count" id="dc' + id + '"></div>';
   document.getElementById('divs').appendChild(box);
-  divCount(id);
+
+  // Hasta 32 equipos, y arranca en blanco: la cantidad la pone quien
+  // monta la categoría, no el formulario.
+  var sel = document.getElementById('dq' + id), o = '<option value=""></option>';
+  for (var i = 2; i <= 32; i++) o += '<option value="' + i + '">' + i + '</option>';
+  sel.innerHTML = o;
+
+  if (teams){                      // sembrar de una lista, si viene una
+    var l = String(teams).split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+    if (l.length >= 2){
+      sel.value = Math.min(32, l.length);
+      l.forEach(function(nombre, k){ TEAMNAME[id + '-' + (k + 1)] = nombre; });
+    }
+  }
+
+  drawTeams(id);
 }
 
 function dropDiv(id){
@@ -413,15 +446,86 @@ function divMode(id){
   divCount(id);
 }
 
+// ── Los equipos de una categoría ────────────────────────────
+// Una casilla por equipo, con su número de siembra a la vista. Antes
+// era un textarea que decía «en orden de siembra» y no mostraba
+// ninguno: el orden decidía el cuadro entero sin que se viera.
+//
+// El nombre escrito se guarda aparte del campo, igual que las
+// canchas: cambiar de 8 equipos a 4 y volver a 8 no borra nada.
+var TEAMNAME = {};
+
+function drawTeams(id){
+  var caja = document.getElementById('dt' + id);
+  if (!caja) return;
+
+  [].forEach.call(caja.querySelectorAll('input[data-t]'), function(el){
+    TEAMNAME[el.getAttribute('data-t')] = el.value;
+  });
+
+  var n = Number(document.getElementById('dq' + id).value) || 0, html = '';
+  for (var i = 1; i <= n; i++){
+    var k = id + '-' + i;
+    html += '<div class="cr t">' +
+        '<span class="tag">' + i + '</span>' +
+        '<input id="dt' + id + '_' + i + '" data-t="' + k + '" value="' +
+          esc(TEAMNAME[k] || '') + '" placeholder="Nombre del equipo" ' +
+          'oninput="divCount(' + id + ')" ' +
+          'onpaste="pasteTeams(event,' + id + ',' + i + ')"></div>';
+  }
+  caja.innerHTML = html;
+  divCount(id);
+}
+
+// Pegar una lista entera en cualquier casilla la reparte hacia abajo,
+// y sube la cantidad si hacen falta más casillas. Los equipos llegan
+// en una lista —de un chat, de un papel— casi nunca de uno en uno.
+function pasteTeams(ev, id, desde){
+  var txt = ((ev.clipboardData || window.clipboardData) || {}).getData;
+  txt = txt ? (ev.clipboardData || window.clipboardData).getData('text') : '';
+  var l = String(txt || '').split(/\r?\n/)
+    .map(function(s){ return s.trim(); }).filter(Boolean);
+  if (l.length < 2) return;                  // una sola línea: pegado normal
+
+  ev.preventDefault();
+
+  var sel = document.getElementById('dq' + id);
+  var hacen = desde - 1 + l.length;
+  if (hacen > (Number(sel.value) || 0) && hacen <= 32){
+    sel.value = hacen;
+    drawTeams(id);
+  }
+
+  l.forEach(function(nombre, k){
+    var el = document.getElementById('dt' + id + '_' + (desde + k));
+    if (el){ el.value = nombre; TEAMNAME[id + '-' + (desde + k)] = nombre; }
+  });
+  divCount(id);
+}
+
 function teamsOf(id){
-  return (document.getElementById('dt' + id).value || '')
-    .split('\n').map(function(t){ return t.trim(); }).filter(Boolean);
+  var n = Number(document.getElementById('dq' + id).value) || 0, out = [];
+  for (var i = 1; i <= n; i++){
+    var el = document.getElementById('dt' + id + '_' + i);
+    var v = el ? (el.value || '').trim() : '';
+    if (v) out.push(v);
+  }
+  return out;
 }
 
 function divCount(id){
   var t = teamsOf(id), el = document.getElementById('dc' + id);
   if (!el) return;
-  if (t.length < 2){ el.textContent = t.length + ' equipos — hacen falta al menos 2'; return; }
+
+  // Lo pedido y lo escrito son dos cosas: escoger 8 y escribir 6 deja
+  // una categoría de 6, y más vale decirlo aquí que al generar.
+  var pide = Number(document.getElementById('dq' + id).value) || 0;
+  if (!pide){ el.textContent = 'Escoge cuántos equipos.'; return; }
+  if (t.length < pide){
+    el.textContent = t.length + ' de ' + pide + ' equipos escritos.';
+    return;
+  }
+  if (t.length < 2){ el.textContent = 'Hacen falta al menos 2 equipos.'; return; }
 
   var mode = document.getElementById('df' + id).value;
   if (mode === 'ko'){
@@ -440,15 +544,45 @@ function divCount(id){
   }
 }
 
+// ── Las canchas ─────────────────────────────────────────────
+// El identificador lo pone el constructor —C-1, C-2— y lo único que
+// hay que escribir es el nombre. Antes era un textarea donde cada
+// línea llevaba las dos cosas separadas por una coma, y una cancha
+// escrita sin coma se quedaba con el nombre entero de identificador:
+// «Cancha Municipal de Loíza» en la casilla de cada uno de sus juegos.
 function courts(){
-  return (document.getElementById('tCourts').value || '').split('\n')
-    .map(function(l){
-      var p = l.split(',');
-      var id = (p[0] || '').trim();
-      if (!id) return null;
-      return { id: id, name: (p.slice(1).join(',') || '').trim() || id };
-    })
-    .filter(Boolean);
+  var n = Number(document.getElementById('tCourtN').value) || 1, out = [];
+  for (var i = 1; i <= n; i++){
+    var id = 'C-' + i;
+    var campo = document.getElementById('cn' + i);
+    var nombre = campo ? (campo.value || '').trim() : '';
+    out.push({ id: id, name: nombre || id });
+  }
+  return out;
+}
+
+// El nombre escrito se guarda aparte del campo: bajar de cuatro
+// canchas a dos y volver a cuatro no borra lo que ya estaba puesto.
+var COURTNAME = {};
+
+function drawCourts(){
+  var caja = document.getElementById('courtRows');
+
+  // Recoger lo que haya escrito antes de redibujar.
+  [].forEach.call(caja.querySelectorAll('input[data-c]'), function(el){
+    COURTNAME[el.getAttribute('data-c')] = el.value;
+  });
+
+  var n = Number(document.getElementById('tCourtN').value) || 1, html = '';
+  for (var i = 1; i <= n; i++){
+    var id = 'C-' + i;
+    html += '<div class="cr">' +
+        '<span class="tag">' + id + '</span>' +
+        '<input id="cn' + i + '" data-c="' + id + '" value="' +
+          esc(COURTNAME[id] || '') + '" placeholder="Nombre de la cancha">' +
+      '</div>';
+  }
+  caja.innerHTML = html;
 }
 
 function days(){
@@ -480,13 +614,28 @@ function siglas(nombre){
 
 function generate(){
   var ds = days(), cs = courts();
+
+  // El nombre no es adorno: de él salen las siglas que numeran cada
+  // juego, el nombre del archivo y la descripción que se ve al
+  // compartir el enlace. Sin nombre, todo torneo numeraría T-1, T-2 —
+  // y los marcadores se guardan por número.
+  if (!(document.getElementById('tName').value || '').trim())
+    return alert('Pon el nombre del torneo.');
+
   if (!ds.length) return alert('Pon el primer día.');
+
+  // Las horas van vacías al abrir, así que hay que pedirlas antes de
+  // usarlas: en blanco valen 0 y el calendario entero saldría a las
+  // doce de la noche.
+  var h1 = document.getElementById('tStart').value;
+  var h2 = document.getElementById('tEnd').value;
+  if (!h1 || !h2) return alert('Pon la primera y la última hora.');
+
+  var from = Number(h1), to = Number(h2);
+  if (to < from) return alert('La última hora va después de la primera.');
+
   if (!cs.length) return alert('Pon al menos una cancha.');
   if (!DIVS.length) return alert('Añade una categoría.');
-
-  var from = Number(document.getElementById('tStart').value);
-  var to   = Number(document.getElementById('tEnd').value);
-  if (to < from) return alert('La última hora va después de la primera.');
 
   var slots = makeSlots(ds, cs.map(function(c){ return c.id; }), from, to);
 
@@ -745,10 +894,20 @@ function registrar(){
 // ── arranque ────────────────────────────────────────────────
 document.getElementById('tStart').innerHTML = hours();
 document.getElementById('tEnd').innerHTML = hours();
-document.getElementById('tStart').value = 14;
-document.getElementById('tEnd').value = 21;
 
-addDiv('Juniors', '');
+// Hasta ocho canchas. Arranca en una, que es lo que tiene un coach
+// con su propio gimnasio; subirlo es un clic.
+(function(){
+  var sel = document.getElementById('tCourtN'), o = '';
+  for (var i = 1; i <= 8; i++) o += '<option value="' + i + '">' + i + '</option>';
+  sel.innerHTML = o;
+  sel.value = 1;
+  drawCourts();
+})();
+
+// Una categoría en blanco, para que haya dónde escribir sin tener que
+// borrar nada primero.
+addDiv();
 </script>
 
 <script id="tpl" type="text/plain"><!doctype html>
@@ -894,6 +1053,24 @@ h1{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.03em;margin:0 0 4px;font-
   font-family:inherit;cursor:pointer}
 .pl.want:hover{border-color:var(--accent);color:var(--accent);background:#fff}
 .pl.waiting{border-style:dashed;border-color:var(--line);color:#9AA8B5;cursor:default}
+
+/* Un juego con marcador ya no admite promesas. El botón se queda a la
+   vista, apagado y con el aviso: quitarlo dejaba la fila sin decir por
+   qué había desaparecido. */
+.pl.closed{border-style:dashed;border-color:#C3D2DD;color:#9AA8B5;background:var(--tint);
+  cursor:default}
+.pl.closed:hover{background:var(--tint);color:#9AA8B5}
+
+/* La hoja de promesa: prometer, o mandársela a quien va a prometer. */
+a.su-go{text-align:center;text-decoration:none}
+.su-go.line{background:#fff;color:var(--ink);margin-top:10px}
+.ps-game{border:2px solid var(--line);border-radius:4px;padding:12px 14px;margin:14px 0 2px;
+  font-size:.95rem;line-height:1.45}
+.ps-game b{font-weight:900}
+.ps-game span{display:block;color:var(--mute);font-size:.8rem;margin-top:3px;
+  font-variant-numeric:tabular-nums}
+.ps-note{color:var(--mute);font-size:.8rem;margin:14px 0 0;text-align:center;line-height:1.5}
+.ps-note b{color:var(--ink)}
 
 /* El formulario, encima de la página: el mismo que en Cada Punto, sin
    mandar a nadie a otro sitio en medio de mirar el calendario. */
@@ -1131,7 +1308,21 @@ var CATCOLOR = __CATCOLOR__;
 <script>
 var CP = 'https://cadapunto.com';     // ahí vive el dinero
 var STR_PLEDGE = ' — prometer';
+var STR_CLOSED = ' — promesas cerradas';
 var STR_IPLAY  = 'Soy jugador · mi enlace';
+
+// La hoja que se abre al tocar el botón de un equipo. Dos salidas:
+// prometer uno mismo, o mandarle el enlace a quien va a prometer —
+// que es como se recoge de verdad, de uno en uno por WhatsApp.
+var PS = {
+  kick:'Promesa por punto',
+  lede:'Los padrinos prometen unos centavos por cada punto que anote {T} en este juego. ' +
+       'Lo que prometa cada uno se calcula sobre el marcador final.',
+  mine:'Prometer yo',
+  send:'Mandarla a los padrinos',
+  copied:'Enlace copiado.',
+  note:'<b>Prometido no es cobrado.</b> Lo que llegue, y cuándo, depende de tu cobro.'
+};
 var STR_SAVE = 'OK';
 var STR_DEL  = 'Borrar';
 var STR_BADCODE = 'Código incorrecto.';
@@ -1360,13 +1551,21 @@ function pledgeBits(row){
     // puesto el juego en su propia campaña.
     var foe = resolve(sides[i === 0 ? 1 : 0]);
 
-    var href = CP + '/scoreboard.html?c=' + t.campaign +
-               '&on=' + encodeURIComponent(row.dataset.on || '') +
-               '&vs=' + encodeURIComponent(foe);
+    // El botón no se va a Cada Punto: abre la hoja aquí mismo. Los
+    // datos del juego se guardan en un registro y el onclick lleva
+    // sólo una clave — un nombre de equipo con apóstrofo rompía el
+    // onclick entero.
+    var clave = 'p' + (++PKEY);
+    PLEDGEABLE[clave] = {
+      team: real, campaign: t.campaign, foe: foe,
+      on: row.dataset.on || '', j: row.dataset.j || '',
+      court: row.dataset.court || '',
+      time: (row.querySelector('.t') || {}).textContent || ''
+    };
 
-    out.push('<a class="pl" href="' + href + '">' +
-               '<b>' + real + '</b>' + STR_PLEDGE +
-             '</a>');
+    out.push('<button class="pl" onclick="event.stopPropagation();pledgeSheet(\'' +
+               clave + '\')"><b>' + real + '</b>' + STR_PLEDGE +
+             '</button>');
 
     // Y para quien juega en ese equipo: su propio enlace de padrinos.
     if (mine.indexOf(t.campaign) === -1){
@@ -1379,6 +1578,20 @@ function pledgeBits(row){
   return out.join('');
 }
 
+// Un juego ya jugado: el botón de cada equipo con campaña se queda
+// puesto y apagado. Prometer sobre un marcador que ya se sabe no es
+// prometer, y borrar el botón no explicaba nada.
+function closedBits(row){
+  var out = [];
+  [row.dataset.a, row.dataset.b].forEach(function(side){
+    var real = resolve(side);
+    if (/^(Ganador|\d+º)/.test(real)) return;
+    if (!TEAMS[teamKey(real)]) return;          // sin campaña no había nada que cerrar
+    out.push('<span class="pl closed"><b>' + real + '</b>' + STR_CLOSED + '</span>');
+  });
+  return out.join('');
+}
+
 function paintPledges(){
   PEDIDOS = {};
   var rows = document.querySelectorAll('.r');
@@ -1386,7 +1599,75 @@ function paintPledges(){
     var holder = rows[i].querySelector('.pls');
     if (!holder) continue;
     var done = rows[i].classList.contains('done');
-    holder.innerHTML = done ? '' : pledgeBits(rows[i]);
+    holder.innerHTML = done ? closedBits(rows[i]) : pledgeBits(rows[i]);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  LA HOJA DE PROMESA
+//
+//  Se abre sobre el calendario, sin mandar a nadie a otra
+//  página en medio de mirar los juegos de su hijo. Dice de
+//  qué juego se trata y ofrece las dos cosas que se hacen
+//  con una promesa: hacerla, o pasársela a quien la hará.
+// ══════════════════════════════════════════════════════
+var PLEDGEABLE = {}, PKEY = 0;
+
+function pledgeURL(d){
+  return CP + '/scoreboard.html?c=' + d.campaign +
+         '&on=' + encodeURIComponent(d.on) +
+         '&vs=' + encodeURIComponent(d.foe);
+}
+
+function pledgeSheet(clave){
+  var d = PLEDGEABLE[clave];
+  if (!d) return;
+
+  var box = document.getElementById('signupBox');
+  box.innerHTML =
+    '<div class="su-card">' +
+      '<button class="su-x" onclick="closeSignup()" aria-label="cerrar">×</button>' +
+      '<div class="su-kick">' + PS.kick + '</div>' +
+      '<h3 class="su-h">' + esc(d.team) + '</h3>' +
+      '<p class="su-p">' + PS.lede.replace('{T}', esc(d.team)) + '</p>' +
+      '<div class="ps-game"><b>' + esc(d.team) + '</b> vs ' + esc(d.foe) +
+        '<span>' + esc(d.j) +
+          (d.on ? ' · ' + esc(dayLabel(d.on)) : '') +
+          (d.time ? ' · ' + esc(d.time) : '') +
+          (d.court ? ' · ' + esc(d.court) : '') +
+        '</span></div>' +
+      '<a class="su-go" href="' + pledgeURL(d) + '">' + PS.mine + '</a>' +
+      '<button class="su-go line" onclick="sharePledge(\'' + clave + '\')">' +
+        PS.send + '</button>' +
+      '<p class="su-msg" id="suMsg"></p>' +
+      '<p class="ps-note">' + PS.note + '</p>' +
+    '</div>';
+  box.classList.add('on');
+  document.body.classList.add('locked');
+}
+
+function sharePledge(clave){
+  var d = PLEDGEABLE[clave];
+  if (!d) return;
+
+  var url = pledgeURL(d);
+  var texto = d.team + ' vs ' + d.foe + ' — ' + d.j +
+              '. Promete unos centavos por cada punto que anote ' + d.team + ':';
+
+  // En el teléfono, el compartir del sistema: WhatsApp está ahí y es
+  // por donde se recoge.
+  if (navigator.share){
+    navigator.share({ title: d.team, text: texto, url: url }).catch(function(){});
+    return;
+  }
+
+  // En computadora no hay compartir: al portapapeles, y si tampoco se
+  // puede, el enlace a la vista para copiarlo a mano.
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url)
+      .then(function(){ suSay(PS.copied); }, function(){ suSay(url); });
+  } else {
+    suSay(url);
   }
 }
 
