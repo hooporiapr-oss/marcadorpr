@@ -969,6 +969,12 @@ function registrar(){
   }).then(function(r){
     if (!r || !r.ok){
       if (r && r.reason === 'code') return dicho('Código incorrecto.', true);
+      /* Un código de mesa es válido y aun así no monta calendarios.
+         Decir «código incorrecto» mandaría a buscar otro código que
+         no existe; lo que falta es el permiso, no el código. */
+      if (r && r.reason === 'build')
+        return dicho('Ese código apunta marcadores pero no monta calendarios. ' +
+                     'Hace falta uno con permiso para montar el calendario.', true);
       if (r && r.reason === 'faltan-datos') return dicho('Al torneo le falta el nombre.', true);
       return dicho('No se pudo registrar.', true);
     }
