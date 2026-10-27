@@ -64,6 +64,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .cr.t .tag{background:var(--tint);color:var(--mute);border:2px solid var(--line);
   padding:8px 0;font-size:.82rem}
 
+/* En qué canchas puede jugar una categoría. No es un gusto: Mini
+   juega en canastos de seis pies, y en una cancha reglamentaria no se
+   puede jugar. Con una sola cancha no hay nada que escoger y la fila
+   no sale. */
+.picks{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.pick{display:flex;align-items:center;gap:7px;margin:0;border:2px solid var(--line);
+  border-radius:4px;padding:8px 12px;font-size:.84rem;font-weight:600;color:var(--mute);
+  cursor:pointer}
+.pick:has(input:checked){border-color:var(--accent);color:var(--ink)}
+.pick input{width:17px;height:17px;flex:0 0 17px;margin:0;accent-color:var(--accent);
+  cursor:pointer}
+.pick b{font-weight:900;color:var(--ink)}
+
 .btn{display:block;width:100%;padding:15px;border:2px solid var(--ink);border-radius:4px;
   background:var(--ink);color:#fff;font:inherit;font-weight:800;font-size:1rem;cursor:pointer;
   margin-top:14px;text-align:center;text-decoration:none}
@@ -317,6 +330,11 @@ function schedule(allGames, slots, gapHours){
       var s = slots[i];
       if (s.taken) continue;
 
+      // La categoría manda sobre la cancha: Mini en canastos de seis
+      // pies no se puede poner en una cancha reglamentaria por mucho
+      // que la hora esté libre.
+      if (g.courts && g.courts.length && g.courts.indexOf(s.court) === -1) continue;
+
       var t = slotTime(s);
       if (t < earliest) continue;      // todavía no han jugado los suyos
 
@@ -412,6 +430,10 @@ function addDiv(name, teams){
       '<div><label>Equipos por grupo</label><input id="dps' + id + '" type="number" value="4" min="3" max="6"></div>' +
       '<div><label>Cuántos pasan de cada grupo</label><input id="dpa' + id + '" type="number" value="2" min="1" max="4"></div>' +
     '</div>' +
+    '<div id="dcw' + id + '" style="display:none">' +
+      '<label>Canchas de esta categoría</label>' +
+      '<div class="picks" id="dcz' + id + '"></div>' +
+    '</div>' +
     '<label>Equipos — en orden de siembra</label>' +
     '<div id="dt' + id + '"></div>' +
     '<div class="count" id="dc' + id + '"></div>';
@@ -422,6 +444,7 @@ function addDiv(name, teams){
   var sel = document.getElementById('dq' + id), o = '<option value=""></option>';
   for (var i = 2; i <= 32; i++) o += '<option value="' + i + '">' + i + '</option>';
   sel.innerHTML = o;
+  drawPicks(id);
 
   if (teams){                      // sembrar de una lista, si viene una
     var l = String(teams).split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
@@ -444,6 +467,54 @@ function divMode(id){
   var pools = document.getElementById('df' + id).value === 'pools';
   document.getElementById('dp' + id).style.display = pools ? '' : 'none';
   divCount(id);
+}
+
+// ── En qué canchas juega una categoría ──────────────────────
+// Mini juega en canastos de seis pies. Ponerla en una cancha
+// reglamentaria no es incómodo: es un juego que no se puede jugar. El
+// calendario tiene que saberlo antes de repartir las horas.
+//
+// Se marcan todas por defecto, porque lo normal es que una categoría
+// pueda jugar donde sea; lo que hay que decir es la excepción.
+function drawPicks(id){
+  var caja = document.getElementById('dcz' + id);
+  var marco = document.getElementById('dcw' + id);
+  if (!caja) return;
+
+  var antes = {};
+  [].forEach.call(caja.querySelectorAll('input[data-c]'), function(el){
+    antes[el.getAttribute('data-c')] = el.checked;
+  });
+
+  var cs = courts(), html = '';
+  cs.forEach(function(c){
+    var on = antes[c.id] === undefined ? true : antes[c.id];
+    html += '<label class="pick"><input type="checkbox" data-c="' + esc(c.id) + '"' +
+              (on ? ' checked' : '') + ' onchange="divCount(' + id + ')">' +
+              '<span><b>' + esc(c.id) + '</b>' +
+                (c.name && c.name !== c.id ? ' ' + esc(c.name) : '') + '</span>' +
+            '</label>';
+  });
+  caja.innerHTML = html;
+
+  // Con una sola cancha no hay nada que escoger.
+  if (marco) marco.style.display = cs.length > 1 ? '' : 'none';
+}
+
+// Al cambiar la cantidad de canchas, o el nombre de una, todas las
+// categorías tienen que volver a dibujar sus casillas.
+function allPicks(){
+  DIVS.forEach(function(id){ drawPicks(id); divCount(id); });
+}
+
+function courtsOf(id){
+  var caja = document.getElementById('dcz' + id);
+  if (!caja) return courts().map(function(c){ return c.id; });
+  var out = [];
+  [].forEach.call(caja.querySelectorAll('input[data-c]'), function(el){
+    if (el.checked) out.push(el.getAttribute('data-c'));
+  });
+  return out;
 }
 
 // ── Los equipos de una categoría ────────────────────────────
@@ -579,10 +650,15 @@ function drawCourts(){
     html += '<div class="cr">' +
         '<span class="tag">' + id + '</span>' +
         '<input id="cn' + i + '" data-c="' + id + '" value="' +
-          esc(COURTNAME[id] || '') + '" placeholder="Nombre de la cancha">' +
+          esc(COURTNAME[id] || '') + '" placeholder="Nombre de la cancha" ' +
+          'oninput="allPicks()">' +
       '</div>';
   }
   caja.innerHTML = html;
+
+  // Las casillas de cada categoría siguen a las canchas: quitar una
+  // cancha tiene que quitarla de todas las categorías a la vez.
+  if (typeof allPicks === 'function') allPicks();
 }
 
 function days(){
@@ -637,6 +713,16 @@ function generate(){
   if (!cs.length) return alert('Pon al menos una cancha.');
   if (!DIVS.length) return alert('Añade una categoría.');
 
+  // Una categoría sin ninguna cancha marcada no tiene dónde jugar, y
+  // sus juegos saldrían todos sin hora sin decir por qué.
+  for (var z = 0; z < DIVS.length; z++){
+    if (teamsOf(DIVS[z]).length < 2) continue;        // ésa ya se salta sola
+    if (!courtsOf(DIVS[z]).length){
+      var qn = (document.getElementById('dn' + DIVS[z]).value || '').trim() || 'Una categoría';
+      return alert(qn + ': marca al menos una cancha.');
+    }
+  }
+
   var slots = makeSlots(ds, cs.map(function(c){ return c.id; }), from, to);
 
   // El prefijo sale del nombre del torneo, así dos calendarios
@@ -658,7 +744,9 @@ function generate(){
                      Number(document.getElementById('dpa' + id).value) || 2, PFX, no)
       : knockout(teams, PFX, no);
 
-    built.games.forEach(function(g){ g.cat = name; });
+    // Cada juego se lleva las canchas en que su categoría puede jugar.
+    var permitidas = courtsOf(id);
+    built.games.forEach(function(g){ g.cat = name; g.courts = permitidas; });
     all = all.concat(built.games);
     no = built.nextNo;
   });
@@ -1236,10 +1324,15 @@ footer a{color:#4FD3F0;text-decoration:none}
     <a class="cpad" href="https://cadapunto.com/?t=__SLUG__">
       <span class="cpad-l">
         <b class="cpad-h">¿Tu equipo recauda con sus juegos?</b>
+        <!-- Aquí decía que al padrino le llega «el enlace para pagarle al programa
+             directo». La divulgación dice lo contrario: «un aviso, y nada más: sin
+             enlace de pago y sin recordatorios». Esta tarjeta sale en cada calendario
+             que genera el constructor, así que prometía un enlace que no existe. -->
         <span class="cpad-p">Los padrinos prometen unos centavos por cada punto que anota tu
-          equipo. Al terminar el juego les llega un email con el marcador final del juego y el
-          enlace para pagarle al programa directo — sin vender nada y sin que el dinero pase
-          por nadie más. Ganen o pierdan, el programa gana.</span>
+          equipo. Al cerrar el juego les llega un aviso con el marcador final y lo que dio su
+          promesa — sin enlace de pago y sin recordatorios: el pago es entre ellos y tu
+          programa, sin que el dinero pase por nadie más. Ganen o pierdan, el programa
+          gana.</span>
       </span>
       <span class="cpad-r">
         <span class="cpad-mk">cada <em>punto</em> <i>cuenta</i></span>
