@@ -94,6 +94,8 @@ th{text-align:left;padding:7px 8px 7px 0;border-bottom:2px solid var(--ink);font
   font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
 td{padding:7px 8px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
 td.n{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--mute)}
+.hat{display:inline-block;font-size:.58rem;font-weight:900;letter-spacing:.06em;
+  color:var(--mute);vertical-align:.14em;margin-right:4px}
 
 footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
   padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
@@ -776,6 +778,21 @@ function generate(){
   show();
 }
 
+// ── Local y visitante ───────────────────────────────────────
+// No hay nada que escribir: el cuadro ya lo dice. El de arriba de
+// cada juego es el local, que en la primera ronda es siempre el mejor
+// sembrado de los dos, y en las siguientes el que viene de la mitad
+// alta del cuadro.
+//
+// La única excepción es el equipo de casa del torneo: juega en su
+// pueblo, así que es local en los suyos aunque el sorteo lo ponga
+// abajo. Se cambia la etiqueta y nada más — mover el equipo de sitio
+// cambiaría a qué ranura del cuadro alimenta su juego.
+function lado(g, casa){
+  var esCasa = function(n){ return casa && String(n).indexOf(casa) === 0; };
+  return (esCasa(g.b) && !esCasa(g.a)) ? ['A', 'H'] : ['H', 'A'];
+}
+
 function show(){
   var r = RESULT;
   var missing = r.games.filter(function(g){ return !g.date; });
@@ -799,7 +816,9 @@ function show(){
         '<td class="n">' + (g.date ? esc(g.date.slice(5)) : '—') + '</td>' +
         '<td class="n">' + (g.time ? esc(g.time) : '—') + '</td>' +
         '<td class="n">' + (g.court ? esc(g.court) : '—') + '</td>' +
-        '<td>' + esc(g.a) + ' <span style="color:#5A6B7C">vs</span> ' + esc(g.b) +
+        '<td><b class="hat">' + lado(g, r.home)[0] + '</b>' + esc(g.a) +
+          ' <span style="color:#5A6B7C">vs</span> ' +
+          '<b class="hat">' + lado(g, r.home)[1] + '</b>' + esc(g.b) +
           (g.stage ? ' <span style="color:#5A6B7C">· ' + esc(g.stage) + '</span>' : '') + '</td>' +
         '<td>' + esc(g.cat) + '</td>' +
       '</tr>';
@@ -1294,6 +1313,15 @@ body.locked{overflow:hidden}
 
 .courts{display:grid;gap:6px;margin:0 0 22px;font-size:.84rem;color:var(--mute)}
 .courts b{color:var(--ink)}
+
+/* Local y visitante. Van FUERA de .sa/.sb a propósito: paint() les
+   reescribe el textContent cada vez que bajan marcadores, y una
+   etiqueta metida dentro se borraría sola al primer marcador. */
+.ha{display:inline-block;font-style:normal;font-size:.56rem;font-weight:900;
+  letter-spacing:.06em;vertical-align:.14em;margin-right:5px;padding:2px 5px;
+  border-radius:3px;background:var(--ink);color:#fff}
+.ha.a{background:none;color:var(--mute);border:1px solid var(--line);padding:1px 4px}
+.ha-leg{margin-top:4px;font-size:.78rem;color:var(--mute)}
 
 footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
   padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
@@ -2242,7 +2270,8 @@ function build(){
   document.getElementById('courts').innerHTML =
     (TOURNEY.courts || []).map(function(c){
       return '<div><b>' + esc(c.id) + '</b> — ' + esc(c.name || c.id) + '</div>';
-    }).join('');
+    }).join('') +
+    '<div class="ha-leg"><em class="ha">H</em>local · <em class="ha a">A</em>visitante</div>';
 
   // Una pestaña por categoría, encima del calendario. Con una sola
   // categoría no hay nada entre qué escoger y la fila sobra.
@@ -2269,6 +2298,12 @@ function build(){
 
     list.forEach(function(g){
       var mine = HOME && (String(g.a).indexOf(HOME) === 0 || String(g.b).indexOf(HOME) === 0);
+
+      // Local y visitante sin escribir nada: manda el cuadro, salvo
+      // que el equipo de casa del torneo esté abajo — en su pueblo es
+      // local aunque el sorteo lo ponga de segundo.
+      var ld = (HOME && String(g.b).indexOf(HOME) === 0 &&
+                String(g.a).indexOf(HOME) !== 0) ? ['A','H'] : ['H','A'];
       html +=
         '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
           'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
@@ -2277,8 +2312,12 @@ function build(){
           'onclick="tap(this)">' +
           '<span class="t">' + esc(g.time) + '</span>' +
           '<span class="c">' + esc(g.court) + '</span>' +
-          '<span class="m"><b class="sa">' + esc(g.a) + '</b> <i>vs</i> ' +
-            '<b class="sb">' + esc(g.b) + '</b><span class="sc"></span></span>' +
+          '<span class="m">' +
+            '<em class="ha' + (ld[0] === 'A' ? ' a' : '') + '">' + ld[0] + '</em>' +
+            '<b class="sa">' + esc(g.a) + '</b> <i>vs</i> ' +
+            '<em class="ha' + (ld[1] === 'A' ? ' a' : '') + '">' + ld[1] + '</em>' +
+            '<b class="sb">' + esc(g.b) + '</b>' +
+            '<span class="sc"></span></span>' +
           '<span class="pls"></span>' +
           '<span class="j">' + esc(g.no) + (g.stage ? ' · ' + esc(g.stage) : '') + '</span>' +
           '<span class="k" style="--k:' + (CATCOLOR[g.cat] || '#12202E') + '">' + esc(g.cat) + '</span>' +
