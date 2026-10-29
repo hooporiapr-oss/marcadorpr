@@ -2509,13 +2509,30 @@ function build(){
             ' <span>' + list.length + ' juegos</span></h2><div class="rows">';
 
     list.forEach(function(g){
-      var mine = HOME && (String(g.a).indexOf(HOME) === 0 || String(g.b).indexOf(HOME) === 0);
+      /* EL EQUIPO DE CASA SE COMPARA SIN ACENTOS, igual que todo lo
+         demás que compara nombres de equipo en esta página.
+
+         Esto comparaba el texto crudo, y lo escriben dos veces: los
+         equipos en su casilla y el equipo de casa en la suya. Teclear
+         «Canóvanas» arriba y «Canovanas» abajo es lo normal —el
+         primero que lo hizo fue el dueño del torneo— y el fallo no se
+         veía como un fallo: cuando HOME no casa con ninguno de los
+         dos, esto caía en ['H','A'] y le ponía la H al equipo que
+         saliera primero. No es que faltara la marca; es que la página
+         decía que era local un equipo que no lo era.
+
+         norm() quita acentos, recorta y sube a mayúsculas, que es lo
+         mismo que ya se usa para casar con las campañas de Cada
+         Punto. Se mantiene el indexOf(...) === 0 y no una igualdad,
+         porque «Canóvanas B» sigue siendo el equipo de casa. */
+      var nh = norm(HOME);
+      var esCasa = function(t){ return !!nh && norm(t).indexOf(nh) === 0; };
+      var mine = esCasa(g.a) || esCasa(g.b);
 
       // Local y visitante sin escribir nada: manda el cuadro, salvo
       // que el equipo de casa del torneo esté abajo — en su pueblo es
       // local aunque el sorteo lo ponga de segundo.
-      var ld = (HOME && String(g.b).indexOf(HOME) === 0 &&
-                String(g.a).indexOf(HOME) !== 0) ? ['A','H'] : ['H','A'];
+      var ld = (esCasa(g.b) && !esCasa(g.a)) ? ['A','H'] : ['H','A'];
       html +=
         '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
           'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
