@@ -901,12 +901,39 @@ function show(){
   '<button class="btn" onclick="registrar()">Registrar el torneo</button>' +
   '<p class="hint" id="regMsg" style="font-weight:800;min-height:1.3em"></p>' +
 
-  '<h2 style="margin-top:28px">2 · Bajar la página del calendario</h2>' +
+  /* EL ENLACE ES LO QUE SE LLEVA, y por eso es el paso 2 y el
+     fichero bajó al 3.
+
+     Hasta hoy el único final de este formulario era un .html que
+     alguien tenía que subir al repo de marcadorpr — y ese alguien
+     era siempre el dueño del repo. Un entrenador en Loíza un viernes
+     por la noche no podía dar ese paso, así que los únicos torneos
+     que corrían eran los que se subían a mano.
+
+     Ahora el calendario se lee de la base: registrar ES publicar, y
+     lo que el entrenador se lleva es una dirección que puede mandar
+     por WhatsApp sin que nadie toque nada. */
+  '<h2 style="margin-top:28px">2 · Tu enlace</h2>' +
+  '<p class="hint" id="enlaceMsg" style="margin:0 0 10px">Primero regístralo. En cuanto lo ' +
+    'hagas sale aquí la dirección del calendario, lista para mandar.</p>' +
+  '<div id="enlaceCaja" style="display:none">' +
+    '<input id="enlaceUrl" readonly onclick="this.select()" ' +
+      'style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem">' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+      '<button class="btn" type="button" onclick="copiarEnlace()" id="btnCopiar">' +
+        'Copiar el enlace</button>' +
+      '<a class="btn line" id="enlaceVer" target="_blank" rel="noopener">Abrirlo</a>' +
+    '</div>' +
+    '<p class="hint" style="margin-top:10px">Mándalo por WhatsApp. Los marcadores se ven ahí ' +
+      'según van entrando, y cada juego lleva su botón de prometer.</p>' +
+  '</div>' +
+
+  '<h2 style="margin-top:28px">3 · O baja el fichero</h2>' +
   '<button class="btn line" id="btnBajar" disabled onclick="download()">' +
     'Bajar la página del calendario</button>' +
-  '<p class="hint" id="bajarMsg">Primero regístralo. La página que se baja es una foto de lo ' +
-    'registrado, así que se saca después — si no, el fichero y el admin podrían no decir lo ' +
-    'mismo.</p>';
+  '<p class="hint" id="bajarMsg">No hace falta para publicar: el enlace de arriba ya funciona. ' +
+    'Esto es una foto del calendario registrado, por si lo quieres guardar o subir a otro ' +
+    'sitio — y como es una foto, deja de actualizarse.</p>';
 
   // Un calendario recién generado todavía no está registrado, aunque
   // el anterior lo estuviera: lo que se registró era otro.
@@ -925,10 +952,68 @@ var REGISTRADO = false;
 function permitirBajar(){
   REGISTRADO = true;
   var b = document.getElementById('btnBajar');
-  if (b){ b.disabled = false; b.className = 'btn'; }
-  var m = document.getElementById('bajarMsg');
-  if (m) m.textContent = 'Ya está registrado. Sale un archivo .html listo para subir a ' +
-                         'marcadorpr.';
+  if (b){ b.disabled = false; b.className = 'btn line'; }
+}
+
+/* ── EL ESTILO DEL CALENDARIO ───────────────────────────────────
+   Tres cosas que la página necesita para pintarse y que el registro
+   no guarda: el NOMBRE de cada cancha (en el juego sólo vive «C-1»),
+   el equipo de CASA, y el COLOR de cada categoría.
+
+   Va en su propia llamada y no dentro de bw_register_tournament a
+   propósito: esa función ya vive en cuatro ficheros y una quinta
+   copia significaría arrastrar a mano el enlace de juegos entero.
+   Lo que se paga por tenerlo aparte es esto — si falla, el torneo
+   queda publicado igual, sólo que con las canchas por su código y
+   todas las categorías del mismo color. Se degrada, no se rompe, y
+   volver a registrar lo arregla. */
+function guardarEstilo(code, slug){
+  rpcC('torneo_estilo', {
+    p_code:    code,
+    p_id:      slug,
+    p_canchas: RESULT.tourney.courts || [],
+    p_casa:    RESULT.home || null,
+    p_colores: RESULT.colour || {}
+  }).then(function(r){
+    if (!r || !r.ok) console.warn('torneo_estilo:', r && r.reason);
+  }).catch(function(e){ console.warn('torneo_estilo:', e); });
+}
+
+/* ── EL ENLACE PÚBLICO ──────────────────────────────────────────
+   Se enseña en cuanto el torneo queda registrado, porque desde ese
+   momento la dirección ya responde: torneo.html lee el calendario de
+   la base, no de ningún fichero. */
+var ENLACE = '';
+function mostrarEnlace(slug){
+  ENLACE = 'https://marcadorpr.com/torneo.html?t=' + encodeURIComponent(slug);
+  var caja = document.getElementById('enlaceCaja');
+  var msg  = document.getElementById('enlaceMsg');
+  var inp  = document.getElementById('enlaceUrl');
+  var ver  = document.getElementById('enlaceVer');
+  if (inp) inp.value = ENLACE;
+  if (ver) ver.href = ENLACE;
+  if (msg) msg.textContent = 'Ya está publicado. Ésta es la dirección del calendario:';
+  if (caja) caja.style.display = '';
+}
+
+function copiarEnlace(){
+  var b = document.getElementById('btnCopiar');
+  var ok = function(){
+    if (!b) return;
+    b.textContent = 'Copiado';
+    setTimeout(function(){ b.textContent = 'Copiar el enlace'; }, 2000);
+  };
+  /* El portapapeles moderno falla en http y en algunos navegadores
+     embebidos, que es justo donde va a estar un entrenador. Si falla,
+     se selecciona el texto para que copiarlo sea un gesto. */
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ENLACE).then(ok, function(){
+      var i = document.getElementById('enlaceUrl'); if (i){ i.focus(); i.select(); }
+    });
+    return;
+  }
+  var i = document.getElementById('enlaceUrl');
+  if (i){ i.focus(); i.select(); try { document.execCommand('copy'); ok(); } catch (e){} }
 }
 
 function download(){
@@ -1097,6 +1182,8 @@ function registrar(){
          cambiándole el nombre y volviendo a generar — pero la
          decisión es suya, no nuestra. */
       permitirBajar();
+      guardarEstilo(code, slug);
+      mostrarEnlace(slug);
       dicho('Registrado (' + r.juegos + ' juegos), PERO el prefijo ' +
             RESULT.prefix + ' ya lo usa «' + r.choque + '». Los dos torneos ' +
             'tendrían juegos con el mismo número y los marcadores se mezclarían. ' +
@@ -1104,7 +1191,10 @@ function registrar(){
       return;
     }
     permitirBajar();
-    dicho('Registrado: ' + r.juegos + ' juegos. Ya sale en el admin. Ya puedes bajar la página.');
+    guardarEstilo(code, slug);
+    mostrarEnlace(slug);
+    dicho('Publicado: ' + r.juegos + ' juegos. Ya sale en el admin, y el enlace de abajo ' +
+          'ya funciona.');
   }).catch(function(e){
     console.error(e);
     dicho('No se pudo registrar. Mira la conexión.', true);
