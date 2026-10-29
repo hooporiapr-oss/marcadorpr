@@ -1879,9 +1879,30 @@ function pledgeBits(row){
     // datos del juego se guardan en un registro y el onclick lleva
     // sólo una clave — un nombre de equipo con apóstrofo rompía el
     // onclick entero.
+    // SIN LLAVE NO HAY BOTÓN DE PROMETER.
+    //
+    // Un equipo puede tener campaña y que su juego todavía no esté
+    // enlazado —se inscribió después de registrarse el torneo, y nadie
+    // ha vuelto a enlazar—. Antes el botón salía igual y mandaba a una
+    // página que intentaba adivinar el juego por fecha y rival. Ahora
+    // se ofrece lo mismo que a un equipo sin campaña: la información
+    // de cómo recaudar. Es la verdad —todavía no hay juego al que
+    // enganchar una promesa— y no manda a nadie a un callejón.
+    var llave = (i === 0 ? row.dataset.ga : row.dataset.gb) || '';
+    if (!llave){
+      var kSin = teamKey(real);
+      if (PEDIDOS[kSin]) return;
+      PEDIDOS[kSin] = 1;
+      out.push('<button class="pl want" onclick="askTeam(\'' +
+                 real.replace(/'/g, "\\'") + '\')">' +
+                 '<b>' + real + '</b>' + ASK.want +
+               '</button>');
+      return;
+    }
+
     var clave = 'p' + (++PKEY);
     PLEDGEABLE[clave] = {
-      team: real, campaign: t.campaign, foe: foe,
+      team: real, campaign: t.campaign, foe: foe, game: llave,
       on: row.dataset.on || '', j: row.dataset.j || '',
       court: row.dataset.court || '',
       time: (row.querySelector('.t') || {}).textContent || ''
@@ -1891,13 +1912,14 @@ function pledgeBits(row){
                clave + '\')"><b>' + real + '</b>' + STR_PLEDGE +
              '</button>');
 
-    // Y para quien juega en ese equipo: su propio enlace de padrinos.
-    if (mine.indexOf(t.campaign) === -1){
-      mine.push(t.campaign);
-      out.push('<a class="pl mine" href="' + CP + '/jugador.html?c=' + t.campaign + '">' +
-                 STR_IPLAY +
-               '</a>');
-    }
+    // AQUÍ IBA «Soy jugador · mi enlace», a jugador.html.
+    //
+    // Esa página es del producto por alumno: cada jugador tenía su
+    // propio enlace y sus padrinos prometían por SUS puntos. En el
+    // modelo por juego no existe tal cosa — se promete por los puntos
+    // del EQUIPO, y el enlace del juego es el mismo para todos. El
+    // botón seguía ahí, en la misma fila que el de prometer, llevando
+    // a un callejón: lo que ofrecía ya no se puede hacer.
   });
   return out.join('');
 }
@@ -1937,10 +1959,19 @@ function paintPledges(){
 // ══════════════════════════════════════════════════════
 var PLEDGEABLE = {}, PKEY = 0;
 
+/* A LA HOJA DE PROMETER, POR LA LLAVE DEL JUEGO.
+
+   Esto mandaba a scoreboard.html —que es el tablero del entrenador, no
+   un formulario de promesa— con campaña, fecha y rival, y dejaba que
+   la otra punta averiguara de qué juego se hablaba. Dos problemas en
+   una línea: la página equivocada, y la adivinanza por texto que se
+   retiró del cobro esta misma mañana.
+
+   El enlace se comparte por WhatsApp y quien lo abre no tiene nada
+   nuestro, así que no lleva código ni hace falta cuenta: sólo el
+   juego. */
 function pledgeURL(d){
-  return CP + '/scoreboard.html?c=' + d.campaign +
-         '&on=' + encodeURIComponent(d.on) +
-         '&vs=' + encodeURIComponent(d.foe);
+  return CP + '/prometer.html?g=' + encodeURIComponent(d.game || '');
 }
 
 function pledgeSheet(clave){
@@ -2537,6 +2568,10 @@ function build(){
         '<div class="r' + (mine ? ' p' : '') + '" data-cat="' + esc(g.cat) + '" ' +
           'data-court="' + esc(g.court) + '" data-j="' + esc(g.no) + '" ' +
           'data-on="' + esc(g.date) + '" data-a="' + esc(g.a) + '" data-b="' + esc(g.b) + '" ' +
+          // La llave del juego que se promete, una por lado. Es lo que
+          // lleva al padrino a SU juego sin que la otra punta tenga
+          // que adivinarlo por fecha y nombre de rival.
+          'data-ga="' + esc(g.ga || '') + '" data-gb="' + esc(g.gb || '') + '" ' +
           'data-stage="' + esc(g.stage || '') + '" ' +
           'onclick="tap(this)">' +
           '<span class="t">' + esc(g.time) + '</span>' +
