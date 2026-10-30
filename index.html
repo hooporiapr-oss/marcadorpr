@@ -3,23 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>marcadorpr — marcadores en vivo del baloncesto de Puerto Rico</title>
-<meta name="description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
+<title>marcadorpr — marcadores en vivo de Puerto Rico</title>
+<meta name="description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto y el voleibol de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
 <meta name="theme-color" content="#12202E">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="marcadorpr">
 <meta property="og:url" content="https://marcadorpr.com/">
-<meta property="og:title" content="marcadorpr — marcadores en vivo del baloncesto de Puerto Rico">
-<meta property="og:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
-<meta property="og:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
+<meta property="og:title" content="marcadorpr — marcadores en vivo de Puerto Rico">
+<meta property="og:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto y el voleibol de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
+<!-- LA TARJETA SALE DEL MISMO CARTEL que la de Cada Punto, y es la
+     banda de arriba: los dos logos, los dos deportes, y las cuatro
+     palabras de marcador. Se corta antes del titular y de la
+     dirección de cadapunto.com, que en marcadorpr no pintan nada.
+     La v2 era de baloncesto y nada más. -->
+<meta property="og:image" content="https://marcadorpr.com/marcador-card-v3.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="marcadorpr — torneos, calendarios, cuadros y resultados">
+<meta property="og:image:alt" content="marcadorpr — torneos, calendarios, cuadros y resultados de baloncesto y voleibol">
 <meta property="og:locale" content="es_PR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="marcadorpr — marcadores en vivo del baloncesto de Puerto Rico">
-<meta name="twitter:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
-<meta name="twitter:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
+<meta name="twitter:title" content="marcadorpr — marcadores en vivo de Puerto Rico">
+<meta name="twitter:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto y el voleibol de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
+<meta name="twitter:image" content="https://marcadorpr.com/marcador-card-v3.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -167,7 +172,11 @@ footer a{color:#4FD3F0;text-decoration:none}
 <header>
   <div class="wrap bar">
     <span class="mark">marcador<span>pr</span></span>
-    <span class="tagline" data-t="tagline">Baloncesto en vivo</span>
+    <!-- Decía «Baloncesto en vivo» y dejaba fuera al voleibol el mismo
+         día que entró. Los dos deportes corren sobre lo mismo: un
+         calendario, marcadores según pasan y una tabla que se calcula
+         sola. -->
+    <span class="tagline" data-t="tagline">Baloncesto y voleibol en vivo</span>
     <button id="lang" onclick="flip()">EN</button>
   </div>
 </header>
@@ -298,7 +307,7 @@ var CP = 'https://cadapunto.com';
 
 var T = {
   es:{
-    tagline:'Baloncesto en vivo',
+    tagline:'Baloncesto y voleibol en vivo',
     h1:'El calendario entero. Los marcadores, según pasan. La tabla, sola.',
     lede:'El calendario completo de un torneo o de la temporada de un equipo, con los marcadores puestos el mismo día y la tabla calculada sola. El cuadro se llena solo: en cuanto entra un resultado, el ganador aparece en el juego que le toca después. Montarlo no cuesta nada.',
 
@@ -338,7 +347,7 @@ var T = {
     footP:'Los equipos que recaudan lo hacen con'
   },
   en:{
-    tagline:'Live basketball',
+    tagline:'Live basketball and volleyball',
     h1:'The whole schedule. The scores, as they land. The table, on its own.',
     lede:'The full schedule of a tournament, or of a team’s season, with the scores posted the same day and the table worked out on its own. The bracket fills itself in: the moment a result lands, the winner shows up in the game they play next. It costs nothing to set up.',
 
