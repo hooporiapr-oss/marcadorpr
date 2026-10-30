@@ -22,6 +22,14 @@ header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
   padding-top:env(safe-area-inset-top,0px)}
 header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
 .mark{font-weight:900;font-size:1.05rem;color:#fff}
+/* El botón de idioma, en la barra y pequeño: se usa una vez y no
+   vuelve a tocarse. Va al lado del nombre para que se vea sin
+   buscarlo — el que llega en inglés tiene que encontrarlo de una. */
+.lang{font:inherit;font-weight:800;font-size:.78rem;cursor:pointer;
+  border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;
+  border-radius:999px;padding:6px 14px;white-space:nowrap}
+.lang:hover{background:#fff;color:#12202E}
+@media(max-width:520px){ header .sub{display:none} }
 /* El selector de modo. Dos botones y no un desplegable: son dos
    caminos distintos, no una opción de uno. */
 .modos{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 26px}
@@ -140,7 +148,8 @@ footer b{color:#fff;display:block;font-weight:800}
 <header>
   <div class="wrap bar">
     <span class="mark">marcador<span>pr</span></span>
-    <span class="sub">Constructor de calendarios</span>
+    <span class="sub" id="tSub">Constructor de calendarios</span>
+    <button class="lang" id="btnLang" onclick="cambiarIdioma()">English</button>
   </div>
 </header>
 
@@ -163,6 +172,33 @@ footer b{color:#fff;display:block;font-weight:800}
          su equipo se le pedía prefijo, categorías, siembras y rondas.
          Mucha herramienta para una lista.
          ══════════════════════════════════════════════════════════ -->
+    <!-- ══════════════════════════════════════════════════════════
+         EL DEPORTE, ENCIMA DEL MODO
+
+         Son dos preguntas y no una: qué deporte, y si es un torneo o
+         una lista de juegos. Las cuatro combinaciones existen, así
+         que se preguntan por separado en vez de hacer cuatro
+         pestañas que digan lo mismo dos veces.
+
+         Y el deporte va primero porque es el que no cambia: un
+         entrenador de voleibol lo escoge una vez y se olvida.
+
+         POR DEBAJO SON EL MISMO TRATO. Se promete por punto y el
+         marcador final salda la promesa. Un partido de voleibol a
+         tres sets son sesenta o setenta puntos para un lado, que es
+         el rango de un juego de baloncesto — los centavos por punto,
+         el piso y la licencia no cambian ni una cifra. Lo que se
+         promete es el TOTAL del partido y no los sets ganados: a
+         tres sets, veinticinco centavos serían setenta y cinco, por
+         debajo del piso, y todas las promesas cerrarían en cero.
+         ══════════════════════════════════════════════════════════ -->
+    <div class="modos">
+      <button class="modo on" id="btnBalon" onclick="deporte('baloncesto')"
+        data-i="depBalon">Baloncesto</button>
+      <button class="modo" id="btnVoli" onclick="deporte('voleibol')"
+        data-i="depVoli">Voleibol</button>
+    </div>
+
     <div class="modos">
       <!-- Dos palabras y nada más. «La temporada de mi equipo» daba por
            hecho una temporada, y el que llega con cuatro juegos —o una
@@ -174,63 +210,55 @@ footer b{color:#fff;display:block;font-weight:800}
 
     <!-- ── LA TEMPORADA DE UN EQUIPO ───────────────────────── -->
     <div id="paneTemporada" style="display:none">
-      <h2>Tu equipo</h2>
+      <h2 id="tTuEquipo"></h2>
       <div class="row two">
-        <div><label>Nombre del equipo</label><input id="sTeam" autocapitalize="words"></div>
-        <div><label>Pueblo (opcional)</label><input id="sWhere" autocapitalize="words"></div>
+        <div><label id="tNombreEq"></label><input id="sTeam" autocapitalize="words"></div>
+        <div><label id="tPuebloOp"></label><input id="sWhere" autocapitalize="words"></div>
       </div>
-      <p class="hint"><b>Escríbelo igual que al inscribir tu programa en Cada Punto Cuenta</b>,
-        letra por letra. Es lo que engancha tus juegos con tu campaña: si aquí pones otra cosa,
-        tus juegos salen en el calendario pero sin botón de prometer.</p>
+      <p class="hint" id="tIgual"></p>
 
-      <h2>Tus juegos</h2>
+      <h2 id="tTusJuegos"></h2>
       <div id="sJuegos"></div>
-      <button class="btn line small" onclick="sAnadir()">+ Añadir un juego</button>
-      <p class="hint">Añade los que tengas. Puedes volver cuando quieras y añadir más — se
-        registra otra vez y los juegos que ya estaban se quedan con sus promesas.</p>
-      <p class="hint"><b>Padrinos</b> es por juego, y puedes cambiarlo después desde la página
-        de tu equipo. Un juego en <b>No</b> sale en el calendario y lleva marcador como
-        cualquiera; lo único que no tiene es enlace para prometer. Si ya hay padrinos en un
-        juego, ése no se puede apagar — alguien ya prometió sobre él.</p>
+      <button class="btn line small" id="tAnadirJ" onclick="sAnadir()"></button>
+      <p class="hint" id="tAnadeLos"></p>
+      <p class="hint" id="tPadrinosJ"></p>
 
       <div class="row">
-        <button class="btn" onclick="construirTemporada()">Hacer el calendario</button>
+        <button class="btn" id="tHacerCal" onclick="construirTemporada()"></button>
       </div>
       <p class="hint" id="sMsg" style="font-weight:800;min-height:1.3em"></p>
     </div>
 
     <div id="paneTorneo">
-    <h2>El torneo</h2>
+    <h2 id="tElTorneo"></h2>
     <div class="row two">
-      <div><label>Nombre</label><input id="tName"></div>
-      <div><label>Pueblo</label><input id="tWhere"></div>
+      <div><label id="tLNombre"></label><input id="tName"></div>
+      <div><label id="tLPueblo"></label><input id="tWhere"></div>
     </div>
     <div class="row two">
-      <div><label>Primer día</label><input id="tFrom" type="date"></div>
-      <div><label>Último día</label><input id="tTo" type="date"></div>
+      <div><label id="tLPrimerDia"></label><input id="tFrom" type="date"></div>
+      <div><label id="tLUltimoDia"></label><input id="tTo" type="date"></div>
     </div>
     <div class="row three">
-      <div><label>Primera hora</label>
+      <div><label id="tLPrimeraH"></label>
         <select id="tStart"></select></div>
-      <div><label>Última hora</label>
+      <div><label id="tLUltimaH"></label>
         <select id="tEnd"></select></div>
-      <div><label>Equipo de casa (opcional)</label>
+      <div><label id="tLCasa"></label>
         <input id="tHome"></div>
     </div>
-    <p class="hint">El equipo de casa se marca en el calendario, para que se vean de un golpe
-      los juegos en que juega.</p>
+    <p class="hint" id="tHintCasa"></p>
 
-    <label>Cuántas canchas</label>
+    <label id="tLCanchas"></label>
     <select id="tCourtN" onchange="drawCourts()" style="max-width:120px"></select>
     <div id="courtRows" style="margin-top:14px"></div>
-    <p class="hint">C-1, C-2… es lo que sale en la casilla de cada juego del calendario. El
-      nombre completo sale una sola vez, en la lista de canchas encima del calendario.</p>
+    <p class="hint" id="tHintCanchas"></p>
 
-    <h2>Categorías</h2>
+    <h2 id="tCategorias"></h2>
     <div id="divs"></div>
-    <button class="btn line small" onclick="addDiv()">+ Añadir categoría</button>
+    <button class="btn line small" id="tAnadirCat" onclick="addDiv()"></button>
 
-    <button class="btn" onclick="generate()">Generar el calendario</button>
+    <button class="btn" id="tGenerar" onclick="generate()"></button>
     </div><!-- /paneTorneo -->
 
     <div id="out"></div>
@@ -239,7 +267,7 @@ footer b{color:#fff;display:block;font-weight:800}
 
 <footer>
   <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
-  Constructor interno · marcadorpr
+  <span id="tPie">Constructor interno · marcadorpr</span>
 </footer>
 
 <script>
@@ -500,6 +528,359 @@ function makeSlots(days, courts, fromHour, toHour){
 // ══════════════════════════════════════════════════════
 //  El formulario, y lo que sale de él.
 // ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
+   LOS DOS IDIOMAS
+
+   Esta página era sólo español, y es la que se le manda a un
+   entrenador desde Cada Punto Cuenta — que sí tiene las dos. Un
+   programa que trabaja en inglés llegaba aquí y se encontraba un
+   formulario que no entendía, después de una página que sí.
+
+   Se escoge igual que en las demás: lo que diga el enlace, lo que
+   escogió la última vez, y si no, lo que tenga puesto su teléfono.
+   Y se guarda con las MISMAS llaves que usan cadapunto.com y la
+   página del equipo, para que escoger inglés una vez valga para
+   las dos puntas del camino.
+   ══════════════════════════════════════════════════════════════ */
+var LANG = 'es';
+(function(){
+  var q = (location.search.match(/[?&]lang=(es|en)\b/i) || [])[1];
+  if (q) { LANG = q.toLowerCase(); return; }
+  try {
+    LANG = localStorage.getItem('cfh_lang') || localStorage.getItem('cp-lang') ||
+           localStorage.getItem('fc-lang') ||
+           ((navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en');
+  } catch (e){}
+})();
+
+var S = {
+es: {
+  sub:'Constructor de calendarios',
+  pie:'Constructor interno · marcadorpr',
+  btnLang:'English',
+  modoTorneos:'Torneos', modoJuegos:'Juegos',
+  depBalon:'Baloncesto', depVoli:'Voleibol',
+
+  // ── Juegos (la lista de un equipo) ──────────────────────────
+  tuEquipo:'Tu equipo',
+  nombreEq:'Nombre del equipo',
+  puebloOp:'Pueblo (opcional)',
+  igual:'<b>Escríbelo igual que al inscribir tu programa en Cada Punto Cuenta</b>, letra por letra. Es lo que engancha tus juegos con tu campaña: si aquí pones otra cosa, tus juegos salen en el calendario pero sin botón de prometer.',
+  tusJuegos:'Tus juegos',
+  anadirJ:'+ Añadir un juego',
+  anadeLos:'Añade los que tengas. Puedes volver cuando quieras y añadir más — se registra otra vez y los juegos que ya estaban se quedan con sus promesas.',
+  padrinosJ:'<b>Padrinos</b> es por juego, y puedes cambiarlo después desde la página de tu equipo. Un juego en <b>No</b> sale en el calendario y lleva marcador como cualquiera; lo único que no tiene es enlace para prometer. Si ya hay padrinos en un juego, ése no se puede apagar — alguien ya prometió sobre él.',
+  hacerCal:'Hacer el calendario',
+  juegoN:'Juego {N}',
+  contraQuien:'Contra quién', queDia:'Qué día', hora:'Hora', cancha:'Cancha',
+  donde:'Dónde', enCasa:'En casa', deVisita:'De visita',
+  padrinos:'Padrinos', si:'Sí', no:'No', quitar:'Quitar',
+  faltaEquipo:'Escribe el nombre de tu equipo.',
+  faltaRival:'Falta contra quién juegan, en el juego {N}.',
+  faltaFecha:'Falta el día del juego contra {R}.',
+  faltaJuego:'Añade por lo menos un juego.',
+  unJuego:'Un juego. Registra abajo para que salga tu enlace.',
+  nJuegos:'{N} juegos. Registra abajo para que salga tu enlace.',
+
+  // ── Torneos (el cuadro) ─────────────────────────────────────
+  elTorneo:'El torneo',
+  lNombre:'Nombre', lPueblo:'Pueblo',
+  lPrimerDia:'Primer día', lUltimoDia:'Último día',
+  lPrimeraH:'Primera hora', lUltimaH:'Última hora',
+  lCasa:'Equipo de casa (opcional)',
+  hintCasa:'El equipo de casa se marca en el calendario, para que se vean de un golpe los juegos en que juega.',
+  lCanchas:'Cuántas canchas',
+  hintCanchas:'C-1, C-2… es lo que sale en la casilla de cada juego del calendario. El nombre completo sale una sola vez, en la lista de canchas encima del calendario.',
+  categorias:'Categorías',
+  anadirCat:'+ Añadir categoría',
+  generar:'Generar el calendario',
+  categoria:'Categoría',
+  koDirecto:'Eliminación directa',
+  koGrupos:'Grupos y luego eliminación',
+  cuantosPasan:'Cuántos pasan de cada grupo',
+  canchasCat:'Canchas de esta categoría',
+  escogeCuantos:'Escoge cuántos equipos.',
+  equipos:'equipos', juegos:'juegos', grupos:'grupos',
+  juegosGrupo:'juegos de grupo',
+  cadaJuega:'cada equipo juega',
+  ponPrimerDia:'Pon el primer día.',
+  ponHoras:'Pon la primera y la última hora.',
+  horaAlReves:'La última hora va después de la primera.',
+  anadeCat:'Añade una categoría.',
+  unaCat:'Una categoría',
+  sinEquipos:'Ninguna categoría tiene equipos suficientes.',
+  noCaben:'No caben en los días y horas que pusiste. Añade un día, una cancha, o alarga el horario.',
+
+  // ── Títulos y entradillas del modo ──────────────────────────
+  tituloTorneo:'Monta el calendario de un torneo',
+  tituloTemporada:'Monta el calendario de tu equipo',
+  ledeTorneo:'Pon los equipos por categoría, las canchas y los días. Sale el calendario entero — cada juego numerado, el cuadro atado de ronda en ronda, y la página lista para subir a marcadorpr.',
+  ledeTemporada:'Escribe los juegos de tu equipo: contra quién, qué día, dónde. Sale tu calendario con su enlace, y cada juego con su botón de prometer.',
+
+  // ── El calendario que sale y los tres pasos ─────────────────
+  calGenerado:'Calendario generado',
+  thJuego:'Juego', thDia:'Día', thHora:'Hora', thCancha:'Cancha', thCat:'Categoría',
+  paso1:'1 · Registrar el torneo',
+  paso1p:'Escribe el calendario entero en la base — los juegos que ya se jugaron y los que no. Es lo que hace que este torneo salga en el admin con sus juegos, sus promesas y lo que lleva recaudado. Volver a registrarlo reemplaza el calendario anterior.',
+  lCodigo:'Código de marcadores',
+  btnRegistrar:'Registrar el torneo',
+  paso2:'2 · Tu enlace',
+  paso2p:'Primero regístralo. En cuanto lo hagas sale aquí la dirección del calendario, lista para mandar.',
+  paso2ok:'Ya está publicado. Ésta es la dirección del calendario:',
+  mandaWhats:'Mándalo por WhatsApp. Los marcadores se ven ahí según van entrando, y cada juego lleva su botón de prometer.',
+  paso3:'3 · O baja el fichero',
+  bajarPag:'Bajar la página del calendario',
+  bajaDespues:'Regístralo primero. La página que se baja es una foto del calendario registrado.',
+  ponCodigo:'Pon el código de marcadores.',
+  codigoMal:'Código incorrecto.',
+  sinPermiso:'Ese código apunta marcadores pero no monta calendarios. Hace falta uno con permiso para montar el calendario.',
+  copiar:'Copiar', copiado:'Copiado',
+  sinRed:'No se pudo registrar. Mira la conexión.',
+  tipo:'Tipo', numEquipos:'# Equipos', formato:'Formato',
+  phTipo:'Mini, Junior Femenino…',
+  rr:'Todos contra todos', rrf:'Todos contra todos, y una final',
+  eqPorGrupo:'Equipos por grupo',
+  eqSiembra:'Equipos — en orden de siembra',
+  deEqEscritos:'{A} de {B} equipos escritos.',
+  min2:'Hacen falta al menos 2 equipos.',
+  yFinal:', y una final',
+  pasanDirecto:'pasan directo a la segunda ronda',
+  pasanCuadro:'pasan al cuadro',
+  ponNombre:'Pon el nombre del torneo.',
+  ponCancha:'Pon al menos una cancha.',
+  marcaCancha:'{Q}: marca al menos una cancha.',
+  unJuegoOut:'1 juego', nJuegosOut:'{N} juegos',
+  unSinHora:'1 juego sin hora.', sinHora:'{N} juegos sin hora.',
+  copiarEnlace:'Copiar el enlace', abrirlo:'Abrirlo',
+  bajarMsg:'No hace falta para publicar: el enlace de arriba ya funciona. Esto es una foto del calendario registrado, por si lo quieres guardar o subir a otro sitio — y como es una foto, deja de actualizarse.',
+  ajeno:'Ya hay un torneo registrado con ese nombre, y es de {D}. Ponle otro nombre al tuyo —el pueblo o el año sirven— y vuelve a generar.',
+  otraPersona:'otra persona',
+  faltanDatos:'Al torneo le falta el nombre.',
+  noRegistro:'No se pudo registrar.',
+  choque:'Registrado ({N} juegos), PERO el prefijo {P} ya lo usa «{C}». Los dos torneos tendrían juegos con el mismo número y los marcadores se mezclarían. Cámbiale el nombre a este torneo y vuelve a generar.',
+  publicado:'Publicado: {N} juegos. Ya sale en el admin, y el enlace de abajo ya funciona.'
+},
+en: {
+  sub:'Schedule builder',
+  pie:'Internal builder · marcadorpr',
+  btnLang:'Español',
+  modoTorneos:'Tournaments', modoJuegos:'Games',
+  depBalon:'Basketball', depVoli:'Volleyball',
+
+  tuEquipo:'Your team',
+  nombreEq:'Team name',
+  puebloOp:'Town (optional)',
+  igual:'<b>Write it exactly as you registered your program on Cada Punto Cuenta</b>, letter for letter. It is what attaches your games to your campaign: put anything else here and your games appear on the schedule with no pledge button.',
+  tusJuegos:'Your games',
+  anadirJ:'+ Add a game',
+  anadeLos:'Add the ones you have. You can come back any time and add more — it registers again and the games already there keep their pledges.',
+  padrinosJ:'<b>Padrinos</b> is per game, and you can change it later from your team page. A game set to <b>No</b> still appears on the schedule and still takes a score; the only thing it has no is a pledge link. A game that already has padrinos cannot be switched off — somebody already pledged on it.',
+  hacerCal:'Build the schedule',
+  juegoN:'Game {N}',
+  contraQuien:'Against who', queDia:'What day', hora:'Time', cancha:'Court',
+  donde:'Where', enCasa:'At home', deVisita:'Away',
+  padrinos:'Padrinos', si:'Yes', no:'No', quitar:'Remove',
+  faltaEquipo:'Write your team name.',
+  faltaRival:'Game {N} is missing who they play.',
+  faltaFecha:'The game against {R} is missing its day.',
+  faltaJuego:'Add at least one game.',
+  unJuego:'One game. Register below to get your link.',
+  nJuegos:'{N} games. Register below to get your link.',
+
+  elTorneo:'The tournament',
+  lNombre:'Name', lPueblo:'Town',
+  lPrimerDia:'First day', lUltimoDia:'Last day',
+  lPrimeraH:'Earliest time', lUltimaH:'Latest time',
+  lCasa:'Home team (optional)',
+  hintCasa:'The home team is marked on the schedule, so its games stand out at a glance.',
+  lCanchas:'How many courts',
+  hintCanchas:'C-1, C-2… is what shows in each game’s row. The full name appears once, in the court list above the schedule.',
+  categorias:'Divisions',
+  anadirCat:'+ Add a division',
+  generar:'Generate the schedule',
+  categoria:'Division',
+  koDirecto:'Single elimination',
+  koGrupos:'Pools, then elimination',
+  cuantosPasan:'How many advance from each pool',
+  canchasCat:'Courts for this division',
+  escogeCuantos:'Choose how many teams.',
+  equipos:'teams', juegos:'games', grupos:'pools',
+  juegosGrupo:'pool games',
+  cadaJuega:'each team plays',
+  ponPrimerDia:'Set the first day.',
+  ponHoras:'Set the earliest and latest time.',
+  horaAlReves:'The latest time has to come after the earliest.',
+  anadeCat:'Add a division.',
+  unaCat:'One division',
+  sinEquipos:'No division has enough teams.',
+  noCaben:'They do not fit in the days and times you set. Add a day, add a court, or widen the hours.',
+
+  tituloTorneo:'Build a tournament schedule',
+  tituloTemporada:'Build your team’s schedule',
+  ledeTorneo:'Put in the teams by division, the courts and the days. Out comes the whole schedule — every game numbered, the bracket tied round to round, and the page ready to put up on marcadorpr.',
+  ledeTemporada:'Write in your team’s games: against who, what day, where. Out comes your schedule with its link, and every game with its pledge button.',
+
+  calGenerado:'Schedule built',
+  thJuego:'Game', thDia:'Day', thHora:'Time', thCancha:'Court', thCat:'Division',
+  paso1:'1 · Register the tournament',
+  paso1p:'Writes the whole schedule into the database — the games already played and the ones still to come. It is what makes this tournament show up in admin with its games, its pledges and what it has raised. Registering again replaces the previous schedule.',
+  lCodigo:'Scoreboard code',
+  btnRegistrar:'Register the tournament',
+  paso2:'2 · Your link',
+  paso2p:'Register it first. As soon as you do, the schedule’s address appears here, ready to send.',
+  paso2ok:'It is published. This is the schedule’s address:',
+  mandaWhats:'Send it on WhatsApp. Scores show there as they come in, and every game carries its pledge button.',
+  paso3:'3 · Or download the file',
+  bajarPag:'Download the schedule page',
+  bajaDespues:'Register it first. The file you download is a snapshot of the registered schedule.',
+  ponCodigo:'Enter the scoreboard code.',
+  codigoMal:'That code is not right.',
+  sinPermiso:'That code posts scores but does not build schedules. You need one with permission to build.',
+  copiar:'Copy', copiado:'Copied',
+  sinRed:'Could not register. Check your connection.',
+  tipo:'Type', numEquipos:'# Teams', formato:'Format',
+  phTipo:'Mini, Junior Girls…',
+  rr:'Round robin', rrf:'Round robin, then a final',
+  eqPorGrupo:'Teams per pool',
+  eqSiembra:'Teams — in seeding order',
+  deEqEscritos:'{A} of {B} teams written in.',
+  min2:'At least 2 teams are needed.',
+  yFinal:', and a final',
+  pasanDirecto:'get a bye to the second round',
+  pasanCuadro:'advance to the bracket',
+  ponNombre:'Enter the tournament name.',
+  ponCancha:'Add at least one court.',
+  marcaCancha:'{Q}: tick at least one court.',
+  unJuegoOut:'1 game', nJuegosOut:'{N} games',
+  unSinHora:'1 game with no time.', sinHora:'{N} games with no time.',
+  copiarEnlace:'Copy the link', abrirlo:'Open it',
+  bajarMsg:'Not needed to publish: the link above already works. This is a snapshot of the registered schedule, in case you want to keep it or put it somewhere else — and being a snapshot, it stops updating.',
+  ajeno:'There is already a tournament registered under that name, and it belongs to {D}. Give yours a different name — the town or the year will do — and generate again.',
+  otraPersona:'someone else',
+  faltanDatos:'The tournament is missing its name.',
+  noRegistro:'Could not register.',
+  choque:'Registered ({N} games), BUT the prefix {P} is already used by “{C}”. The two tournaments would have games with the same number and the scores would mix. Rename this tournament and generate again.',
+  publicado:'Published: {N} games. It shows in admin now, and the link below already works.'
+}
+};
+
+function T(k, v){
+  var t = (S[LANG] && S[LANG][k]);
+  if (t == null) t = S.es[k] || '';
+  if (v) for (var x in v) t = t.split('{' + x + '}').join(v[x]);
+  return t;
+}
+
+/* Lo que está escrito en el HTML y no cambia con el uso. */
+function pintarEstatico(){
+  var pares = [
+    ['tSub','sub'], ['tPie','pie'], ['btnLang','btnLang'],
+    ['btnTorneo','modoTorneos'], ['btnTemporada','modoJuegos'],
+    ['btnBalon','depBalon'], ['btnVoli','depVoli'],
+    ['tTuEquipo','tuEquipo'], ['tNombreEq','nombreEq'], ['tPuebloOp','puebloOp'],
+    ['tTusJuegos','tusJuegos'], ['tAnadirJ','anadirJ'], ['tHacerCal','hacerCal'],
+    ['tElTorneo','elTorneo'], ['tLNombre','lNombre'], ['tLPueblo','lPueblo'],
+    ['tLPrimerDia','lPrimerDia'], ['tLUltimoDia','lUltimoDia'],
+    ['tLPrimeraH','lPrimeraH'], ['tLUltimaH','lUltimaH'], ['tLCasa','lCasa'],
+    ['tHintCasa','hintCasa'], ['tLCanchas','lCanchas'], ['tHintCanchas','hintCanchas'],
+    ['tCategorias','categorias'], ['tAnadirCat','anadirCat'], ['tGenerar','generar']
+  ];
+  for (var i = 0; i < pares.length; i++){
+    var e = document.getElementById(pares[i][0]);
+    if (e) e.textContent = T(pares[i][1]);
+  }
+  // Éstos llevan <b> dentro, así que van como HTML y no como texto.
+  var ricos = [['tIgual','igual'], ['tAnadeLos','anadeLos'], ['tPadrinosJ','padrinosJ']];
+  for (var j = 0; j < ricos.length; j++){
+    var r = document.getElementById(ricos[j][0]);
+    if (r) r.innerHTML = T(ricos[j][1]);
+  }
+  document.documentElement.lang = LANG;
+}
+
+/* Y lo que ya está en pantalla: las filas de juegos que el
+   entrenador haya añadido, el título del modo, y el calendario si
+   ya lo generó. Cambiar de idioma no puede costarle lo escrito. */
+function cambiarIdioma(){
+  LANG = (LANG === 'es' ? 'en' : 'es');
+  try {
+    localStorage.setItem('cfh_lang', LANG);
+    localStorage.setItem('cp-lang', LANG);
+    localStorage.setItem('fc-lang', LANG);
+  } catch (e){}
+
+  pintarEstatico();
+  repintarFilas();
+  document.getElementById('tituloModo').textContent =
+    T(MODO === 'temporada' ? 'tituloTemporada' : 'tituloTorneo');
+  document.getElementById('ledeModo').textContent =
+    T(MODO === 'temporada' ? 'ledeTemporada' : 'ledeTorneo');
+  // El calendario se vuelve a dibujar con lo que ya hay; no se
+  // recalcula nada, así que ningún juego se mueve de sitio.
+  if (RESULT) show();
+  repintarCategorias();
+}
+
+/* Y las categorías que ya estén puestas. No se vuelven a dibujar:
+   dibujarlas de nuevo le borraría al que monta el torneo los
+   equipos que lleva escritos, que es media hora de trabajo. Se les
+   cambia el texto por encima y se quedan como estaban.
+
+   Las etiquetas van en el orden en que addDiv las escribe, y se
+   saltan las de las canchas —label.pick— que llevan dentro el
+   nombre de una cancha y no una palabra nuestra. */
+function repintarCategorias(){
+  var cajas = document.querySelectorAll('.div');
+  var claves = ['tipo','numEquipos','formato','eqPorGrupo','cuantosPasan',
+                'canchasCat','eqSiembra'];
+  for (var i = 0; i < cajas.length; i++){
+    var c = cajas[i];
+    var h = c.querySelector('h3');
+    if (h) h.textContent = T('categoria');
+
+    var L = c.querySelectorAll('label:not(.pick)');
+    for (var j = 0; j < L.length && j < claves.length; j++) L[j].textContent = T(claves[j]);
+
+    var nom = c.querySelector('input[id^="dn"]');
+    if (nom) nom.placeholder = T('phTipo');
+
+    var fmt = c.querySelector('select[id^="df"]');
+    if (fmt && fmt.options.length === 4){
+      fmt.options[0].textContent = T('koDirecto');
+      fmt.options[1].textContent = T('rr');
+      fmt.options[2].textContent = T('rrf');
+      fmt.options[3].textContent = T('koGrupos');
+    }
+
+    var x = c.querySelector('button.x');
+    if (x) x.setAttribute('aria-label', T('quitar'));
+
+    // Y la cuenta de abajo, que es una frase entera.
+    var id = Number(String(c.id).replace('div', ''));
+    if (id) divCount(id);
+  }
+}
+
+/* Las etiquetas de las filas de juego que ya existen. */
+function repintarFilas(){
+  var f = document.querySelectorAll('.sjuego');
+  for (var i = 0; i < f.length; i++){
+    var L = f[i].querySelectorAll('label');
+    var k = ['contraQuien','queDia','hora','cancha','donde','padrinos'];
+    for (var j = 0; j < L.length && j < k.length; j++) L[j].textContent = T(k[j]);
+    var casa = f[i].querySelector('.sCasa');
+    if (casa){ casa.options[0].textContent = T('enCasa');
+               casa.options[1].textContent = T('deVisita'); }
+    var rec = f[i].querySelector('.sRecauda');
+    if (rec){ rec.options[0].textContent = T('si');
+              rec.options[1].textContent = T('no'); }
+    var b = f[i].querySelector('.sborrar');
+    if (b) b.textContent = T('quitar');
+  }
+  sNumerar();
+}
+
+
 var PALETTE = ['#1D4FA3','#B08900','#5A6B7C','#C2185B','#7B1FA2','#0B7A5A','#C2410C','#A8323F',
                '#00695C','#4527A0','#827717','#BF360C'];
 
@@ -530,35 +911,38 @@ function addDiv(name, teams){
   box.className = 'div';
   box.id = 'div' + id;
   box.innerHTML =
-    '<button class="x" onclick="dropDiv(' + id + ')" aria-label="quitar">×</button>' +
-    '<h3>Categoría</h3>' +
+    '<button class="x" onclick="dropDiv(' + id + ')" ' +
+      'aria-label="' + esc(T('quitar')) + '">×</button>' +
+    '<h3>' + T('categoria') + '</h3>' +
     '<div class="row three">' +
-      '<div><label>Tipo</label><input id="dn' + id + '" value="' + esc(name || '') + '" ' +
-        'placeholder="Mini, Junior Femenino…"></div>' +
-      '<div><label># Equipos</label>' +
+      '<div><label>' + T('tipo') + '</label><input id="dn' + id + '" ' +
+        'value="' + esc(name || '') + '" placeholder="' + esc(T('phTipo')) + '"></div>' +
+      '<div><label>' + T('numEquipos') + '</label>' +
         '<select id="dq' + id + '" onchange="drawTeams(' + id + ')"></select></div>' +
-      '<div><label>Formato</label>' +
+      '<div><label>' + T('formato') + '</label>' +
         /* Todos contra todos ya lo sabía hacer el motor —un grupo con
            todos dentro y nadie que pase— pero no había manera de
            pedirlo: la casilla de equipos por grupo llegaba hasta
            seis. Era el formato que más falta hace, porque una liga
            de ocho sábados es eso y no un cuadro. */
         '<select id="df' + id + '" onchange="divMode(' + id + ')">' +
-          '<option value="ko">Eliminación directa</option>' +
-          '<option value="rr">Todos contra todos</option>' +
-          '<option value="rrf">Todos contra todos, y una final</option>' +
-          '<option value="pools">Grupos y luego eliminación</option>' +
+          '<option value="ko">' + T('koDirecto') + '</option>' +
+          '<option value="rr">' + T('rr') + '</option>' +
+          '<option value="rrf">' + T('rrf') + '</option>' +
+          '<option value="pools">' + T('koGrupos') + '</option>' +
         '</select></div>' +
     '</div>' +
     '<div id="dp' + id + '" style="display:none" class="row two">' +
-      '<div><label>Equipos por grupo</label><input id="dps' + id + '" type="number" value="4" min="3" max="6"></div>' +
-      '<div><label>Cuántos pasan de cada grupo</label><input id="dpa' + id + '" type="number" value="2" min="1" max="4"></div>' +
+      '<div><label>' + T('eqPorGrupo') + '</label>' +
+        '<input id="dps' + id + '" type="number" value="4" min="3" max="6"></div>' +
+      '<div><label>' + T('cuantosPasan') + '</label>' +
+        '<input id="dpa' + id + '" type="number" value="2" min="1" max="4"></div>' +
     '</div>' +
     '<div id="dcw' + id + '" style="display:none">' +
-      '<label>Canchas de esta categoría</label>' +
+      '<label>' + T('canchasCat') + '</label>' +
       '<div class="picks" id="dcz' + id + '"></div>' +
     '</div>' +
-    '<label>Equipos — en orden de siembra</label>' +
+    '<label>' + T('eqSiembra') + '</label>' +
     '<div id="dt' + id + '"></div>' +
     '<div class="count" id="dc' + id + '"></div>';
   document.getElementById('divs').appendChild(box);
@@ -715,27 +1099,28 @@ function divCount(id){
   // Lo pedido y lo escrito son dos cosas: escoger 8 y escribir 6 deja
   // una categoría de 6, y más vale decirlo aquí que al generar.
   var pide = Number(document.getElementById('dq' + id).value) || 0;
-  if (!pide){ el.textContent = 'Escoge cuántos equipos.'; return; }
+  if (!pide){ el.textContent = T('escogeCuantos'); return; }
   if (t.length < pide){
-    el.textContent = t.length + ' de ' + pide + ' equipos escritos.';
+    el.textContent = T('deEqEscritos', { A: t.length, B: pide });
     return;
   }
-  if (t.length < 2){ el.textContent = 'Hacen falta al menos 2 equipos.'; return; }
+  if (t.length < 2){ el.textContent = T('min2'); return; }
 
   var mode = document.getElementById('df' + id).value;
 
   if (mode === 'rr' || mode === 'rrf'){
     var liga = t.length * (t.length - 1) / 2;
-    el.textContent = t.length + ' equipos · ' + (mode === 'rrf' ? liga + 1 : liga) +
-      ' juegos · cada equipo juega ' + (t.length - 1) +
-      (mode === 'rrf' ? ', y una final' : '');
+    el.textContent = t.length + ' ' + T('equipos') + ' · ' +
+      (mode === 'rrf' ? liga + 1 : liga) + ' ' + T('juegos') + ' · ' +
+      T('cadaJuega') + ' ' + (t.length - 1) +
+      (mode === 'rrf' ? T('yFinal') : '');
     return;
   }
 
   if (mode === 'ko'){
     var size = 1; while (size < t.length) size *= 2;
-    el.textContent = t.length + ' equipos · ' + (t.length - 1) + ' juegos · ' +
-      (size - t.length) + ' pasan directo a la segunda ronda';
+    el.textContent = t.length + ' ' + T('equipos') + ' · ' + (t.length - 1) + ' ' +
+      T('juegos') + ' · ' + (size - t.length) + ' ' + T('pasanDirecto');
   } else {
     var per = Number(document.getElementById('dps' + id).value) || 4;
     var adv = Number(document.getElementById('dpa' + id).value) || 2;
@@ -743,8 +1128,8 @@ function divCount(id){
     var base = Math.floor(t.length / g), extra = t.length % g, pg = 0;
     for (var i = 0; i < g; i++){ var sz = base + (i < extra ? 1 : 0); pg += sz * (sz - 1) / 2; }
     var through = Math.min(adv * g, t.length);
-    el.textContent = t.length + ' equipos · ' + g + ' grupos · ' + pg + ' juegos de grupo · ' +
-      through + ' pasan al cuadro';
+    el.textContent = t.length + ' ' + T('equipos') + ' · ' + g + ' ' + T('grupos') + ' · ' +
+      pg + ' ' + T('juegosGrupo') + ' · ' + through + ' ' + T('pasanCuadro');
   }
 }
 
@@ -829,30 +1214,30 @@ function generate(){
   // compartir el enlace. Sin nombre, todo torneo numeraría T-1, T-2 —
   // y los marcadores se guardan por número.
   if (!(document.getElementById('tName').value || '').trim())
-    return alert('Pon el nombre del torneo.');
+    return alert(T('ponNombre'));
 
-  if (!ds.length) return alert('Pon el primer día.');
+  if (!ds.length) return alert(T('ponPrimerDia'));
 
   // Las horas van vacías al abrir, así que hay que pedirlas antes de
   // usarlas: en blanco valen 0 y el calendario entero saldría a las
   // doce de la noche.
   var h1 = document.getElementById('tStart').value;
   var h2 = document.getElementById('tEnd').value;
-  if (!h1 || !h2) return alert('Pon la primera y la última hora.');
+  if (!h1 || !h2) return alert(T('ponHoras'));
 
   var from = Number(h1), to = Number(h2);
-  if (to < from) return alert('La última hora va después de la primera.');
+  if (to < from) return alert(T('horaAlReves'));
 
-  if (!cs.length) return alert('Pon al menos una cancha.');
-  if (!DIVS.length) return alert('Añade una categoría.');
+  if (!cs.length) return alert(T('ponCancha'));
+  if (!DIVS.length) return alert(T('anadeCat'));
 
   // Una categoría sin ninguna cancha marcada no tiene dónde jugar, y
   // sus juegos saldrían todos sin hora sin decir por qué.
   for (var z = 0; z < DIVS.length; z++){
     if (teamsOf(DIVS[z]).length < 2) continue;        // ésa ya se salta sola
     if (!courtsOf(DIVS[z]).length){
-      var qn = (document.getElementById('dn' + DIVS[z]).value || '').trim() || 'Una categoría';
-      return alert(qn + ': marca al menos una cancha.');
+      var qn = (document.getElementById('dn' + DIVS[z]).value || '').trim() || T('unaCat');
+      return alert(T('marcaCancha', { Q: qn }));
     }
   }
 
@@ -865,7 +1250,7 @@ function generate(){
   var all = [], no = 1, colour = {}, ci = 0;
 
   DIVS.forEach(function(id){
-    var name = (document.getElementById('dn' + id).value || '').trim() || 'Categoría';
+    var name = (document.getElementById('dn' + id).value || '').trim() || T('categoria');
     var teams = teamsOf(id);
     if (teams.length < 2) return;
 
@@ -891,7 +1276,7 @@ function generate(){
     no = built.nextNo;
   });
 
-  if (!all.length) return alert('Ninguna categoría tiene equipos suficientes.');
+  if (!all.length) return alert(T('sinEquipos'));
 
   var placed = schedule(all, slots, 1);
   RESULT = {
@@ -931,17 +1316,27 @@ function generate(){
 
 var MODO = 'torneo';
 
-var LEDES = {
-  torneo: 'Pon los equipos por categoría, las canchas y los días. Sale el calendario ' +
-          'entero — cada juego numerado, el cuadro atado de ronda en ronda, y la página ' +
-          'lista para subir a marcadorpr.',
-  temporada: 'Escribe los juegos de tu equipo: contra quién, qué día, dónde. Sale tu ' +
-             'calendario con su enlace, y cada juego con su botón de prometer.'
-};
-var TITULOS = {
-  torneo: 'Monta el calendario de un torneo',
-  temporada: 'Monta el calendario de tu equipo'
-};
+/* El deporte del calendario que se está montando. Viaja con el
+   registro y la página pública lo lee para saber cómo enseñar un
+   marcador. No toca nada del dinero. */
+var DEPORTE = 'baloncesto';
+
+function deporte(cual){
+  DEPORTE = (cual === 'voleibol') ? 'voleibol' : 'baloncesto';
+  document.getElementById('btnBalon').className = 'modo' + (DEPORTE === 'baloncesto' ? ' on' : '');
+  document.getElementById('btnVoli').className  = 'modo' + (DEPORTE === 'voleibol'   ? ' on' : '');
+  // El título y la entradilla cambian con el deporte: un entrenador
+  // de voleibol no monta «juegos», monta partidos.
+  document.getElementById('tituloModo').textContent = tituloDe(MODO);
+  document.getElementById('ledeModo').textContent   = ledeDe(MODO);
+  repintarFilas();
+  if (RESULT) show();
+}
+
+/* Los títulos y las entradillas viven en el diccionario, como todo
+   lo demás; esto sólo dice cuál va con cuál. */
+function ledeDe(cual){ return T(cual === 'temporada' ? 'ledeTemporada' : 'ledeTorneo'); }
+function tituloDe(cual){ return T(cual === 'temporada' ? 'tituloTemporada' : 'tituloTorneo'); }
 
 function modo(cual){
   MODO = cual;
@@ -949,8 +1344,8 @@ function modo(cual){
   document.getElementById('paneTemporada').style.display = cual === 'temporada' ? '' : 'none';
   document.getElementById('btnTorneo').className    = 'modo' + (cual === 'torneo' ? ' on' : '');
   document.getElementById('btnTemporada').className = 'modo' + (cual === 'temporada' ? ' on' : '');
-  document.getElementById('tituloModo').textContent = TITULOS[cual];
-  document.getElementById('ledeModo').textContent   = LEDES[cual];
+  document.getElementById('tituloModo').textContent = tituloDe(cual);
+  document.getElementById('ledeModo').textContent   = ledeDe(cual);
   // El calendario de un modo no tiene nada que hacer en el otro.
   document.getElementById('out').innerHTML = '';
   RESULT = null;
@@ -987,20 +1382,24 @@ function sAnadir(){
   d.className = 'sjuego';
   d.innerHTML =
     '<b class="sjn"></b>' +
-    '<div><label>Contra quién</label><input class="sRival" autocapitalize="words"></div>' +
-    '<div><label>Qué día</label><input class="sFecha" type="date"></div>' +
-    '<div><label>Hora</label><select class="sHora">' + HORAS + '</select></div>' +
-    '<div><label>Cancha</label><input class="sCancha" autocapitalize="words"></div>' +
-    '<div><label>Dónde</label><select class="sCasa">' +
-      '<option value="1">En casa</option><option value="0">De visita</option></select></div>' +
+    '<div><label>' + T('contraQuien') + '</label>' +
+      '<input class="sRival" autocapitalize="words"></div>' +
+    '<div><label>' + T('queDia') + '</label><input class="sFecha" type="date"></div>' +
+    '<div><label>' + T('hora') + '</label><select class="sHora">' + HORAS + '</select></div>' +
+    '<div><label>' + T('cancha') + '</label>' +
+      '<input class="sCancha" autocapitalize="words"></div>' +
+    '<div><label>' + T('donde') + '</label><select class="sCasa">' +
+      '<option value="1">' + T('enCasa') + '</option>' +
+      '<option value="0">' + T('deVisita') + '</option></select></div>' +
     /* Si en ESE juego hay padrinos. Un entrenador sube su temporada
        entera y quiere padrinos en tres juegos, no en los veinte; los
        otros los quiere en el marcador y nada más. Es un select y no
        una casilla para que se lea igual que «En casa / De visita» y
        para que en el teléfono caiga en la misma rejilla. */
-    '<div><label>Padrinos</label><select class="sRecauda">' +
-      '<option value="1">Sí</option><option value="0">No</option></select></div>' +
-    '<button class="sborrar" type="button" title="Quitar este juego">Quitar</button>';
+    '<div><label>' + T('padrinos') + '</label><select class="sRecauda">' +
+      '<option value="1">' + T('si') + '</option>' +
+      '<option value="0">' + T('no') + '</option></select></div>' +
+    '<button class="sborrar" type="button">' + T('quitar') + '</button>';
   d.querySelector('.sborrar').onclick = function(){
     d.remove();
     if (!document.querySelectorAll('.sjuego').length) sAnadir();
@@ -1018,7 +1417,7 @@ function sNumerar(){
   var f = document.querySelectorAll('.sjuego');
   for (var i = 0; i < f.length; i++){
     var n = f[i].querySelector('.sjn');
-    if (n) n.textContent = 'Juego ' + (i + 1);
+    if (n) n.textContent = T('juegoN', { N: i + 1 });
   }
 }
 
@@ -1043,7 +1442,7 @@ function sPrefijo(nombre){
 function construirTemporada(){
   var equipo = (document.getElementById('sTeam').value || '').trim();
   var pueblo = (document.getElementById('sWhere').value || '').trim();
-  if (!equipo) return sDice('Escribe el nombre de tu equipo.', true);
+  if (!equipo) return sDice(T('faltaEquipo'), true);
 
   var filas = [].slice.call(document.querySelectorAll('.sjuego'));
   var juegos = [], n = 0, pfx = sPrefijo(equipo);
@@ -1059,8 +1458,8 @@ function construirTemporada(){
 
     // Una fila vacía del todo se salta: es la que quedó de más.
     if (!rival && !fecha) continue;
-    if (!rival) return sDice('Falta contra quién juegan, en el juego ' + (i + 1) + '.', true);
-    if (!fecha) return sDice('Falta el día del juego contra ' + rival + '.', true);
+    if (!rival) return sDice(T('faltaRival', { N: i + 1 }), true);
+    if (!fecha) return sDice(T('faltaFecha', { R: rival }), true);
 
     n++;
     /* EL LOCAL VA PRIMERO. La página marca H y A mirando cuál de los
@@ -1078,7 +1477,7 @@ function construirTemporada(){
     });
   }
 
-  if (!juegos.length) return sDice('Añade por lo menos un juego.', true);
+  if (!juegos.length) return sDice(T('faltaJuego'), true);
 
   RESULT = {
     prefix: pfx,
@@ -1110,8 +1509,8 @@ function construirTemporada(){
     games: juegos
   };
 
-  sDice(juegos.length === 1 ? 'Un juego. Registra abajo para que salga tu enlace.'
-        : juegos.length + ' juegos. Registra abajo para que salga tu enlace.', false);
+  sDice(juegos.length === 1 ? T('unJuego')
+        : T('nJuegos', { N: juegos.length }), false);
   show();
 }
 
@@ -1136,17 +1535,20 @@ function show(){
 
   var html =
     '<div class="out">' +
-      '<div class="cap">Calendario generado</div>' +
-      '<div class="big">' + r.games.length + ' juegos</div>' +
+      '<div class="cap">' + T('calGenerado') + '</div>' +
+      '<div class="big">' + (r.games.length === 1 ? T('unJuegoOut')
+                             : T('nJuegosOut', { N: r.games.length })) + '</div>' +
     '</div>';
 
   if (missing.length){
-    html += '<div class="warn"><b>' + missing.length + ' juegos sin hora.</b> ' +
-      'No caben en los días y horas que pusiste. Añade un día, una cancha, o alarga el horario.</div>';
+    html += '<div class="warn"><b>' + (missing.length === 1 ? T('unSinHora')
+                                       : T('sinHora', { N: missing.length })) + '</b> ' +
+      T('noCaben') + '</div>';
   }
 
-  html += '<table><tr><th>Juego</th><th>Día</th><th>Hora</th><th>Cancha</th>' +
-          '<th>Juego</th><th>Categoría</th></tr>' +
+  html += '<table><tr><th>' + T('thJuego') + '</th><th>' + T('thDia') + '</th>' +
+          '<th>' + T('thHora') + '</th><th>' + T('thCancha') + '</th>' +
+          '<th>' + T('thJuego') + '</th><th>' + T('thCat') + '</th></tr>' +
     r.games.map(function(g){
       return '<tr>' +
         '<td class="n">' + esc(g.no) + '</td>' +
@@ -1172,15 +1574,12 @@ function show(){
      Ahora el orden dice la verdad: la base es el registro y el
      fichero es una foto de él. Y como la foto se saca DESPUÉS, no
      puede salir de una versión distinta de la registrada. */
-  '<h2 style="margin-top:30px">1 · Registrar el torneo</h2>' +
-  '<p class="hint" style="margin:0 0 10px">Escribe el calendario entero en la base — los ' +
-    'juegos que ya se jugaron y los que no. Es lo que hace que este torneo salga en el admin ' +
-    'con sus juegos, sus promesas y lo que lleva recaudado. Volver a registrarlo reemplaza ' +
-    'el calendario anterior.</p>' +
-  '<label>Código de marcadores</label>' +
+  '<h2 style="margin-top:30px">' + T('paso1') + '</h2>' +
+  '<p class="hint" style="margin:0 0 10px">' + T('paso1p') + '</p>' +
+  '<label>' + T('lCodigo') + '</label>' +
   '<input id="regCode" type="password" autocomplete="off" value="' +
     esc(codigoGuardado()) + '">' +
-  '<button class="btn" onclick="registrar()">Registrar el torneo</button>' +
+  '<button class="btn" onclick="registrar()">' + T('btnRegistrar') + '</button>' +
   '<p class="hint" id="regMsg" style="font-weight:800;min-height:1.3em"></p>' +
 
   /* EL ENLACE ES LO QUE SE LLEVA, y por eso es el paso 2 y el
@@ -1195,27 +1594,24 @@ function show(){
      Ahora el calendario se lee de la base: registrar ES publicar, y
      lo que el entrenador se lleva es una dirección que puede mandar
      por WhatsApp sin que nadie toque nada. */
-  '<h2 style="margin-top:28px">2 · Tu enlace</h2>' +
-  '<p class="hint" id="enlaceMsg" style="margin:0 0 10px">Primero regístralo. En cuanto lo ' +
-    'hagas sale aquí la dirección del calendario, lista para mandar.</p>' +
+  '<h2 style="margin-top:28px">' + T('paso2') + '</h2>' +
+  '<p class="hint" id="enlaceMsg" style="margin:0 0 10px">' + T('paso2p') + '</p>' +
   '<div id="enlaceCaja" style="display:none">' +
     '<input id="enlaceUrl" readonly onclick="this.select()" ' +
       'style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem">' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
       '<button class="btn" type="button" onclick="copiarEnlace()" id="btnCopiar">' +
-        'Copiar el enlace</button>' +
-      '<a class="btn line" id="enlaceVer" target="_blank" rel="noopener">Abrirlo</a>' +
+        T('copiarEnlace') + '</button>' +
+      '<a class="btn line" id="enlaceVer" target="_blank" rel="noopener">' +
+        T('abrirlo') + '</a>' +
     '</div>' +
-    '<p class="hint" style="margin-top:10px">Mándalo por WhatsApp. Los marcadores se ven ahí ' +
-      'según van entrando, y cada juego lleva su botón de prometer.</p>' +
+    '<p class="hint" style="margin-top:10px">' + T('mandaWhats') + '</p>' +
   '</div>' +
 
-  '<h2 style="margin-top:28px">3 · O baja el fichero</h2>' +
+  '<h2 style="margin-top:28px">' + T('paso3') + '</h2>' +
   '<button class="btn line" id="btnBajar" disabled onclick="download()">' +
-    'Bajar la página del calendario</button>' +
-  '<p class="hint" id="bajarMsg">No hace falta para publicar: el enlace de arriba ya funciona. ' +
-    'Esto es una foto del calendario registrado, por si lo quieres guardar o subir a otro ' +
-    'sitio — y como es una foto, deja de actualizarse.</p>';
+    T('bajarPag') + '</button>' +
+  '<p class="hint" id="bajarMsg">' + T('bajarMsg') + '</p>';
 
   // Un calendario recién generado todavía no está registrado, aunque
   // el anterior lo estuviera: lo que se registró era otro.
@@ -1274,7 +1670,7 @@ function mostrarEnlace(slug){
   var ver  = document.getElementById('enlaceVer');
   if (inp) inp.value = ENLACE;
   if (ver) ver.href = ENLACE;
-  if (msg) msg.textContent = 'Ya está publicado. Ésta es la dirección del calendario:';
+  if (msg) msg.textContent = T('paso2ok');
   if (caja) caja.style.display = '';
 }
 
@@ -1282,8 +1678,8 @@ function copiarEnlace(){
   var b = document.getElementById('btnCopiar');
   var ok = function(){
     if (!b) return;
-    b.textContent = 'Copiado';
-    setTimeout(function(){ b.textContent = 'Copiar el enlace'; }, 2000);
+    b.textContent = T('copiado');
+    setTimeout(function(){ b.textContent = T('copiarEnlace'); }, 2000);
   };
   /* El portapapeles moderno falla en http y en algunos navegadores
      embebidos, que es justo donde va a estar un entrenador. Si falla,
@@ -1306,7 +1702,7 @@ function download(){
      dos segundos, y lo que no puede pasar es que exista un calendario
      publicado que el admin no conozca. */
   if (!REGISTRADO){
-    alert('Regístralo primero. La página que se baja es una foto del calendario registrado.');
+    alert(T('bajaDespues'));
     return;
   }
 
@@ -1411,7 +1807,7 @@ function registrar(){
 
   var code = (document.getElementById('regCode').value || '').trim()
              || codigoGuardado();
-  if (!code) return dicho('Pon el código de marcadores.', true);
+  if (!code) return dicho(T('ponCodigo'), true);
 
   var slug = RESULT.tourney.name.toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -1424,26 +1820,24 @@ function registrar(){
     p_nombre: RESULT.tourney.name,
     p_pueblo: RESULT.tourney.where,
     p_prefijo: RESULT.prefix,
-    p_juegos: RESULT.games
+    p_juegos: RESULT.games,
+    p_deporte: DEPORTE
   }).then(function(r){
     if (!r || !r.ok){
-      if (r && r.reason === 'code') return dicho('Código incorrecto.', true);
+      if (r && r.reason === 'code') return dicho(T('codigoMal'), true);
       /* Un código de mesa es válido y aun así no monta calendarios.
          Decir «código incorrecto» mandaría a buscar otro código que
          no existe; lo que falta es el permiso, no el código. */
       if (r && r.reason === 'build')
-        return dicho('Ese código apunta marcadores pero no monta calendarios. ' +
-                     'Hace falta uno con permiso para montar el calendario.', true);
+        return dicho(T('sinPermiso'), true);
       /* El nombre decide el id, así que dos torneos que se llamen
          igual escriben en el mismo sitio — y registrar reemplaza el
          calendario entero. Se niega y se dice de quién es, porque lo
          que hay que hacer es ponerle otro nombre a éste. */
       if (r && r.reason === 'ajeno')
-        return dicho('Ya hay un torneo registrado con ese nombre, y es de ' +
-                     (r.dueno || 'otra persona') + '. Ponle otro nombre al tuyo ' +
-                     '—el pueblo o el año sirven— y vuelve a generar.', true);
-      if (r && r.reason === 'faltan-datos') return dicho('Al torneo le falta el nombre.', true);
-      return dicho('No se pudo registrar.', true);
+        return dicho(T('ajeno', { D: r.dueno || T('otraPersona') }), true);
+      if (r && r.reason === 'faltan-datos') return dicho(T('faltanDatos'), true);
+      return dicho(T('noRegistro'), true);
     }
 
     try { sessionStorage.setItem('bw-code', code) } catch (e){}
@@ -1466,20 +1860,16 @@ function registrar(){
       permitirBajar();
       guardarEstilo(code, slug);
       mostrarEnlace(slug);
-      dicho('Registrado (' + r.juegos + ' juegos), PERO el prefijo ' +
-            RESULT.prefix + ' ya lo usa «' + r.choque + '». Los dos torneos ' +
-            'tendrían juegos con el mismo número y los marcadores se mezclarían. ' +
-            'Cámbiale el nombre a este torneo y vuelve a generar.', true);
+      dicho(T('choque', { N: r.juegos, P: RESULT.prefix, C: r.choque }), true);
       return;
     }
     permitirBajar();
     guardarEstilo(code, slug);
     mostrarEnlace(slug);
-    dicho('Publicado: ' + r.juegos + ' juegos. Ya sale en el admin, y el enlace de abajo ' +
-          'ya funciona.');
+    dicho(T('publicado', { N: r.juegos }));
   }).catch(function(e){
     console.error(e);
-    dicho('No se pudo registrar. Mira la conexión.', true);
+    dicho(T('sinRed'), true);
   });
 }
 
@@ -1529,8 +1919,12 @@ addDiv();
     if (t) t.value = eq;
   }
 
-  // Y el modo de arranque, que pinta el título y la entradilla que
-  // toquen. Va aquí, al final, cuando ya existe todo lo que toca.
+  // Primero el idioma, que decide lo que dicen el resto de las
+  // piezas; después el deporte, y después el modo, que pinta el
+  // título y la entradilla que toquen. Va aquí, al final, cuando ya
+  // existe todo lo que toca.
+  pintarEstatico();
+  deporte(q.get('deporte') === 'voleibol' ? 'voleibol' : 'baloncesto');
   modo(q.get('modo') === 'temporada' ? 'temporada' : 'torneo');
 })();
 </script>
