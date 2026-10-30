@@ -164,8 +164,12 @@ footer b{color:#fff;display:block;font-weight:800}
          Mucha herramienta para una lista.
          ══════════════════════════════════════════════════════════ -->
     <div class="modos">
-      <button class="modo on" id="btnTorneo" onclick="modo('torneo')">Un torneo</button>
-      <button class="modo" id="btnTemporada" onclick="modo('temporada')">La temporada de mi equipo</button>
+      <!-- Dos palabras y nada más. «La temporada de mi equipo» daba por
+           hecho una temporada, y el que llega con cuatro juegos —o una
+           liga con un fin de semana— no se ve ahí dentro. El verbo lo
+           pone el título de abajo, que cambia con el modo. -->
+      <button class="modo on" id="btnTorneo" onclick="modo('torneo')">Torneos</button>
+      <button class="modo" id="btnTemporada" onclick="modo('temporada')">Juegos</button>
     </div>
 
     <!-- ── LA TEMPORADA DE UN EQUIPO ───────────────────────── -->
