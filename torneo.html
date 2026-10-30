@@ -223,6 +223,26 @@ body.locked{overflow:hidden}
 .ep:focus{outline:none;border-color:var(--ball);box-shadow:0 0 0 3px rgba(255,122,24,.2)}
 .ep::placeholder{font-size:.68rem;font-weight:700;color:#9AA8B5}
 .edash{color:var(--mute);font-weight:800}
+/* ── El editor de voleibol ──────────────────────────────────────
+   Cinco filas en vertical y no cinco pares seguidos: en un telefono,
+   en un gimnasio, con la hoja en la otra mano, se teclea mirando una
+   linea a la vez. */
+.ed.edvoli{display:block;padding:10px 12px;min-width:200px}
+.ed.edvoli .eshead{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;
+  font-size:.82rem;font-weight:800}
+.ed.edvoli .eshead i{font-style:normal;opacity:.6;font-weight:400}
+.ed.edvoli .esr{display:flex;align-items:center;gap:6px;margin:0 0 6px}
+.ed.edvoli .esn{font-size:.68rem;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;opacity:.55;width:44px;flex:0 0 44px}
+.ed.edvoli .ep.es{width:46px;text-align:center;padding:9px 4px}
+.ed.edvoli .esbtn{display:flex;gap:6px;margin-top:8px}
+.ed.edvoli .esmsg{display:none;font-size:.76rem;font-weight:700;color:#A8323F;
+  margin:6px 0 0}
+.ed.edvoli .esmsg.on{display:block}
+/* La linea de sets, debajo del 3-1: es como se lee una hoja de
+   voleibol y es lo que se busca de un vistazo. */
+.setline{display:block;font-size:.72rem;font-weight:600;opacity:.65;
+  margin-top:2px;white-space:nowrap}
 .esave,.edel{padding:9px 14px;border:2px solid var(--ink);border-radius:4px;
   background:var(--ink);color:#fff;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer}
 .edel{background:#fff;color:var(--bad,#A8323F);border-color:var(--line)}
@@ -426,6 +446,11 @@ var HOME     = null;             // el equipo que se marca, o null
 var GAMES    = [];
 var CATCOLOR = {};
 var TORNEO   = '';               // el id, que es también el slug
+/* El deporte decide DOS cosas en esta página y ninguna más: cómo se
+   escribe un marcador y cómo se enseña. Todo lo demás —el cuadro, la
+   tabla, los botones de prometer— compara los mismos dos números y
+   no se entera de qué deporte es. */
+var DEPORTE  = 'baloncesto';
 </script>
 <script>
 var CP = 'https://cadapunto.com';     // ahí vive el dinero
@@ -447,6 +472,37 @@ var PS = {
 };
 var STR_SAVE = 'OK';
 var STR_DEL  = 'Borrar';
+var STR_SET  = 'Set';
+var STR_VS   = 'vs';
+var STR_HUECO  = 'Hay un set en blanco en el medio.';
+var STR_SETMAL = 'El set {N} no se entiende.';
+var STR_POCOS  = 'Un partido son dos sets como poco.';
+/* Lo que contesta la base cuando una linea no puede ser un partido.
+   Cada una dice QUE set y POR QUE, que es lo unico que le sirve a
+   quien tiene la hoja delante y cinco filas en la pantalla. */
+var STR_SETS = {
+  corto:  'El set {N} no llego a {M}.',
+  margen: 'El set {N} hay que ganarlo por dos.',
+  empate: 'El set {N} esta empatado.',
+  forma:  'El set {N} no se entiende.',
+  'no-cuadra':   'Ese marcador no cierra un partido.',
+  'cuantos-sets':'Un partido son entre dos y cinco sets.',
+  'sin-sets':    'Falta el marcador.'
+};
+/* El aviso va DENTRO del editor y no en un alert: la mesa tiene la
+   hoja en una mano y el telefono en la otra, y un alert tapa justo
+   las filas que hay que mirar para corregir. */
+function decirSet(t){
+  var e = document.querySelector('.ed .esmsg');
+  if (e){ e.textContent = t; e.classList.add('on'); }
+  else { alert(t); }
+}
+
+function porSets(d){
+  if (!d) return 'Ese marcador no vale.';
+  var t = STR_SETS[d.reason] || 'Ese marcador no vale.';
+  return t.replace('{N}', d.set || '').replace('{M}', d.meta || '');
+}
 var STR_BADCODE = 'Código incorrecto.';
 var STR_FAIL = 'No se pudo guardar.';
 var STR_PUSHED = 'Cerrado también en la campaña (vs {O}) — listo para cobrar.';
@@ -923,14 +979,23 @@ function paint(){
 
     r.classList.add('done');
 
+    /* EN VOLEIBOL EL MARCADOR SON LOS SETS, con la linea debajo.
+       a y b ya traen los sets —la base los conto— asi que lo de
+       abajo compara lo mismo de siempre y no sabe de deportes. Lo
+       unico que se anade es la linea, que es como se lee una hoja
+       de voleibol: 3-1 (25-21, 23-25, 25-19, 25-22). */
+    var linea = (DEPORTE === 'voleibol' && s.sets)
+      ? '<span class="setline">' + esc(String(s.sets).split(',').join(', ')) + '</span>'
+      : '';
+
     if (s.a > s.b){
       sa.className = 'sa won'; sb.className = 'sb lost';
-      sc.innerHTML = '<b class="hi">' + s.a + '</b><span class="d">–</span><b class="lo">' + s.b + '</b>';
+      sc.innerHTML = '<b class="hi">' + s.a + '</b><span class="d">–</span><b class="lo">' + s.b + '</b>' + linea;
     } else if (s.b > s.a){
       sb.className = 'sb won'; sa.className = 'sa lost';
-      sc.innerHTML = '<b class="lo">' + s.a + '</b><span class="d">–</span><b class="hi">' + s.b + '</b>';
+      sc.innerHTML = '<b class="lo">' + s.a + '</b><span class="d">–</span><b class="hi">' + s.b + '</b>' + linea;
     } else {
-      sc.innerHTML = '<b>' + s.a + '</b><span class="d">–</span><b>' + s.b + '</b>';
+      sc.innerHTML = '<b>' + s.a + '</b><span class="d">–</span><b>' + s.b + '</b>' + linea;
     }
   }
 }
@@ -1137,16 +1202,50 @@ function tap(row){
   var cur = SCORES[j];
 
   var ed = document.createElement('span');
-  ed.className = 'ed';
-  ed.innerHTML =
-    '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
-      'value="' + (cur ? cur.a : '') + '" placeholder="' + esc(shortName(row.dataset.a)) + '">' +
-    '<span class="edash">–</span>' +
-    '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
-      'value="' + (cur ? cur.b : '') + '" placeholder="' + esc(shortName(row.dataset.b)) + '">' +
-    '<button class="esave">' + STR_SAVE + '</button>' +
-    (cur ? '<button class="edel">' + STR_DEL + '</button>' : '') +
-    '<button class="eclose" aria-label="cerrar">×</button>';
+  ed.className = 'ed' + (DEPORTE === 'voleibol' ? ' edvoli' : '');
+
+  if (DEPORTE === 'voleibol'){
+    /* CINCO SETS A LA VISTA Y SE LLENAN LOS QUE SE JUGARON.
+
+       No se escribe nada entre set y set: la mesa viene al final del
+       partido con la hoja delante y teclea la linea entera. Cinco
+       filas puestas y las que sobren en blanco, que es mas rapido
+       que un boton de anadir con el gimnasio encima.
+
+       Lo que valga y lo que no lo dice la base, que conoce las
+       reglas: a 25 salvo el decisivo, por dos, y un partido que
+       cierre. Aqui solo se recoge. */
+    var yaSets = (cur && cur.sets) ? String(cur.sets).split(',') : [];
+    var filas = '';
+    for (var si = 0; si < 5; si++){
+      var par = (yaSets[si] || '').split('-');
+      filas +=
+        '<div class="esr"><span class="esn">' + STR_SET + ' ' + (si + 1) + '</span>' +
+        '<input class="ep es" type="tel" inputmode="numeric" maxlength="2" ' +
+          'value="' + esc(par[0] || '') + '">' +
+        '<span class="edash">–</span>' +
+        '<input class="ep es" type="tel" inputmode="numeric" maxlength="2" ' +
+          'value="' + esc(par[1] || '') + '"></div>';
+    }
+    ed.innerHTML =
+      '<div class="eshead"><b>' + esc(shortName(row.dataset.a)) + '</b>' +
+        '<i>' + STR_VS + '</i><b>' + esc(shortName(row.dataset.b)) + '</b></div>' +
+      filas +
+      '<div class="esmsg"></div>' +
+      '<div class="esbtn"><button class="esave">' + STR_SAVE + '</button>' +
+        (cur ? '<button class="edel">' + STR_DEL + '</button>' : '') +
+        '<button class="eclose" aria-label="cerrar">×</button></div>';
+  } else {
+    ed.innerHTML =
+      '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
+        'value="' + (cur ? cur.a : '') + '" placeholder="' + esc(shortName(row.dataset.a)) + '">' +
+      '<span class="edash">–</span>' +
+      '<input class="ep" type="tel" inputmode="numeric" maxlength="3" ' +
+        'value="' + (cur ? cur.b : '') + '" placeholder="' + esc(shortName(row.dataset.b)) + '">' +
+      '<button class="esave">' + STR_SAVE + '</button>' +
+      (cur ? '<button class="edel">' + STR_DEL + '</button>' : '') +
+      '<button class="eclose" aria-label="cerrar">×</button>';
+  }
 
   row.appendChild(ed);
 
@@ -1178,27 +1277,61 @@ function tap(row){
   boxes[0].select();
 
   function save(){
-    var a = boxes[0].value.trim(), b = boxes[1].value.trim();
-    if (!/^\d+$/.test(a) || !/^\d+$/.test(b)){
-      boxes[!/^\d+$/.test(a) ? 0 : 1].focus();
-      return;
+    var a = null, b = null, linea = null;
+
+    if (DEPORTE === 'voleibol'){
+      /* Se recogen los sets llenos, EN ORDEN Y SIN HUECOS. Un set 3
+         escrito con el 2 en blanco casi siempre es una fila
+         equivocada, y mandarlo tal cual guardaria un partido que no
+         se jugo asi. */
+      var pares = [], hueco = false;
+      var fs = ed.querySelectorAll('.esr');
+      for (var k = 0; k < fs.length; k++){
+        var ia = fs[k].querySelectorAll('.es')[0].value.trim();
+        var ib = fs[k].querySelectorAll('.es')[1].value.trim();
+        if (ia === '' && ib === ''){ hueco = true; continue; }
+        if (hueco){ decirSet(STR_HUECO); return; }
+        if (!/^\d{1,2}$/.test(ia) || !/^\d{1,2}$/.test(ib)){
+          decirSet(STR_SETMAL.replace('{N}', k + 1)); return;
+        }
+        pares.push(ia + '-' + ib);
+      }
+      if (pares.length < 2){ decirSet(STR_POCOS); return; }
+      linea = pares.join(',');
+    } else {
+      a = boxes[0].value.trim(); b = boxes[1].value.trim();
+      if (!/^\d+$/.test(a) || !/^\d+$/.test(b)){
+        boxes[!/^\d+$/.test(a) ? 0 : 1].focus();
+        return;
+      }
     }
 
     ed.classList.add('saving');
     rpc('bw_set_score', {
       p_code: code(), p_game: j,
-      p_a: parseInt(a, 10), p_b: parseInt(b, 10),
+      p_a: linea ? null : parseInt(a, 10),
+      p_b: linea ? null : parseInt(b, 10),
       p_team_a: resolve(row.dataset.a),
       p_team_b: resolve(row.dataset.b),
-      p_on: row.dataset.on || null
+      p_on: row.dataset.on || null,
+      p_sets: linea
     }).then(function(r){
       ed.classList.remove('saving');
       if (!r || !r.ok){
         if (r && r.reason === 'code'){ lockOff(); alert(STR_BADCODE); return; }
+        /* La base conoce las reglas del voleibol y dice CUAL set esta
+           mal. Decir solo «no se pudo» dejaria a la mesa mirando
+           cinco filas sin saber cual corregir. */
+        if (r && r.reason === 'sets'){ decirSet(porSets(r.detalle)); return; }
         alert(STR_FAIL);
         return;
       }
-      SCORES[j] = { a: parseInt(a, 10), b: parseInt(b, 10) };
+      /* Lo que manda es lo que contesto la base: en voleibol los
+         sets no son lo que se tecleo, se contaron alla. */
+      SCORES[j] = (r.voli)
+        ? { a: r.voli.sets_a, b: r.voli.sets_b, sets: r.voli.linea,
+            pa: r.voli.puntos_a, pb: r.voli.puntos_b }
+        : { a: parseInt(a, 10), b: parseInt(b, 10) };
       ed.remove();
       paint(); paintTable(); paintPledges();
       if (r.pushed) toast(STR_PUSHED.replace('{O}', r.pushed));
@@ -1490,6 +1623,7 @@ function aviso(titulo, linea){
     HOME     = r.home || null;
     GAMES    = r.games || [];
     CATCOLOR = r.colour || {};
+    DEPORTE  = (r.deporte === 'voleibol') ? 'voleibol' : 'baloncesto';
 
     /* El nombre se pone al cargar. Para quien lee y para Google vale;
        para la vista previa de WhatsApp no, porque ésa lee el HTML sin
