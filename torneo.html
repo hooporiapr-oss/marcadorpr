@@ -687,6 +687,16 @@ function pledgeBits(row){
     // de cómo recaudar. Es la verdad —todavía no hay juego al que
     // enganchar una promesa— y no manda a nadie a un callejón.
     var llave = (i === 0 ? row.dataset.ga : row.dataset.gb) || '';
+
+    /* Y SIN PADRINOS TAMPOCO HAY BOT\u00d3N, aunque haya llave.
+       El entrenador dijo que en este juego no recauda: ofrecerle
+       prometer a alguien lo manda a una p\u00e1gina que le contesta que
+       ah\u00ed no hay padrinos. No se le ofrece nada en su sitio porque
+       no falta nada — el juego est\u00e1 completo as\u00ed, con su marcador
+       y sin promesas. */
+    var rec = (i === 0 ? row.dataset.reca : row.dataset.recb) !== '0';
+    if (llave && !rec) return;
+
     if (!llave){
       var kSin = teamKey(real);
       if (PEDIDOS[kSin]) return;
@@ -1370,6 +1380,11 @@ function build(){
           // lleva al padrino a SU juego sin que la otra punta tenga
           // que adivinarlo por fecha y nombre de rival.
           'data-ga="' + esc(g.ga || '') + '" data-gb="' + esc(g.gb || '') + '" ' +
+          // Y si cada lado recauda, que decide si sale su bot\u00f3n de
+          // prometer. Viene de torneo_publico en cada carga, as\u00ed que
+          // apagarlo hoy lo apaga aqu\u00ed hoy.
+          'data-reca="' + (g.reca === false ? '0' : '1') + '" ' +
+          'data-recb="' + (g.recb === false ? '0' : '1') + '" ' +
           'data-stage="' + esc(g.stage || '') + '" ' +
           'onclick="tap(this)">' +
           '<span class="t">' + esc(g.time) + '</span>' +
