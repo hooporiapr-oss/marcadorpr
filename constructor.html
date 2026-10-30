@@ -29,13 +29,32 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
   border:1px solid var(--line,#2a3744);background:transparent;color:inherit;
   border-radius:999px;padding:10px 18px}
 .modo.on{background:var(--ball,#ff7a18);color:#111a24;border-color:transparent}
-/* Una fila de juego de temporada. */
+/* Una fila de juego de temporada.
+
+   EN EL TELÉFONO CADA JUEGO ES UNA TARJETA, no una fila. A lo ancho
+   se leen las seis casillas de corrido y se ve dónde acaba una y
+   empieza la otra; en dos columnas, seis juegos seguidos son
+   dieciocho casillas sin una sola costura, y la segunda «Contra
+   quién» parece del primer juego. El número arriba y el borde
+   alrededor son lo único que lo dice. */
 .sjuego{display:grid;grid-template-columns:1.4fr 1fr .8fr 1fr .8fr .8fr auto;gap:8px;
   align-items:end;margin:0 0 10px}
 .sjuego label{font-size:.72rem}
-@media(max-width:760px){ .sjuego{grid-template-columns:1fr 1fr} }
+.sjn{display:none}
+@media(max-width:760px){
+  .sjuego{grid-template-columns:1fr 1fr;border:1px solid var(--line);
+    border-radius:12px;padding:12px;margin:0 0 14px;background:var(--tint)}
+  .sjn{display:block;grid-column:1/-1;margin:0 0 2px;
+    font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--mute)}
+  /* El botón de quitar, a su tamaño y con su nombre. Una × sola en
+     una caja ancha parecía una casilla más, vacía. */
+  .sjuego .sborrar{grid-column:1/-1;justify-self:end;width:auto}
+}
 .sborrar{font:inherit;cursor:pointer;border:1px solid var(--line,#2a3744);
-  background:transparent;color:inherit;border-radius:8px;padding:9px 12px}
+  background:transparent;color:var(--mute);border-radius:8px;padding:9px 12px;
+  white-space:nowrap}
+.sborrar:hover{color:var(--bad);border-color:var(--bad)}
 .mark span{color:var(--ball)}
 .sub{font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9FB3C4}
 
@@ -938,6 +957,7 @@ function sAnadir(){
   var d = document.createElement('div');
   d.className = 'sjuego';
   d.innerHTML =
+    '<b class="sjn"></b>' +
     '<div><label>Contra quién</label><input class="sRival" autocapitalize="words"></div>' +
     '<div><label>Qué día</label><input class="sFecha" type="date"></div>' +
     '<div><label>Hora</label><input class="sHora" placeholder="7:00 PM"></div>' +
@@ -951,12 +971,26 @@ function sAnadir(){
        para que en el teléfono caiga en la misma rejilla. */
     '<div><label>Padrinos</label><select class="sRecauda">' +
       '<option value="1">Sí</option><option value="0">No</option></select></div>' +
-    '<button class="sborrar" type="button" title="Quitar">×</button>';
+    '<button class="sborrar" type="button" title="Quitar este juego">Quitar</button>';
   d.querySelector('.sborrar').onclick = function(){
     d.remove();
     if (!document.querySelectorAll('.sjuego').length) sAnadir();
+    sNumerar();
   };
   document.getElementById('sJuegos').appendChild(d);
+  sNumerar();
+}
+
+/* «Juego 1», «Juego 2»… Se vuelve a contar al añadir y al quitar,
+   porque si no, quitar el segundo de cuatro deja un 1, un 3 y un 4 y
+   el entrenador se queda mirando a ver qué se perdió. Sólo se ve en
+   el teléfono; a lo ancho, la fila ya se explica sola. */
+function sNumerar(){
+  var f = document.querySelectorAll('.sjuego');
+  for (var i = 0; i < f.length; i++){
+    var n = f[i].querySelector('.sjn');
+    if (n) n.textContent = 'Juego ' + (i + 1);
+  }
 }
 
 function sDice(t, mal){
