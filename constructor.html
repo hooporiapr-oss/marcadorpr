@@ -22,6 +22,20 @@ header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
   padding-top:env(safe-area-inset-top,0px)}
 header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
 .mark{font-weight:900;font-size:1.05rem;color:#fff}
+/* El selector de modo. Dos botones y no un desplegable: son dos
+   caminos distintos, no una opción de uno. */
+.modos{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 26px}
+.modo{font:inherit;font-weight:800;font-size:.92rem;cursor:pointer;
+  border:1px solid var(--line,#2a3744);background:transparent;color:inherit;
+  border-radius:999px;padding:10px 18px}
+.modo.on{background:var(--ball,#ff7a18);color:#111a24;border-color:transparent}
+/* Una fila de juego de temporada. */
+.sjuego{display:grid;grid-template-columns:1.4fr 1fr .8fr 1fr .8fr .8fr auto;gap:8px;
+  align-items:end;margin:0 0 10px}
+.sjuego label{font-size:.72rem}
+@media(max-width:760px){ .sjuego{grid-template-columns:1fr 1fr} }
+.sborrar{font:inherit;cursor:pointer;border:1px solid var(--line,#2a3744);
+  background:transparent;color:inherit;border-radius:8px;padding:9px 12px}
 .mark span{color:var(--ball)}
 .sub{font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9FB3C4}
 
@@ -113,11 +127,56 @@ footer b{color:#fff;display:block;font-weight:800}
 
 <main>
   <div class="wrap">
-    <h1>Monta el calendario de un torneo</h1>
-    <p class="lede">Pon los equipos por categoría, las canchas y los días. Sale el calendario
-      entero — cada juego numerado, el cuadro atado de ronda en ronda, y la página lista para
-      subir a marcadorpr.</p>
+    <h1 id="tituloModo">Monta un calendario</h1>
+    <p class="lede" id="ledeModo"></p>
 
+    <!-- ══════════════════════════════════════════════════════════
+         DOS MANERAS DE LLENAR LA MISMA LISTA.
+
+         Debajo, un torneo y una temporada son lo mismo: juegos con
+         nombre, fecha, hora y cancha. El cuadro de un torneo los
+         genera sembrando equipos por categoría; una temporada los
+         escribe uno a uno. De ahí para abajo —registrar, enlazar,
+         el enlace, la página— no cambia ni una línea.
+
+         Hacía falta porque esto era un constructor de torneos y
+         punto, y a un entrenador que quiere subir los seis juegos de
+         su equipo se le pedía prefijo, categorías, siembras y rondas.
+         Mucha herramienta para una lista.
+         ══════════════════════════════════════════════════════════ -->
+    <div class="modos">
+      <button class="modo on" id="btnTorneo" onclick="modo('torneo')">Un torneo</button>
+      <button class="modo" id="btnTemporada" onclick="modo('temporada')">La temporada de mi equipo</button>
+    </div>
+
+    <!-- ── LA TEMPORADA DE UN EQUIPO ───────────────────────── -->
+    <div id="paneTemporada" style="display:none">
+      <h2>Tu equipo</h2>
+      <div class="row two">
+        <div><label>Nombre del equipo</label><input id="sTeam" autocapitalize="words"></div>
+        <div><label>Pueblo (opcional)</label><input id="sWhere" autocapitalize="words"></div>
+      </div>
+      <p class="hint"><b>Escríbelo igual que al inscribir tu programa en Cada Punto Cuenta</b>,
+        letra por letra. Es lo que engancha tus juegos con tu campaña: si aquí pones otra cosa,
+        tus juegos salen en el calendario pero sin botón de prometer.</p>
+
+      <h2>Tus juegos</h2>
+      <div id="sJuegos"></div>
+      <button class="btn line small" onclick="sAnadir()">+ Añadir un juego</button>
+      <p class="hint">Añade los que tengas. Puedes volver cuando quieras y añadir más — se
+        registra otra vez y los juegos que ya estaban se quedan con sus promesas.</p>
+      <p class="hint"><b>Padrinos</b> es por juego, y puedes cambiarlo después desde la página
+        de tu equipo. Un juego en <b>No</b> sale en el calendario y lleva marcador como
+        cualquiera; lo único que no tiene es enlace para prometer. Si ya hay padrinos en un
+        juego, ése no se puede apagar — alguien ya prometió sobre él.</p>
+
+      <div class="row">
+        <button class="btn" onclick="construirTemporada()">Hacer el calendario</button>
+      </div>
+      <p class="hint" id="sMsg" style="font-weight:800;min-height:1.3em"></p>
+    </div>
+
+    <div id="paneTorneo">
     <h2>El torneo</h2>
     <div class="row two">
       <div><label>Nombre</label><input id="tName"></div>
@@ -149,6 +208,7 @@ footer b{color:#fff;display:block;font-weight:800}
     <button class="btn line small" onclick="addDiv()">+ Añadir categoría</button>
 
     <button class="btn" onclick="generate()">Generar el calendario</button>
+    </div><!-- /paneTorneo -->
 
     <div id="out"></div>
   </div>
@@ -833,6 +893,165 @@ function generate(){
   show();
 }
 
+// ══════════════════════════════════════════════════════════════
+//  LA TEMPORADA DE UN EQUIPO
+//
+//  Llena el MISMO RESULT que genera el cuadro de un torneo. Todo lo
+//  que viene después —registrar, enlazar las campañas, el enlace, la
+//  página, los botones de prometer— no sabe cuál de los dos lo
+//  escribió, y no tiene por qué saberlo.
+//
+//  Lo que NO hay aquí, y es el punto: prefijo, categorías, siembras,
+//  rondas, horarios automáticos. Un entrenador sabe contra quién
+//  juega y qué día. Lo demás era mobiliario de torneo.
+// ══════════════════════════════════════════════════════════════
+
+var MODO = 'torneo';
+
+var LEDES = {
+  torneo: 'Pon los equipos por categoría, las canchas y los días. Sale el calendario ' +
+          'entero — cada juego numerado, el cuadro atado de ronda en ronda, y la página ' +
+          'lista para subir a marcadorpr.',
+  temporada: 'Escribe los juegos de tu equipo: contra quién, qué día, dónde. Sale tu ' +
+             'calendario con su enlace, y cada juego con su botón de prometer.'
+};
+var TITULOS = {
+  torneo: 'Monta el calendario de un torneo',
+  temporada: 'Monta el calendario de tu equipo'
+};
+
+function modo(cual){
+  MODO = cual;
+  document.getElementById('paneTorneo').style.display    = cual === 'torneo' ? '' : 'none';
+  document.getElementById('paneTemporada').style.display = cual === 'temporada' ? '' : 'none';
+  document.getElementById('btnTorneo').className    = 'modo' + (cual === 'torneo' ? ' on' : '');
+  document.getElementById('btnTemporada').className = 'modo' + (cual === 'temporada' ? ' on' : '');
+  document.getElementById('tituloModo').textContent = TITULOS[cual];
+  document.getElementById('ledeModo').textContent   = LEDES[cual];
+  // El calendario de un modo no tiene nada que hacer en el otro.
+  document.getElementById('out').innerHTML = '';
+  RESULT = null;
+  if (cual === 'temporada' && !document.querySelectorAll('.sjuego').length) sAnadir();
+}
+
+function sAnadir(){
+  var d = document.createElement('div');
+  d.className = 'sjuego';
+  d.innerHTML =
+    '<div><label>Contra quién</label><input class="sRival" autocapitalize="words"></div>' +
+    '<div><label>Qué día</label><input class="sFecha" type="date"></div>' +
+    '<div><label>Hora</label><input class="sHora" placeholder="7:00 PM"></div>' +
+    '<div><label>Cancha</label><input class="sCancha" autocapitalize="words"></div>' +
+    '<div><label>Dónde</label><select class="sCasa">' +
+      '<option value="1">En casa</option><option value="0">De visita</option></select></div>' +
+    /* Si en ESE juego hay padrinos. Un entrenador sube su temporada
+       entera y quiere padrinos en tres juegos, no en los veinte; los
+       otros los quiere en el marcador y nada más. Es un select y no
+       una casilla para que se lea igual que «En casa / De visita» y
+       para que en el teléfono caiga en la misma rejilla. */
+    '<div><label>Padrinos</label><select class="sRecauda">' +
+      '<option value="1">Sí</option><option value="0">No</option></select></div>' +
+    '<button class="sborrar" type="button" title="Quitar">×</button>';
+  d.querySelector('.sborrar').onclick = function(){
+    d.remove();
+    if (!document.querySelectorAll('.sjuego').length) sAnadir();
+  };
+  document.getElementById('sJuegos').appendChild(d);
+}
+
+function sDice(t, mal){
+  var e = document.getElementById('sMsg');
+  if (e){ e.textContent = t || ''; e.style.color = mal ? '#ff8a8a' : ''; }
+}
+
+/* El prefijo sale del nombre del equipo y no se pregunta: es lo que
+   numera los juegos —ARE-1, ARE-2— y a un entrenador no le dice nada.
+   Se quitan tildes para que no salga un número con eñes dentro. */
+function sPrefijo(nombre){
+  var limpio = (nombre || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+                 .replace(/[^A-Za-z ]/g, '').trim();
+  var palabras = limpio.split(/\s+/).filter(Boolean);
+  var p = palabras.length >= 2
+    ? palabras.slice(0, 3).map(function(w){ return w[0] }).join('')
+    : (palabras[0] || 'EQ').slice(0, 3);
+  return p.toUpperCase() || 'EQ';
+}
+
+function construirTemporada(){
+  var equipo = (document.getElementById('sTeam').value || '').trim();
+  var pueblo = (document.getElementById('sWhere').value || '').trim();
+  if (!equipo) return sDice('Escribe el nombre de tu equipo.', true);
+
+  var filas = [].slice.call(document.querySelectorAll('.sjuego'));
+  var juegos = [], n = 0, pfx = sPrefijo(equipo);
+
+  for (var i = 0; i < filas.length; i++){
+    var f = filas[i];
+    var rival  = (f.querySelector('.sRival').value  || '').trim();
+    var fecha  = (f.querySelector('.sFecha').value  || '').trim();
+    var hora   = (f.querySelector('.sHora').value   || '').trim();
+    var cancha = (f.querySelector('.sCancha').value || '').trim();
+    var casa   = f.querySelector('.sCasa').value === '1';
+    var rec    = f.querySelector('.sRecauda').value === '1';
+
+    // Una fila vacía del todo se salta: es la que quedó de más.
+    if (!rival && !fecha) continue;
+    if (!rival) return sDice('Falta contra quién juegan, en el juego ' + (i + 1) + '.', true);
+    if (!fecha) return sDice('Falta el día del juego contra ' + rival + '.', true);
+
+    n++;
+    /* EL LOCAL VA PRIMERO. La página marca H y A mirando cuál de los
+       dos lados es el equipo de casa; poniendo siempre el mío de
+       primero, todos mis juegos saldrían como locales. */
+    juegos.push({
+      no: pfx + '-' + n, cat: '', stage: '',
+      date: fecha, time: hora, court: cancha,
+      a: casa ? equipo : rival,
+      b: casa ? rival  : equipo,
+      /* Viaja con el juego hasta la base, que lo usa de semilla. A
+         partir de ahí manda la página del equipo: si el entrenador lo
+         apaga allí y vuelve aquí a mover una hora, no se le borra. */
+      recauda: rec
+    });
+  }
+
+  if (!juegos.length) return sDice('Añade por lo menos un juego.', true);
+
+  RESULT = {
+    prefix: pfx,
+    tourney: {
+      name:  equipo,
+      where: pueblo,
+      // Las canchas con nombre son cosa de un torneo con varias a la
+      // vez; aquí cada juego trae la suya escrita.
+      courts: []
+    },
+    /* VA VACÍO A PROPÓSITO, y es lo contrario de lo que parece.
+       `home` no quiere decir «mi equipo»: quiere decir «el equipo de
+       casa DEL TORNEO», el que juega en su pueblo y por eso es local
+       aunque el sorteo lo ponga abajo. La página usa eso para darle
+       la vuelta a la H y la A.
+
+       En una temporada esa vuelta sobra, porque aquí el local ya va
+       de primero en cada juego — lo pone el «Dónde» de cada fila. Con
+       el nombre puesto, la página veía a mi equipo abajo en un juego
+       de visita y le ponía la H: el calendario decía que yo era local
+       en un juego que juego fuera. Vacío, manda la fila, que es la
+       que sabe.
+
+       Lo único que se pierde es el tinte naranja de «éste es mi
+       juego», que en una temporada no dice nada: todos lo son. El
+       botón de prometer no depende de esto — va por el id del juego. */
+    home: '',
+    colour: {},
+    games: juegos
+  };
+
+  sDice(juegos.length === 1 ? 'Un juego. Registra abajo para que salga tu enlace.'
+        : juegos.length + ' juegos. Registra abajo para que salga tu enlace.', false);
+  show();
+}
+
 // ── Local y visitante ───────────────────────────────────────
 // No hay nada que escribir: el cuadro ya lo dice. El de arriba de
 // cada juego es el local, que en la primera ronda es siempre el mejor
@@ -1218,6 +1437,39 @@ document.getElementById('tEnd').innerHTML = hours();
 // Una categoría en blanco, para que haya dónde escribir sin tener que
 // borrar nada primero.
 addDiv();
+
+/* ══ LO QUE TRAE EL ENTRENADOR EN EL ENLACE ════════════════════
+   Desde su página de Cada Punto se llega aquí con tres cosas ya
+   resueltas, y cada una quita un paso donde antes se perdía gente:
+
+     modo=temporada → abre en la lista, no en el cuadro. Al que viene
+       a subir sus seis juegos no se le pide prefijo ni siembras.
+     code=… → su código, que si no tendría que ir a buscar otra vez.
+       Se guarda donde el formulario de registrar ya lo busca.
+     equipo=… → el nombre CON EL QUE SE INSCRIBIÓ. Es el que engancha
+       sus juegos con su campaña, y escribirlo distinto —«Canovanas»
+       donde puso «Canóvanas»— le deja un calendario sin botón de
+       prometer y sin un error que se lo explique. Escrito por la
+       máquina no se equivoca.
+
+   Nada de esto es obligatorio: sin enlace, la página es la de
+   siempre. */
+(function(){
+  var q = new URLSearchParams(location.search);
+
+  var c = (q.get('code') || '').trim();
+  if (c) { try { sessionStorage.setItem('bw-code', c) } catch(e){} }
+
+  var eq = (q.get('equipo') || '').trim();
+  if (eq) {
+    var t = document.getElementById('sTeam');
+    if (t) t.value = eq;
+  }
+
+  // Y el modo de arranque, que pinta el título y la entradilla que
+  // toquen. Va aquí, al final, cuando ya existe todo lo que toca.
+  modo(q.get('modo') === 'temporada' ? 'temporada' : 'torneo');
+})();
 </script>
 
 <script id="tpl" type="text/plain"><!doctype html>
@@ -1889,6 +2141,16 @@ function pledgeBits(row){
     // de cómo recaudar. Es la verdad —todavía no hay juego al que
     // enganchar una promesa— y no manda a nadie a un callejón.
     var llave = (i === 0 ? row.dataset.ga : row.dataset.gb) || '';
+
+    /* Y SIN PADRINOS TAMPOCO HAY BOT\u00d3N, aunque haya llave.
+       El entrenador dijo que en este juego no recauda: ofrecerle
+       prometer a alguien lo manda a una p\u00e1gina que le contesta que
+       ah\u00ed no hay padrinos. No se le ofrece nada en su sitio porque
+       no falta nada — el juego est\u00e1 completo as\u00ed, con su marcador
+       y sin promesas. */
+    var rec = (i === 0 ? row.dataset.reca : row.dataset.recb) !== '0';
+    if (llave && !rec) return;
+
     if (!llave){
       var kSin = teamKey(real);
       if (PEDIDOS[kSin]) return;
@@ -2572,6 +2834,11 @@ function build(){
           // lleva al padrino a SU juego sin que la otra punta tenga
           // que adivinarlo por fecha y nombre de rival.
           'data-ga="' + esc(g.ga || '') + '" data-gb="' + esc(g.gb || '') + '" ' +
+          // Y si cada lado recauda, que decide si sale su bot\u00f3n de
+          // prometer. Viene de torneo_publico en cada carga, as\u00ed que
+          // apagarlo hoy lo apaga aqu\u00ed hoy.
+          'data-reca="' + (g.reca === false ? '0' : '1') + '" ' +
+          'data-recb="' + (g.recb === false ? '0' : '1') + '" ' +
           'data-stage="' + esc(g.stage || '') + '" ' +
           'onclick="tap(this)">' +
           '<span class="t">' + esc(g.time) + '</span>' +
