@@ -60,7 +60,12 @@ t = cambiar(t,
 `var TOURNEY = __TOURNEY__;
 var HOME    = __HOME__;          // el equipo que se marca, o null
 var GAMES   = __GAMES__;
-var CATCOLOR = __CATCOLOR__;`,
+var CATCOLOR = __CATCOLOR__;
+/* El deporte decide DOS cosas en esta pagina y ninguna mas: como se
+   escribe un marcador y como se ensena. Todo lo demas -el cuadro, la
+   tabla, los botones de prometer- compara los mismos dos numeros y
+   no se entera de que deporte es. */
+var DEPORTE = __DEPORTE__;`,
 `/* EL CALENDARIO NO VIENE HORNEADO: lo trae torneo_publico() al
    cargar, desde ?t=<torneo>. Es la única diferencia de fondo entre
    esta página y la que se baja — todo lo de abajo es idéntico, y por
@@ -69,7 +74,12 @@ var TOURNEY = null;
 var HOME     = null;             // el equipo que se marca, o null
 var GAMES    = [];
 var CATCOLOR = {};
-var TORNEO   = '';               // el id, que es también el slug`,
+var TORNEO   = '';               // el id, que es también el slug
+/* El deporte decide DOS cosas en esta página y ninguna más: cómo se
+   escribe un marcador y cómo se enseña. Todo lo demás —el cuadro, la
+   tabla, los botones de prometer— compara los mismos dos números y
+   no se entera de qué deporte es. */
+var DEPORTE  = 'baloncesto';`,
 'los datos salen de la base');
 
 /* ── 2 · La cabecera no puede llevar el nombre horneado ─────────── */
@@ -155,6 +165,7 @@ function aviso(titulo, linea){
     HOME     = r.home || null;
     GAMES    = r.games || [];
     CATCOLOR = r.colour || {};
+    DEPORTE  = (r.deporte === 'voleibol') ? 'voleibol' : 'baloncesto';
 
     /* El nombre se pone al cargar. Para quien lee y para Google vale;
        para la vista previa de WhatsApp no, porque ésa lee el HTML sin
