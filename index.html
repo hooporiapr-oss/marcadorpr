@@ -272,12 +272,23 @@ footer a{color:#4FD3F0;text-decoration:none}
 var EVENTS = [
   {
     name:   'Demonstration Basketball',
-    sub:    { es:'3 categorías · 12 equipos · 21 juegos · dos canchas',
-              en:'3 divisions · 12 teams · 21 games · two courts' },
+    sub:    { es:'3 categorías · 12 equipos · 21 juegos · dos canchas. Dos de los doce están inscritos, así que sus juegos llevan su enlace de prometer.',
+              en:'3 divisions · 12 teams · 21 games · two courts. Two of the twelve are registered, so their games carry their pledge link.' },
     where:  'Puerto Rico',
     from:   '2026-11-21',
     to:     '2026-11-22',
-    href:   'demonstration-basketball.html',
+    /* VIVO Y NO HORNEADO desde el 30 de octubre de 2026.
+
+       Apuntaba a demonstration-basketball.html, un fichero bajado del
+       constructor. Un fichero bajado no lleva dentro las llaves de
+       los juegos —nada se las escribe— y sin llave no hay botón de
+       prometer: la demostración enseñaba 21 juegos y ni uno solo de
+       los botones que la página de al lado está vendiendo.
+
+       Ahora lee de la base como cualquier torneo. El fichero viejo se
+       queda donde está por si alguien guardó el enlace, pero lo que
+       se enseña es éste. */
+    href:   'torneo.html?t=demonstration-basketball',
     feature: true,
     flag:   { es:'Cómo se ve un torneo', en:'What a tournament looks like' }
   }
