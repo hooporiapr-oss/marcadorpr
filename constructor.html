@@ -953,6 +953,31 @@ function modo(cual){
   if (cual === 'temporada' && !document.querySelectorAll('.sjuego').length) sAnadir();
 }
 
+/* LAS HORAS, DE CUARTO EN CUARTO.
+
+   Escribirla a mano daba cuatro formas de la misma hora —«7pm»,
+   «7:00», «19:00», «7:00 p.m.»— y el calendario las enseña tal cual
+   se guardaron, así que un torneo acababa con cuatro maneras de
+   decir las siete. Con una lista no hay forma de escribirlo mal, y
+   en el teléfono se escoge de una rueda en vez de teclear.
+
+   De 7 de la mañana a 10:45 de la noche, que cubre desde el primer
+   juego de un sábado de torneo hasta el último de una noche entre
+   semana. Y vacía de primera: la hora es opcional y un juego sin
+   confirmar todavía no tiene ninguna. */
+var HORAS = (function(){
+  var o = ['<option value="">—</option>'];
+  for (var h = 7; h <= 22; h++){
+    var r = h % 12; if (r === 0) r = 12;
+    var ap = h < 12 ? 'AM' : 'PM';
+    for (var m = 0; m < 60; m += 15){
+      var t = r + ':' + (m < 10 ? '0' + m : m) + ' ' + ap;
+      o.push('<option value="' + t + '">' + t + '</option>');
+    }
+  }
+  return o.join('');
+})();
+
 function sAnadir(){
   var d = document.createElement('div');
   d.className = 'sjuego';
@@ -960,7 +985,7 @@ function sAnadir(){
     '<b class="sjn"></b>' +
     '<div><label>Contra quién</label><input class="sRival" autocapitalize="words"></div>' +
     '<div><label>Qué día</label><input class="sFecha" type="date"></div>' +
-    '<div><label>Hora</label><input class="sHora" placeholder="7:00 PM"></div>' +
+    '<div><label>Hora</label><select class="sHora">' + HORAS + '</select></div>' +
     '<div><label>Cancha</label><input class="sCancha" autocapitalize="words"></div>' +
     '<div><label>Dónde</label><select class="sCasa">' +
       '<option value="1">En casa</option><option value="0">De visita</option></select></div>' +
