@@ -2719,7 +2719,16 @@ var PLEDGEABLE = {}, PKEY = 0;
    nuestro, así que no lleva código ni hace falta cuenta: sólo el
    juego. */
 function pledgeURL(d){
-  return CP + '/prometer.html?g=' + encodeURIComponent(d.game || '');
+  /* Y EL TORNEO DE DONDE SALE. Sin esto, el que promete desde el
+     calendario llega a una página que no sabe de dónde vino: promete,
+     ve su confirmación, y se queda ahí — la única salida era el botón
+     del navegador, que en un móvil a pantalla completa no está.
+
+     Con &t= la página de promesa puede ofrecer la vuelta al
+     calendario. Quien reciba el enlace por WhatsApp sin t= no verá
+     ese botón, que es lo correcto: no vino de ningún calendario. */
+  return CP + '/prometer.html?g=' + encodeURIComponent(d.game || '')
+            + (TORNEO ? '&t=' + encodeURIComponent(TORNEO) : '');
 }
 
 function pledgeSheet(clave){
