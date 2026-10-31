@@ -85,6 +85,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .row.three{grid-template-columns:1fr 1fr 1fr}
 @media(max-width:640px){.row.two,.row.three{grid-template-columns:1fr}}
 .hint{font-size:.8rem;color:var(--mute);margin:4px 0 0}
+/* La guía: una caja tranquila que no compite con el formulario. */
+.guia{border:1px solid var(--line);background:var(--tint);border-radius:10px;
+  padding:12px 16px;margin:0 0 22px;max-width:62ch}
+.guia summary{cursor:pointer;font-weight:800;color:var(--accent)}
+.guia ol{margin:12px 0 4px;padding-left:1.3rem}
+.guia li{margin:0 0 9px;line-height:1.5;font-size:.93rem}
+.guia li b{color:var(--ink)}
+.guia .hint{font-size:.86rem;line-height:1.5}
 
 .div{border:2px solid var(--line);border-radius:4px;padding:16px 18px;margin-bottom:12px;position:relative}
 .div h3{margin:0 0 4px;font-size:1rem;font-weight:900}
@@ -157,6 +165,26 @@ footer b{color:#fff;display:block;font-weight:800}
   <div class="wrap">
     <h1 id="tituloModo">Monta un calendario</h1>
     <p class="lede" id="ledeModo"></p>
+
+    <!-- ══════════════════════════════════════════════════════════
+         CÓMO SE USA, AQUÍ MISMO Y SEGÚN EL MODO.
+
+         El constructor no tenía instrucciones, y quien llega desde
+         «Mi calendario» es un entrenador con el teléfono en la mano,
+         no alguien que ha montado torneos antes. Los pasos cambian con
+         el modo porque son dos trabajos distintos: la lista de un
+         equipo y el cuadro de un torneo.
+
+         Abierta para el que llega a hacer los juegos de su equipo
+         —que es quien más la necesita— y plegada para un torneo, que
+         la abre si la quiere. Se escribe desde el diccionario, como el
+         resto de la página: aquí todo el texto vive en S.es y S.en.
+         ══════════════════════════════════════════════════════════ -->
+    <details class="guia" id="guia">
+      <summary id="guiaT"></summary>
+      <ol id="guiaPasos"></ol>
+      <p class="hint" id="guiaPie"></p>
+    </details>
 
     <!-- ══════════════════════════════════════════════════════════
          DOS MANERAS DE LLENAR LA MISMA LISTA.
@@ -556,6 +584,30 @@ var LANG = 'es';
 var S = {
 es: {
   sub:'Constructor de calendarios',
+
+  // ── La guía (cómo se usa, por modo) ────────────────────────
+  guiaT:'Cómo se usa',
+  guiaTemp:[
+    '<b>Entra desde «Mi calendario» en cadapunto.com.</b> Así llegas con tu código y el nombre de tu equipo ya puestos, y no tienes que escribirlos.',
+    '<b>Escoge el deporte</b> en los botones de abajo, y deja marcado <b>Juegos</b>.',
+    '<b>Tu equipo:</b> el nombre tiene que ser igual al que pusiste al inscribirte en Cada Punto Cuenta. Si llegaste desde «Mi calendario», ya está bien.',
+    '<b>Añade cada juego:</b> contra quién, qué día, la hora, la cancha y si es en casa o de visita. Pulsa «+ Añadir un juego» para el siguiente.',
+    '<b>Padrinos, juego por juego.</b> En <b>Sí</b>, el juego lleva su botón de prometer. En <b>No</b>, sale en el calendario y lleva marcador, pero nadie promete en él.',
+    '<b>Pulsa «Hacer el calendario»</b> y revisa la lista que sale abajo.',
+    '<b>Regístralo</b> con tu código —el nombre de tu equipo y tus cuatro números—. Hasta que no lo registres, no existe para nadie.',
+    '<b>Copia el enlace y mándalo</b> al grupo de tu programa por WhatsApp. Ahí ven tus juegos, los marcadores según entran, y el botón de prometer en cada juego con padrinos.'
+  ],
+  guiaTempPie:'<b>¿Más juegos después?</b> Esta página no guarda tu lista. Vuelve, escribe la lista completa —los juegos de antes y los nuevos, en el mismo orden— y registra otra vez. Los juegos que ya estaban se quedan con sus promesas.',
+  guiaTor:[
+    '<b>Escoge el deporte</b> en los botones de abajo, y deja marcado <b>Torneos</b>.',
+    '<b>El torneo:</b> nombre, pueblo, primer y último día, y la primera y la última hora de juego. El nombre decide la dirección del calendario, así que ponle uno que no se repita — el pueblo o el año ayudan.',
+    '<b>Las canchas:</b> cuántas hay y cómo se llaman.',
+    '<b>Las categorías:</b> para cada una, el tipo, cuántos equipos, el formato y sus canchas. Escribe los equipos <b>en orden de siembra</b>, y cada uno igual a como se inscribió en Cada Punto Cuenta: así su juego sale con botón de prometer.',
+    '<b>Pulsa «Generar el calendario».</b> Si no cabe, añade un día, una cancha o alarga el horario.',
+    '<b>Regístralo</b> con el código de marcadores. Volver a registrarlo reemplaza el calendario anterior.',
+    '<b>Copia el enlace y mándalo.</b> Los marcadores se ven ahí según van entrando.'
+  ],
+  guiaTorPie:'Bajar el fichero no hace falta para publicar: el enlace ya funciona en cuanto registras.',
   pie:'Constructor interno · marcadorpr',
   btnLang:'English',
   modoTorneos:'Torneos', modoJuegos:'Juegos',
@@ -662,6 +714,29 @@ es: {
 },
 en: {
   sub:'Schedule builder',
+
+  guiaT:'How to use it',
+  guiaTemp:[
+    '<b>Come in from “My schedule” on cadapunto.com.</b> That way you arrive with your code and your team name already filled in, and you do not have to type them.',
+    '<b>Pick the sport</b> with the buttons below, and leave <b>Games</b> selected.',
+    '<b>Your team:</b> the name has to match the one you used to sign up on Cada Punto Cuenta. If you came from “My schedule”, it already does.',
+    '<b>Add each game:</b> who you play, the day, the time, the court, and home or away. Press “+ Add a game” for the next one.',
+    '<b>Padrinos, game by game.</b> On <b>Yes</b>, the game gets its pledge button. On <b>No</b>, it shows on the schedule and carries a score, but nobody pledges on it.',
+    '<b>Press the button to build the schedule</b> and check the list that appears below.',
+    '<b>Register it</b> with your code — your team name and your four numbers. Until you register it, it does not exist for anyone.',
+    '<b>Copy the link and send it</b> to your program’s WhatsApp group. There they see your games, the scores as they come in, and the pledge button on every game with padrinos.'
+  ],
+  guiaTempPie:'<b>More games later?</b> This page does not keep your list. Come back, enter the full list — the earlier games and the new ones, in the same order — and register again. The games that were already there keep their pledges.',
+  guiaTor:[
+    '<b>Pick the sport</b> with the buttons below, and leave <b>Tournaments</b> selected.',
+    '<b>The tournament:</b> name, town, first and last day, and the first and last game time. The name decides the schedule’s address, so give it one that will not repeat — the town or the year helps.',
+    '<b>The courts:</b> how many there are and what they are called.',
+    '<b>The categories:</b> for each one, the type, how many teams, the format and its courts. Enter the teams <b>in seeding order</b>, each exactly as it signed up on Cada Punto Cuenta, so its game shows a pledge button.',
+    '<b>Press the button to generate the schedule.</b> If it does not fit, add a day, a court, or extend the hours.',
+    '<b>Register it</b> with the scorekeeper code. Registering again replaces the previous schedule.',
+    '<b>Copy the link and send it.</b> Scores show up there as they come in.'
+  ],
+  guiaTorPie:'Downloading the file is not needed to publish: the link works as soon as you register.',
   pie:'Internal builder · marcadorpr',
   btnLang:'Español',
   modoTorneos:'Tournaments', modoJuegos:'Games',
@@ -771,6 +846,25 @@ function T(k, v){
   return t;
 }
 
+/* La guía, del modo que esté puesto. Se lee el diccionario directo
+   y no por T(): T() trabaja con frases, y los pasos son una lista. */
+var GUIA_TOCADA = false;
+function pintarGuia(){
+  var d = S[LANG] || S.es, temp = (MODO === 'temporada');
+  var pasos = (temp ? d.guiaTemp : d.guiaTor) || (temp ? S.es.guiaTemp : S.es.guiaTor);
+  document.getElementById('guiaT').textContent = T('guiaT');
+  document.getElementById('guiaPasos').innerHTML =
+    pasos.map(function(x){ return '<li>' + x + '</li>' }).join('');
+  document.getElementById('guiaPie').innerHTML = T(temp ? 'guiaTempPie' : 'guiaTorPie');
+  /* Abierta para el entrenador, plegada para el torneo — hasta que
+     alguien la abra o la cierre a mano: desde ahí manda su gesto. */
+  if (!GUIA_TOCADA) document.getElementById('guia').open = temp;
+  if (!pintarGuia.hecho){
+    pintarGuia.hecho = true;
+    document.getElementById('guiaT').addEventListener('click', function(){ GUIA_TOCADA = true });
+  }
+}
+
 /* Lo que está escrito en el HTML y no cambia con el uso. */
 function pintarEstatico(){
   var pares = [
@@ -815,6 +909,7 @@ function cambiarIdioma(){
     T(MODO === 'temporada' ? 'tituloTemporada' : 'tituloTorneo');
   document.getElementById('ledeModo').textContent =
     T(MODO === 'temporada' ? 'ledeTemporada' : 'ledeTorneo');
+  pintarGuia();
   // El calendario se vuelve a dibujar con lo que ya hay; no se
   // recalcula nada, así que ningún juego se mueve de sitio.
   if (RESULT) show();
@@ -1329,6 +1424,7 @@ function deporte(cual){
   // de voleibol no monta «juegos», monta partidos.
   document.getElementById('tituloModo').textContent = tituloDe(MODO);
   document.getElementById('ledeModo').textContent   = ledeDe(MODO);
+  pintarGuia();
   repintarFilas();
   if (RESULT) show();
 }
@@ -1346,6 +1442,7 @@ function modo(cual){
   document.getElementById('btnTemporada').className = 'modo' + (cual === 'temporada' ? ' on' : '');
   document.getElementById('tituloModo').textContent = tituloDe(cual);
   document.getElementById('ledeModo').textContent   = ledeDe(cual);
+  pintarGuia();
   // El calendario de un modo no tiene nada que hacer en el otro.
   document.getElementById('out').innerHTML = '';
   RESULT = null;
