@@ -21,10 +21,6 @@ body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
 header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
   padding-top:env(safe-area-inset-top,0px)}
 header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
-.volver{padding:0 0 10px}
-.volver a{display:inline-block;color:#fff;opacity:.85;font-size:.82rem;font-weight:700;
-  text-decoration:none;padding:4px 0}
-.volver a:hover{opacity:1;color:var(--ball)}
 .mark{font-weight:900;font-size:1.05rem;color:#fff}
 /* El botón de idioma, en la barra y pequeño: se usa una vez y no
    vuelve a tocarse. Va al lado del nombre para que se vea sin
@@ -148,13 +144,6 @@ footer b{color:#fff;display:block;font-weight:800}
 </style>
 </head>
 <body>
-
-<script>
-function irAtras(e){
-  if (history.length > 1){ e.preventDefault(); history.back(); return false }
-  return true;
-}
-</script>
 
 <header>
   <div class="wrap bar">
@@ -1980,6 +1969,14 @@ body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
 header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
   padding-top:env(safe-area-inset-top,0px)}
 header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+/* Se ve. Era un texto gris al 85% y se perdía contra el azul de la
+   cabecera; ahora es un botón con su borde y su fondo. */
+.volver{padding:0 0 12px}
+.volver a{display:inline-block;background:var(--ball);color:#12202E;
+  font-size:.9rem;font-weight:900;text-decoration:none;
+  padding:9px 16px;border-radius:999px;line-height:1}
+.volver a:hover{filter:brightness(1.08)}
+.volver a:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .mark{font-weight:900;font-size:1.05rem;color:#fff;line-height:1.1}
 .mark span{display:block;font-size:.58rem;font-weight:800;letter-spacing:.2em;
   text-transform:uppercase;color:var(--ball)}
@@ -2265,10 +2262,15 @@ footer a{color:#4FD3F0;text-decoration:none}
        manera de salir salvo el botón del navegador. En un móvil, con
        el calendario abierto a pantalla completa, eso es un callejón.
 
-       Si hay historia, vuelve por donde vino; si alguien abrió el
-       enlace directo y no hay a dónde volver, lleva a marcadorpr. -->
+       Va a un destino fijo y no a history.back(): quien llega por un
+       enlace compartido no tiene a dónde volver, y así hace lo mismo
+       para todo el mundo.
+
+       Y lleva a Cada Punto Cuenta, no a la portada de marcadorpr: el
+       calendario es la prueba, y de ahí se sale a lo que se está
+       vendiendo. -->
   <div class="wrap volver">
-    <a href="https://marcadorpr.com/" onclick="return irAtras(event)">&larr; Volver</a>
+    <a href="https://cadapunto.com/">&larr; Cada Punto Cuenta</a>
   </div>
 </header>
 
