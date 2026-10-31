@@ -21,6 +21,10 @@ body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
 header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
   padding-top:env(safe-area-inset-top,0px)}
 header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.volver{padding:0 0 10px}
+.volver a{display:inline-block;color:#fff;opacity:.85;font-size:.82rem;font-weight:700;
+  text-decoration:none;padding:4px 0}
+.volver a:hover{opacity:1;color:var(--ball)}
 .mark{font-weight:900;font-size:1.05rem;color:#fff}
 /* El botón de idioma, en la barra y pequeño: se usa una vez y no
    vuelve a tocarse. Va al lado del nombre para que se vea sin
@@ -144,6 +148,13 @@ footer b{color:#fff;display:block;font-weight:800}
 </style>
 </head>
 <body>
+
+<script>
+function irAtras(e){
+  if (history.length > 1){ e.preventDefault(); history.back(); return false }
+  return true;
+}
+</script>
 
 <header>
   <div class="wrap bar">
@@ -2248,6 +2259,16 @@ footer a{color:#4FD3F0;text-decoration:none}
   <div class="wrap bar">
     <div class="mark"><span>__KICKER__</span>__NAME__</div>
     <div class="by">marcador<span>pr</span></div>
+  </div>
+  <!-- VOLVER. A este calendario se llega desde fuera —desde la
+       portada de Cada Punto, desde un enlace de WhatsApp— y no había
+       manera de salir salvo el botón del navegador. En un móvil, con
+       el calendario abierto a pantalla completa, eso es un callejón.
+
+       Si hay historia, vuelve por donde vino; si alguien abrió el
+       enlace directo y no hay a dónde volver, lleva a marcadorpr. -->
+  <div class="wrap volver">
+    <a href="https://marcadorpr.com/" onclick="return irAtras(event)">&larr; Volver</a>
   </div>
 </header>
 
