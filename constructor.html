@@ -2999,8 +2999,16 @@ function pledgeURL(d){
      ese botón, que es lo correcto: no vino de ningún calendario. */
   /* La demostración no tiene juego: va a la hoja de ejemplo, que
      enseña lo mismo y no guarda nada. */
-  if (d.demo) return CP + '/prometer.html?ejemplo=1'
-                       + (TORNEO ? '&t=' + encodeURIComponent(TORNEO) : '');
+  /* Con el juego que se tocó, para que la hoja de ejemplo enseñe ése
+     —Team Demo contra quien toque, su día, su hora y su cancha— y no
+     otro equipo de otro ejemplo. */
+  if (d.demo){
+    var e = function(x){ return encodeURIComponent(String(x || '').trim().slice(0, 80)); };
+    return CP + '/prometer.html?ejemplo=1'
+         + '&eq=' + e(d.team) + '&rv=' + e(d.foe) + '&f=' + e(d.on)
+         + '&h=' + e(d.time) + '&c=' + e(d.court)
+         + (TORNEO ? '&t=' + encodeURIComponent(TORNEO) : '');
+  }
   return CP + '/prometer.html?g=' + encodeURIComponent(d.game || '')
             + (TORNEO ? '&t=' + encodeURIComponent(TORNEO) : '');
 }
