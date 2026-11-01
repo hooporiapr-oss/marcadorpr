@@ -246,6 +246,9 @@ footer b{color:#fff;display:block;font-weight:800}
       <p class="hint" id="tIgual"></p>
 
       <h2 id="tTusJuegos"></h2>
+      <!-- Cuando sus juegos salen cargados, se dice aquí, encima de la
+           lista: abajo, junto al botón, no lo vería nadie. -->
+      <p class="hint" id="sCargadosMsg" style="font-weight:800;color:var(--accent)"></p>
       <div id="sJuegos"></div>
       <button class="btn line small" id="tAnadirJ" onclick="sAnadir()"></button>
       <p class="hint" id="tAnadeLos"></p>
@@ -597,7 +600,7 @@ es: {
     '<b>Regístralo</b> con tu código —el nombre de tu equipo y tus cuatro números—. Hasta que no lo registres, no existe para nadie.',
     '<b>Copia el enlace y mándalo</b> al grupo de tu programa por WhatsApp. Ahí ven tus juegos, los marcadores según entran, y el botón de prometer en cada juego con padrinos.'
   ],
-  guiaTempPie:'<b>¿Más juegos después?</b> Esta página no guarda tu lista. Vuelve, escribe la lista completa —los juegos de antes y los nuevos, en el mismo orden— y registra otra vez. Los juegos que ya estaban se quedan con sus promesas.',
+  guiaTempPie:'<b>¿Más juegos después?</b> Vuelve desde «Mi calendario»: tus juegos salen ya puestos. Añade los nuevos abajo, pulsa «Hacer el calendario» y registra otra vez. Los que ya estaban se quedan con sus promesas y sus marcadores.',
   guiaTor:[
     '<b>Escoge el deporte</b> en los botones de abajo, y deja marcado <b>Torneos</b>.',
     '<b>El torneo:</b> nombre, pueblo, primer y último día, y la primera y la última hora de juego. El nombre decide la dirección del calendario, así que ponle uno que no se repita — el pueblo o el año ayudan.',
@@ -620,7 +623,9 @@ es: {
   igual:'<b>Escríbelo igual que al inscribir tu programa en Cada Punto Cuenta</b>, letra por letra. Es lo que engancha tus juegos con tu campaña: si aquí pones otra cosa, tus juegos salen en el calendario pero sin botón de prometer.',
   tusJuegos:'Tus juegos',
   anadirJ:'+ Añadir un juego',
-  anadeLos:'Añade los que tengas. Puedes volver cuando quieras y añadir más — se registra otra vez y los juegos que ya estaban se quedan con sus promesas.',
+  anadeLos:'Añade los que tengas. Cuando vuelvas, tus juegos salen ya puestos: sólo añades los nuevos y registras otra vez.',
+  cargados:'Ya tenías {N} juegos registrados y salen aquí puestos. Cambia lo que haga falta, añade los nuevos abajo, y vuelve a hacer el calendario y registrarlo.',
+  cargado1:'Ya tenías 1 juego registrado y sale aquí puesto. Cambia lo que haga falta, añade los nuevos abajo, y vuelve a hacer el calendario y registrarlo.',
   padrinosJ:'<b>Padrinos</b> es por juego, y puedes cambiarlo después desde la página de tu equipo. Un juego en <b>No</b> sale en el calendario y lleva marcador como cualquiera; lo único que no tiene es enlace para prometer. Si ya hay padrinos en un juego, ése no se puede apagar — alguien ya prometió sobre él.',
   hacerCal:'Hacer el calendario',
   juegoN:'Juego {N}',
@@ -728,7 +733,7 @@ en: {
     '<b>Register it</b> with your code — your team name and your four numbers. Until you register it, it does not exist for anyone.',
     '<b>Copy the link and send it</b> to your program’s WhatsApp group. There they see your games, the scores as they come in, and the pledge button on every game with padrinos.'
   ],
-  guiaTempPie:'<b>More games later?</b> This page does not keep your list. Come back, enter the full list — the earlier games and the new ones, in the same order — and register again. The games that were already there keep their pledges.',
+  guiaTempPie:'<b>More games later?</b> Come back from “My schedule”: your games load in already filled. Add the new ones below, build the schedule and register again. The ones already there keep their pledges and their scores.',
   guiaTor:[
     '<b>Pick the sport</b> with the buttons below, and leave <b>Tournaments</b> selected.',
     '<b>The tournament:</b> name, town, first and last day, and the first and last game time. The name decides the schedule’s address, so give it one that will not repeat — the town or the year helps.',
@@ -750,7 +755,9 @@ en: {
   igual:'<b>Write it exactly as you registered your program on Cada Punto Cuenta</b>, letter for letter. It is what attaches your games to your campaign: put anything else here and your games appear on the schedule with no pledge button.',
   tusJuegos:'Your games',
   anadirJ:'+ Add a game',
-  anadeLos:'Add the ones you have. You can come back any time and add more — it registers again and the games already there keep their pledges.',
+  anadeLos:'Add the ones you have. When you come back, your games load in already filled: you only add the new ones and register again.',
+  cargados:'You already had {N} games registered, and they are filled in here. Change anything you need, add the new ones below, then build the schedule and register it again.',
+  cargado1:'You already had 1 game registered, and it is filled in here. Change anything you need, add the new ones below, then build the schedule and register it again.',
   padrinosJ:'<b>Padrinos</b> is per game, and you can change it later from your team page. A game set to <b>No</b> still appears on the schedule and still takes a score; the only thing it has no is a pledge link. A game that already has padrinos cannot be switched off — somebody already pledged on it.',
   hacerCal:'Build the schedule',
   juegoN:'Game {N}',
@@ -1540,6 +1547,86 @@ function sPrefijo(nombre){
   return p.toUpperCase() || 'EQ';
 }
 
+/* ══ LOS JUEGOS QUE YA TIENE, CARGADOS ═════════════════════════
+   Esta página no guardaba nada: para añadir un juego, el entrenador
+   tenía que escribir otra vez la temporada entera, en el mismo orden.
+   Con veinte juegos eso es lo que hace que alguien deje de usarla.
+
+   Ahora, al llegar con el nombre de su equipo, se busca su calendario
+   —el id es el nombre pasado a minúsculas y guiones, el mismo que
+   pone registrar— y sus juegos salen puestos, cada uno en su fila,
+   con su rival, su día, su hora, su cancha, si es en casa y si lleva
+   padrinos.
+
+   EN EL ORDEN DE SUS NÚMEROS, no por fecha. Registrar numera por fila
+   —el primero es -1, el segundo -2— y el marcador y las promesas van
+   colgados de ese número. Cargándolos en ese orden y añadiendo los
+   nuevos al final, ningún juego cambia de número al volver a
+   registrar, aunque el nuevo se juegue antes que los demás.
+
+   Sólo carga si la lista está vacía: lo que el entrenador ya escribió
+   en esta visita no se pisa. */
+function sIdDe(equipo){
+  return (equipo || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+function sSinAcentos(s){
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+           .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function sListaVacia(){
+  return ![].some.call(document.querySelectorAll('.sjuego'), function(f){
+    return (f.querySelector('.sRival').value || '').trim() ||
+           (f.querySelector('.sFecha').value || '').trim();
+  });
+}
+function sCargar(){
+  var equipo = (document.getElementById('sTeam').value || '').trim();
+  var id = sIdDe(equipo);
+  if (!id || !sListaVacia()) return;
+
+  rpcC('torneo_publico', { p_id: id }).then(function(r){
+    if (!r || !r.ok || !r.games || !r.games.length) return;
+    if (!sListaVacia()) return;            // escribió algo mientras llegaba
+    var mio = sSinAcentos(equipo);
+    var num = function(g){ return parseInt(String(g.no || '').replace(/\D/g, ''), 10) || 0; };
+    var juegos = r.games.slice().sort(function(a, b){ return num(a) - num(b); });
+
+    document.getElementById('sJuegos').innerHTML = '';
+    juegos.forEach(function(g){
+      sAnadir();
+      var filas = document.querySelectorAll('.sjuego');
+      var f = filas[filas.length - 1];
+      var casa = sSinAcentos(g.a) === mio;
+      f.querySelector('.sRival').value  = casa ? (g.b || '') : (g.a || '');
+      f.querySelector('.sFecha').value  = g.date || '';
+      f.querySelector('.sCancha').value = g.court || '';
+      f.querySelector('.sCasa').value   = casa ? '1' : '0';
+      f.querySelector('.sRecauda').value = ((casa ? g.reca : g.recb) === false) ? '0' : '1';
+      /* La hora sale de una lista. Si la guardada no está en ella —un
+         calendario de antes de la lista—, se añade tal cual en vez de
+         perderla. */
+      var h = f.querySelector('.sHora');
+      if (g.time){
+        if (![].some.call(h.options, function(o){ return o.value === g.time; })){
+          var o = document.createElement('option'); o.value = o.textContent = g.time;
+          h.appendChild(o);
+        }
+        h.value = g.time;
+      }
+    });
+    sAnadir();                             // la fila vacía para el siguiente
+    var w = document.getElementById('sWhere');
+    if (w && !w.value && r.tourney && r.tourney.where) w.value = r.tourney.where;
+    /* El que vuelve ya sabe cómo va: la guía se pliega para que sus
+       juegos se vean sin bajar. Sigue a un toque si la quiere. */
+    if (!GUIA_TOCADA){ var gu = document.getElementById('guia'); if (gu) gu.open = false; }
+    var m = document.getElementById('sCargadosMsg');
+    if (m) m.textContent = juegos.length === 1 ? T('cargado1') : T('cargados', { N: juegos.length });
+  }).catch(function(){});
+}
+
 function construirTemporada(){
   var equipo = (document.getElementById('sTeam').value || '').trim();
   var pueblo = (document.getElementById('sWhere').value || '').trim();
@@ -2040,6 +2127,12 @@ addDiv();
   pintarEstatico();
   deporte(q.get('deporte') === 'voleibol' ? 'voleibol' : 'baloncesto');
   modo(q.get('modo') === 'temporada' ? 'temporada' : 'torneo');
+
+  /* Sus juegos, si ya tiene: al llegar con el nombre puesto, y
+     también si lo escribe a mano. */
+  if (MODO === 'temporada' && eq) sCargar();
+  var st = document.getElementById('sTeam');
+  if (st) st.addEventListener('change', function(){ if (MODO === 'temporada') sCargar(); });
 })();
 </script>
 
