@@ -45,6 +45,8 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
   padding:9px 16px;border-radius:999px;line-height:1}
 .volver a:hover{filter:brightness(1.08)}
 .volver a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.volver{display:flex;flex-wrap:wrap;gap:8px}
+.volver a.entr{background:transparent;color:#fff;border:2px solid var(--ball)}
 .mark{font-weight:900;font-size:1.05rem;color:#fff;line-height:1.1}
 .mark span{display:block;font-size:.58rem;font-weight:800;letter-spacing:.2em;
   text-transform:uppercase;color:var(--ball)}
@@ -354,6 +356,12 @@ footer a{color:#4FD3F0;text-decoration:none}
        vendiendo. -->
   <div class="wrap volver">
     <a href="https://cadapunto.com/">&larr; Cada Punto Cuenta</a>
+    <!-- EL ENTRENADOR, A SU MARCADOR. Desde aquí la única manera de
+         poner un marcador era el doble toque en el escudo, que nadie
+         adivina: un entrenador montó su calendario, lo abrió, y no
+         encontró dónde. Los marcadores de un equipo se ponen en «Mi
+         calendario», con su código; este enlace lo lleva ahí. -->
+    <a class="entr" href="https://cadapunto.com/mi-equipo.html">¿Entrenador? Pon el marcador &rarr;</a>
   </div>
 </header>
 
