@@ -3,165 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>marcadorpr — marcadores en vivo de Puerto Rico</title>
-<meta name="description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto y el voleibol de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
+<title>Marcador PR — los juegos y sus marcadores finales</title>
+<meta name="description" content="Marcador PR es la tecnología con la que se publican los juegos y sus marcadores finales. Detrás de cada juego de Cada Punto Cuenta. No organizamos juegos: hacemos que cada juego cuente.">
 <meta name="theme-color" content="#12202E">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="marcadorpr">
+<meta property="og:site_name" content="Marcador PR">
 <meta property="og:url" content="https://marcadorpr.com/">
-<meta property="og:title" content="marcadorpr — marcadores en vivo de Puerto Rico">
-<meta property="og:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto y el voleibol de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
-<!-- LA TARJETA SALE DEL MISMO CARTEL que la de Cada Punto, y es la
-     banda de arriba: los dos logos, los dos deportes, y las cuatro
-     palabras de marcador. Se corta antes del titular y de la
-     dirección de cadapunto.com, que en marcadorpr no pintan nada.
-     La v2 era de baloncesto y nada más. -->
-<meta property="og:image" content="https://marcadorpr.com/marcador-card-v3.jpg">
+<meta property="og:title" content="Marcador PR — los juegos y sus marcadores finales">
+<meta property="og:description" content="No organizamos juegos. Hacemos que cada juego cuente. La tecnología detrás de cada juego de Cada Punto Cuenta.">
+<meta property="og:image" content="https://marcadorpr.com/marcadorpr-2026.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="marcadorpr — torneos, calendarios, cuadros y resultados de baloncesto y voleibol">
+<meta property="og:image:alt" content="Marcador PR — los juegos y sus marcadores finales, de baloncesto y voleibol">
 <meta property="og:locale" content="es_PR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="marcadorpr — marcadores en vivo de Puerto Rico">
-<meta name="twitter:description" content="Calendarios, marcadores en vivo y tablas de posiciones del baloncesto y el voleibol de Puerto Rico. Torneos y equipos. Montarlo no cuesta nada.">
-<meta name="twitter:image" content="https://marcadorpr.com/marcador-card-v3.jpg">
+<meta name="twitter:title" content="Marcador PR — los juegos y sus marcadores finales">
+<meta name="twitter:description" content="No organizamos juegos. Hacemos que cada juego cuente.">
+<meta name="twitter:image" content="https://marcadorpr.com/marcadorpr-2026.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<!-- ════════════════════════════════════════════════════════════════
+     LA PORTADA DE MARCADOR PR, REESCRITA EL 1 DE NOVIEMBRE DE 2026
+
+     Era la portada de un producto de torneos: calendarios enteros,
+     cuadros que se llenan solos, tablas de posiciones, y un torneo de
+     muestra como plato fuerte. Ese producto se retiró: no organizamos
+     juegos. Marcador PR es ahora lo que de verdad es — la tecnología
+     con la que se publican los juegos y sus marcadores finales, y lo
+     que hay detrás de cada juego de Cada Punto Cuenta.
+
+     El modelo, en cuatro piezas, es lo que dice esta página: Marcador
+     PR publica, Cada Punto Cuenta maneja las promesas, el entrenador
+     registra su juego y comparte un enlace, y el programa recibe su
+     reporte y cobra por su cuenta. Nada de torneos, nada de pagos.
+     ════════════════════════════════════════════════════════════════ -->
 <style>
 :root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18}
 *{box-sizing:border-box}
 html{background:#12202E}
-body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+body{margin:0;min-height:100dvh;display:flex;flex-direction:column;
   font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
   background:#fff;line-height:1.5}
 .wrap{width:min(760px,93vw);margin:0 auto}
 
-header{flex:0 0 auto;background:#12202E;border-bottom:3px solid var(--ball);
-  padding-top:env(safe-area-inset-top,0px)}
+header{background:#12202E;border-bottom:3px solid var(--ball);padding-top:env(safe-area-inset-top,0px)}
 header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0}
 .mark{font-weight:900;font-size:1.15rem;color:#fff;letter-spacing:-.02em}
 .mark span{color:var(--ball)}
 .tagline{font-size:.64rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9FB3C4}
+#lang{font:inherit;font-weight:800;font-size:.8rem;background:transparent;color:#fff;
+  border:1px solid #ffffff44;border-radius:999px;padding:6px 12px;cursor:pointer}
 
-main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}
-main .wrap{padding:clamp(22px,5vw,36px) 0 32px}
+main{flex:1 1 auto}
+main .wrap{padding:clamp(26px,6vw,44px) 0 40px}
 
-h1{font-size:clamp(1.6rem,5vw,2.3rem);letter-spacing:-.03em;line-height:1.1;margin:0 0 10px;font-weight:900}
-.lede{color:var(--mute);margin:0 0 26px;max-width:56ch}
+h1{font-size:clamp(1.8rem,6vw,2.6rem);letter-spacing:-.03em;line-height:1.08;margin:0 0 12px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 26px;max-width:56ch;font-size:1.05rem}
 h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--accent);margin:30px 0 10px}
+  color:var(--accent);margin:34px 0 12px}
 
-.ev{display:block;border:2px solid var(--ink);border-radius:4px;padding:18px 20px;
-  text-decoration:none;color:var(--ink);margin-bottom:12px;background:#fff}
-.ev:hover{background:var(--tint)}
-.ev .when{font-size:.66rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ball)}
-.ev .nm{display:block;font-size:1.25rem;font-weight:900;letter-spacing:-.02em;margin:3px 0 2px}
-.ev .ds{display:block;color:var(--mute);font-size:.92rem}
-.ev .go{display:block;font-weight:800;color:var(--accent);margin-top:10px;font-size:.9rem}
-.ev.past{border-color:var(--line)}
-.ev.past .when{color:var(--mute)}
-.ev.past .nm{color:var(--mute)}
-.ev.soon{border-color:var(--ink)}
-.ev.soon .when{color:var(--accent)}
-.ev.live{border-color:var(--ball);box-shadow:0 0 0 4px rgba(255,122,24,.12)}
+/* El principio, en grande y en el azul de la cabecera. */
+.lema{background:#12202E;color:#fff;border-radius:12px;padding:clamp(20px,5vw,30px);
+  border-left:5px solid var(--ball)}
+.lema p{margin:0;font-size:clamp(1.25rem,4.6vw,1.7rem);font-weight:900;letter-spacing:-.02em;line-height:1.2}
+.lema p span{color:var(--ball)}
 
-/* Anunciado, sin calendario todavía */
-.ev.nolink{border-style:dashed;border-color:var(--line);cursor:default}
-.ev.nolink:hover{background:#fff}
-.ev .soonnote{display:inline-block;margin-top:10px;font-size:.62rem;font-weight:900;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--mute);
-  border:1px solid var(--line);border-radius:3px;padding:4px 9px}
-.ev .joinline{display:block;margin-top:12px;color:var(--mute);font-size:.9rem;line-height:1.5}
-.ev .joinline a{display:inline-block;margin-top:6px;font-weight:800;color:var(--accent);
-  text-decoration:none}
-.ev .joinline a:hover{text-decoration:underline}
+/* Las cuatro piezas del modelo. */
+.piezas{display:grid;gap:10px}
+.pieza{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--tint)}
+.pieza b{display:block;font-size:1.05rem;font-weight:900;letter-spacing:-.01em}
+.pieza span{color:var(--mute)}
+@media(min-width:640px){ .piezas{grid-template-columns:1fr 1fr} }
 
-/* ── Evento destacado ──────────────────────────────────────
-   El que quieres que vean primero. No depende del estado: se
-   marca en el evento con feature:true, para que cuando llegue
-   el próximo torneo el brillo se mueva con una línea y no haya
-   que esperar al calendario. Va después de .past a propósito —
-   misma especificidad, gana el que está más abajo. */
-.ev.feat{background:#12202E;border:3px solid var(--ball);
-  box-shadow:0 0 0 5px rgba(255,122,24,.13), 0 14px 34px -14px rgba(18,32,46,.55)}
-.ev.feat:hover{background:#0B1724;
-  box-shadow:0 0 0 6px rgba(255,122,24,.2), 0 14px 34px -14px rgba(18,32,46,.6)}
-.ev.feat .nm{color:#fff}
-.ev.feat .ds{color:#B9CBD9}
-.ev.feat .when,.ev.feat .go{color:var(--ball)}
+.sin{margin:22px 0 0;font-weight:800;font-size:1.05rem}
+.ventaja{margin:22px 0 0;padding:16px 18px;border:2px solid var(--ink);border-radius:6px}
+.ventaja b{display:block;font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ball);margin-bottom:6px}
+.ventaja p{margin:0;font-size:1.05rem}
 
-/* La cinta: dice por qué brilla, en una palabra. */
-.ev.feat .flag{display:inline-block;margin-bottom:7px;padding:4px 10px;
-  border-radius:999px;background:var(--ball);color:#1A0C00;
-  font-size:.58rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0 0}
+.go{display:inline-block;background:var(--ball);color:#12202E;font-weight:900;text-decoration:none;
+  padding:13px 20px;border-radius:999px}
+.go.alt{background:transparent;border:2px solid var(--ink);color:var(--ink)}
+@media(max-width:520px){ .ctas{flex-direction:column} .go{text-align:center} }
 
-/* El punto que late: si algo está corriendo ahora, se ve desde lejos. */
-#lang{background:none;border:1px solid #33465A;color:#C8D6E2;border-radius:999px;
-  padding:5px 12px;font:inherit;font-size:.72rem;font-weight:800;letter-spacing:.06em;
-  cursor:pointer;flex:0 0 auto}
-#lang:hover{border-color:var(--ball);color:var(--ball)}
-header .bar{gap:10px}
-.tagline{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media(max-width:430px){.tagline{display:none}}
-
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ball);
-  margin-right:6px;vertical-align:1px;animation:beat 1.6s ease-in-out infinite}
-@keyframes beat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
-@media(prefers-reduced-motion:reduce){.dot{animation:none}}
-
-.what{border-left:4px solid var(--accent);background:var(--tint);padding:16px 18px;margin:28px 0 0}
-.what b{display:block;margin-bottom:5px}
-.what p{margin:0 0 10px;color:var(--mute);font-size:.94rem}
-.what p:last-child{margin:0}
-
-/* Lo que trae un calendario. Es la venta de verdad para un director
-   de torneo, así que va en lista y no en párrafo: se lee de un
-   vistazo en el teléfono, parado en un gimnasio. */
-.gets{display:grid;gap:0;margin:18px 0 0;border-top:1px solid var(--line)}
-.gets div{border-bottom:1px solid var(--line);padding:13px 0}
-.gets b{display:block;font-size:.97rem;margin-bottom:2px}
-.gets span{color:var(--mute);font-size:.91rem}
-.gets em{font-style:normal;font-size:.6rem;font-weight:900;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ball);margin-left:7px;vertical-align:1px}
-
-.free{border:2px solid var(--ball);border-radius:4px;padding:16px 18px;margin:22px 0 0}
-.free b{display:block;font-size:1.02rem;margin-bottom:4px}
-.free p{margin:0;color:var(--mute);font-size:.94rem}
-
-.org{border:2px dashed var(--line);border-radius:4px;padding:18px 20px;margin:22px 0 0}
-.org b{display:block;font-size:1.02rem;margin-bottom:4px}
-.org p{margin:0 0 12px;color:var(--mute);font-size:.94rem}
-.org a{display:inline-block;padding:11px 18px;border:2px solid var(--ink);border-radius:4px;
-  background:var(--ink);color:#fff;text-decoration:none;font-weight:800;font-size:.92rem}
-
-.cp{border:2px solid var(--ink);border-radius:4px;padding:20px 22px;margin:0 0 4px}
-.cp-line{font-size:clamp(1.2rem,3.6vw,1.5rem);font-weight:900;letter-spacing:-.025em;
-  margin:0 0 8px;line-height:1.2}
-.cp-line b{color:var(--accent)}
-.cp-p{color:var(--mute);margin:0 0 16px;font-size:.95rem}
-.cp-steps{display:grid;gap:9px;margin-bottom:16px}
-.cp-steps div{border-left:3px solid var(--ball);padding-left:12px}
-.cp-steps b{display:block;font-size:.95rem}
-.cp-steps span{color:var(--mute);font-size:.9rem}
-.cp-fee{background:var(--tint);padding:13px 15px;margin:0 0 16px;color:var(--mute);font-size:.9rem}
-.cp-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.cp-go{display:inline-block;padding:13px 20px;border:2px solid var(--ink);border-radius:4px;
-  background:var(--ink);color:#fff;text-decoration:none;font-weight:800;font-size:.95rem}
-.cp-alt{font-weight:800;color:var(--accent);text-decoration:none;font-size:.95rem}
-
-/* Los botones al centro. En el teléfono además a lo ancho con tope,
-   para que el pulgar no tenga que buscarlos. Va después de .org y
-   .cp-btns a propósito: estas reglas mandan sobre las de arriba. */
-.org a{display:block;width:100%;max-width:290px;margin:2px auto 0;text-align:center}
-.cp-btns{justify-content:center}
-@media(max-width:560px){
-  .cp-btns{flex-direction:column;align-items:center;gap:12px}
-  .cp-go{width:100%;max-width:290px;text-align:center}
-}
-
-footer{flex:0 0 auto;background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
+footer{background:#12202E;color:#9FB3C4;border-top:1px solid #0B1724;
   padding:16px 0 calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.8rem}
 footer b{color:#fff;display:block;font-weight:800;margin-bottom:4px}
 footer a{color:#4FD3F0;text-decoration:none}
@@ -172,94 +99,42 @@ footer a{color:#4FD3F0;text-decoration:none}
 <header>
   <div class="wrap bar">
     <span class="mark">marcador<span>pr</span></span>
-    <!-- Decía «Baloncesto en vivo» y dejaba fuera al voleibol el mismo
-         día que entró. Los dos deportes corren sobre lo mismo: un
-         calendario, marcadores según pasan y una tabla que se calcula
-         sola. -->
-    <span class="tagline" data-t="tagline">Baloncesto y voleibol en vivo</span>
+    <span class="tagline" data-t="tagline">Baloncesto y voleibol</span>
     <button id="lang" onclick="flip()">EN</button>
   </div>
 </header>
 
 <main>
   <div class="wrap">
-    <h1 data-t="h1">El calendario entero. Los marcadores, según pasan. La tabla, sola.</h1>
-    <p class="lede" data-t="lede">El calendario completo de un torneo o de la temporada de un
-      equipo, con los marcadores puestos el mismo día y la tabla calculada sola. El cuadro se
-      llena solo: en cuanto entra un resultado, el ganador aparece en el juego que le toca
-      después. Montarlo no cuesta nada.</p>
+    <h1 data-t="h1">Los juegos y sus marcadores finales.</h1>
+    <p class="lede" data-t="lede">Marcador PR es nuestra tecnología para publicar los juegos y
+      sus marcadores finales. Es lo que hay detrás de cada juego de Cada Punto Cuenta.</p>
 
-    <div id="events"></div>
+    <div class="lema"><p data-t="lema">No organizamos juegos. <span>Hacemos que cada juego cuente.</span></p></div>
 
-    <h2 data-t="getsH">Qué trae el calendario</h2>
-
-    <div class="gets">
-      <div><b data-t="g1b">Todo el calendario en el teléfono</b>
-        <span data-t="g1">Filtrado por categoría, con la hora y la cancha de cada juego.</span></div>
-      <div><b data-t="g2b">El cuadro se llena solo</b>
-        <span data-t="g2">Donde el papel dice “Ganador J-#14”, aquí aparece el equipo de verdad
-          en cuanto se juega ese partido.</span></div>
-      <div><b data-t="g3b">Los marcadores se ponen desde la cancha</b>
-        <span data-t="g3">Dos casillas en la fila del juego. El anotador no necesita computadora
-          ni esperar a llegar a su casa.</span></div>
-      <div><b data-t="g4b">La tabla de posiciones, calculada sola</b><em data-t="nuevo">nuevo</em>
-        <span data-t="g4">Ganados, perdidos, diferencia y puntos a favor. Desempata por el juego
-          entre ellos, y dice cuántos marcadores faltan para que nadie la lea como si estuviera
-          mala.</span></div>
-      <div><b data-t="g5b">Un enlace que se ve bien en WhatsApp</b><em data-t="nuevo2">nuevo</em>
-        <span data-t="g5">Con su tarjeta y el nombre del torneo. Se pega en el grupo y todo el
-          mundo abre el calendario.</span></div>
+    <h2 data-t="modeloH">Cómo encaja todo</h2>
+    <div class="piezas">
+      <div class="pieza"><b data-t="p1b">Marcador PR</b>
+        <span data-t="p1">Publica los juegos y sus marcadores finales.</span></div>
+      <div class="pieza"><b data-t="p2b">Cada Punto Cuenta</b>
+        <span data-t="p2">El manejo de promesas, de cara al programa y a sus padrinos.</span></div>
+      <div class="pieza"><b data-t="p3b">El entrenador</b>
+        <span data-t="p3">Registra el juego que ya tiene en calendario y comparte un enlace.</span></div>
+      <div class="pieza"><b data-t="p4b">El programa</b>
+        <span data-t="p4">Recibe el reporte de promesas y maneja sus propios cobros.</span></div>
     </div>
 
-    <h2 data-t="orgH">Para organizadores</h2>
+    <p class="sin" data-t="sin">Sin manejar torneos. Sin conflictos de calendario. Sin manejar pagos.</p>
 
-    <div class="free">
-      <b data-t="freeB">El calendario no cuesta nada</b>
-      <p data-t="freeP">Ni por torneo, ni por equipo, ni mensual. Si corres un torneo o manejas
-        la temporada de un equipo, te montamos el calendario completo y queda en vivo el mismo
-        día. No hay que inscribirse en nada más para tenerlo.</p>
+    <div class="ventaja">
+      <b data-t="ventH">La mayor ventaja</b>
+      <p data-t="vent">No hay que convencer a nadie de organizar algo nuevo. Ayudamos a que se
+        beneficien de los juegos que ya están jugando.</p>
     </div>
 
-    <div class="org">
-      <b data-t="orgB">Un torneo completo, o los juegos de un equipo</b>
-      <p data-t="orgP1">Un torneo se monta entero: las categorías, los grupos o el cuadro, las
-        canchas y las horas. Un equipo con su temporada va juego por juego, con su marcador y
-        su resultado.</p>
-      <p data-t="orgP2">Mándame las categorías y los equipos y te devuelvo el enlace.</p>
-      <a href="mailto:gostardigital@gmail.com?subject=Calendario%20en%20marcadorpr"
-         data-t="orgCta">Hablemos de tu calendario</a>
-    </div>
-
-    <div class="what" style="margin-top:18px">
-      <b data-t="playB">¿Juegas en un torneo que está aquí?</b>
-      <p data-t="playP">Busca tu equipo en el calendario. Si tiene campaña de recaudación, verás
-        el botón para prometer al lado de cada juego suyo. Si no la tiene, puedes pedirla ahí
-        mismo.</p>
-    </div>
-
-    <h2 data-t="cpH">Y si además quieres recaudar</h2>
-
-    <div class="cp">
-      <p class="cp-line" data-t="cpLine">Tu equipo anota. <b>Tu programa cobra.</b></p>
-      <p class="cp-p" data-t="cpP">Cada Punto es aparte del calendario y es opcional. Los
-        padrinos prometen unos centavos por cada punto que anota el equipo, y pagan cuando entra
-        el marcador — sin vender nada, sin productos que entregar. Ganen o pierdan, el programa
-        gana.</p>
-
-      <div class="cp-btns">
-        <a class="cp-go" href="https://cadapunto.com/equipo.html" data-t="cpGo">Inscribir mi equipo</a>
-        <!-- A la portada de Cada Punto, no al FAQ.
-
-             Esta mañana lo mandé a ayuda.html porque la portada de
-             cadapunto.com abría con el titular y el gimnasio, y quien
-             llegaba preguntando cómo funciona esto aterrizaba en una
-             página de venta que no se lo contaba.
-
-             Esa portada se reescribió hoy: ahora lleva los tres pasos
-             de la promesa por juego y el precio a la vista. Contesta
-             la pregunta mejor que el FAQ, y además enseña el resto. -->
-        <a class="cp-alt" href="https://cadapunto.com" data-t="cpAlt">Ver cómo funciona →</a>
-      </div>
+    <div class="ctas">
+      <a class="go" href="https://cadapunto.com/" data-t="cta1">Ir a Cada Punto Cuenta &rarr;</a>
+      <a class="go alt" href="torneo.html?t=demo-temporada" data-t="cta2">Ver un calendario de ejemplo</a>
     </div>
   </div>
 </main>
@@ -267,131 +142,55 @@ footer a{color:#4FD3F0;text-decoration:none}
 <footer>
   <div class="wrap">
     <b>© 2026 Gostar Digital LLC · Puerto Rico</b>
-    <span data-t="footP">Los equipos que recaudan lo hacen con</span>
-    <a href="https://cadapunto.com">Cada Punto</a>
+    <span data-t="footP">Las promesas se hacen en</span>
+    <a href="https://cadapunto.com">Cada Punto Cuenta</a>
   </div>
 </footer>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  Los eventos. Añade uno aquí y la página lo coloca sola
-//  según las fechas: en vivo arriba, luego lo que viene, y
-//  lo pasado abajo con su enlace, que sigue sirviendo.
-// ══════════════════════════════════════════════════════
-var EVENTS = [
-  {
-    name:   'Demonstration Basketball',
-    sub:    { es:'3 categorías · 12 equipos · 21 juegos · dos canchas. Dos de los doce están inscritos, así que sus juegos llevan su enlace de prometer.',
-              en:'3 divisions · 12 teams · 21 games · two courts. Two of the twelve are registered, so their games carry their pledge link.' },
-    where:  'Puerto Rico',
-    from:   '2026-11-21',
-    to:     '2026-11-22',
-    /* VIVO Y NO HORNEADO desde el 30 de octubre de 2026.
-
-       Apuntaba a demonstration-basketball.html, un fichero bajado del
-       constructor. Un fichero bajado no lleva dentro las llaves de
-       los juegos —nada se las escribe— y sin llave no hay botón de
-       prometer: la demostración enseñaba 21 juegos y ni uno solo de
-       los botones que la página de al lado está vendiendo.
-
-       Ahora lee de la base como cualquier torneo. El fichero viejo se
-       queda donde está por si alguien guardó el enlace, pero lo que
-       se enseña es éste. */
-    href:   'torneo.html?t=demonstration-basketball',
-    feature: true,
-    flag:   { es:'Cómo se ve un torneo', en:'What a tournament looks like' }
-  }
-];
-
-var CP = 'https://cadapunto.com';
-
+/* El español va aquí igual que en el resto de marcadorpr: los textos
+   viven en T, y el marcado trae la versión en español para quien no
+   ejecute esto. */
 var T = {
-  es:{
-    tagline:'Baloncesto y voleibol en vivo',
-    h1:'El calendario entero. Los marcadores, según pasan. La tabla, sola.',
-    lede:'El calendario completo de un torneo o de la temporada de un equipo, con los marcadores puestos el mismo día y la tabla calculada sola. El cuadro se llena solo: en cuanto entra un resultado, el ganador aparece en el juego que le toca después. Montarlo no cuesta nada.',
-
-    live:'En vivo ahora', soon:'Viene', past:'Ya jugado',
-    openLive:'Ver los marcadores en vivo →',
-    openSoon:'Ver el calendario →',
-    openPast:'Ver resultados →',
-    none:'Todavía no hay eventos puestos.',
-
-    getsH:'Qué trae el calendario', nuevo:'nuevo', nuevo2:'nuevo',
-    g1b:'Todo el calendario en el teléfono',
-    g1:'Filtrado por categoría, con la hora y la cancha de cada juego.',
-    g2b:'El cuadro se llena solo',
-    g2:'Donde el papel dice “Ganador J-#14”, aquí aparece el equipo de verdad en cuanto se juega ese partido.',
-    g3b:'Los marcadores se ponen desde la cancha',
-    g3:'Dos casillas en la fila del juego. El anotador no necesita computadora ni esperar a llegar a su casa.',
-    g4b:'La tabla de posiciones, calculada sola',
-    g4:'Ganados, perdidos, diferencia y puntos a favor. Desempata por el juego entre ellos, y dice cuántos marcadores faltan para que nadie la lea como si estuviera mala.',
-    g5b:'Un enlace que se ve bien en WhatsApp',
-    g5:'Con su tarjeta y el nombre del torneo. Se pega en el grupo y todo el mundo abre el calendario.',
-
-    orgH:'Para organizadores',
-    freeB:'El calendario no cuesta nada',
-    freeP:'Ni por torneo, ni por equipo, ni mensual. Si corres un torneo o manejas la temporada de un equipo, te montamos el calendario completo y queda en vivo el mismo día. No hay que inscribirse en nada más para tenerlo.',
-    orgB:'Un torneo completo, o los juegos de un equipo',
-    orgP1:'Un torneo se monta entero: las categorías, los grupos o el cuadro, las canchas y las horas. Un equipo con su temporada va juego por juego, con su marcador y su resultado.',
-    orgP2:'Mándame las categorías y los equipos y te devuelvo el enlace.',
-    orgCta:'Hablemos de tu calendario',
-
-    playB:'¿Juegas en un torneo que está aquí?',
-    playP:'Busca tu equipo en el calendario. Si tiene campaña de recaudación, verás el botón para prometer al lado de cada juego suyo. Si no la tiene, puedes pedirla ahí mismo.',
-
-    cpH:'Y si además quieres recaudar',
-    cpLine:'Tu equipo anota. <b>Tu programa cobra.</b>',
-    cpP:'Cada Punto es aparte del calendario y es opcional. Los padrinos prometen unos centavos por cada punto que anota el equipo. Cuando entra el marcador, a cada uno le llega un correo con el resultado final y un enlace para pagarle al programa directo — sin vender nada, sin productos que entregar, y sin que el dinero pase por nosotros. Ganen o pierdan, el programa gana.',
-    cpGo:'Inscribir mi equipo', cpAlt:'Ver cómo funciona →',
-    footP:'Los equipos que recaudan lo hacen con'
+  es: {
+    tagline:'Baloncesto y voleibol',
+    h1:'Los juegos y sus marcadores finales.',
+    lede:'Marcador PR es nuestra tecnología para publicar los juegos y sus marcadores finales. Es lo que hay detrás de cada juego de Cada Punto Cuenta.',
+    lema:'No organizamos juegos. <span>Hacemos que cada juego cuente.</span>',
+    modeloH:'Cómo encaja todo',
+    p1b:'Marcador PR', p1:'Publica los juegos y sus marcadores finales.',
+    p2b:'Cada Punto Cuenta', p2:'El manejo de promesas, de cara al programa y a sus padrinos.',
+    p3b:'El entrenador', p3:'Registra el juego que ya tiene en calendario y comparte un enlace.',
+    p4b:'El programa', p4:'Recibe el reporte de promesas y maneja sus propios cobros.',
+    sin:'Sin manejar torneos. Sin conflictos de calendario. Sin manejar pagos.',
+    ventH:'La mayor ventaja',
+    vent:'No hay que convencer a nadie de organizar algo nuevo. Ayudamos a que se beneficien de los juegos que ya están jugando.',
+    cta1:'Ir a Cada Punto Cuenta &rarr;', cta2:'Ver un calendario de ejemplo',
+    footP:'Las promesas se hacen en'
   },
-  en:{
-    tagline:'Live basketball and volleyball',
-    h1:'The whole schedule. The scores, as they land. The table, on its own.',
-    lede:'The full schedule of a tournament, or of a team’s season, with the scores posted the same day and the table worked out on its own. The bracket fills itself in: the moment a result lands, the winner shows up in the game they play next. It costs nothing to set up.',
-
-    live:'Live now', soon:'Coming', past:'Played',
-    openLive:'See the live scores →',
-    openSoon:'See the schedule →',
-    openPast:'See results →',
-    none:'No events posted yet.',
-
-    getsH:'What the schedule comes with', nuevo:'new', nuevo2:'new',
-    g1b:'The whole schedule on a phone',
-    g1:'Filtered by division, with the time and the court for every game.',
-    g2b:'The bracket fills itself in',
-    g2:'Where the paper says “Winner J-#14”, here the real team appears the moment that game is played.',
-    g3b:'Scores go in from the court',
-    g3:'Two boxes in the game’s own row. The scorekeeper needs no computer and no trip home first.',
-    g4b:'Standings worked out on their own',
-    g4:'Won, lost, differential and points for. Ties break on the game between them, and it says how many scores are still missing so nobody reads the table as wrong.',
-    g5b:'A link that looks right in WhatsApp',
-    g5:'With its card and the tournament’s name. Paste it in the group and everyone opens the schedule.',
-
-    orgH:'For organizers',
-    freeB:'The schedule costs nothing',
-    freeP:'Not per tournament, not per team, not monthly. If you run a tournament or manage a team’s season, we build the whole schedule and it goes live the same day. There is nothing else to sign up for to have it.',
-    orgB:'A whole tournament, or one team’s games',
-    orgP1:'A tournament gets built complete: the divisions, the groups or the bracket, the courts and the times. A team with a season goes game by game, each with its score and its result.',
-    orgP2:'Send me the divisions and the teams and I will send you back the link.',
-    orgCta:'Let’s talk about your schedule',
-
-    playB:'Playing in a tournament that is here?',
-    playP:'Find your team in the schedule. If they have a fundraising campaign, you will see the pledge button next to each of their games. If they do not, you can ask for one right there.',
-
-    cpH:'And if you also want to raise money',
-    cpLine:'Your team scores. <b>Your program gets paid.</b>',
-    cpP:'Cada Punto is separate from the schedule, and it is optional. Padrinos pledge a few cents for every point the team scores. When the score goes in, each one gets an email with the final score and a link to pay the program directly — nothing to sell, nothing to deliver, and the money never passes through us. Win or lose, the program wins.',
-    cpGo:'Sign up my team', cpAlt:'See how it works →',
-    footP:'Teams that fundraise do it with'
+  en: {
+    tagline:'Basketball and volleyball',
+    h1:'The games and their final scores.',
+    lede:'Marcador PR is our technology for posting games and their final scores. It is what runs behind every game on Cada Punto Cuenta.',
+    lema:'We don’t organize games. <span>We make every game count.</span>',
+    modeloH:'How it fits together',
+    p1b:'Marcador PR', p1:'Posts the games and their final scores.',
+    p2b:'Cada Punto Cuenta', p2:'Pledge management, facing the program and its padrinos.',
+    p3b:'The coach', p3:'Registers a game already on the schedule and shares one link.',
+    p4b:'The program', p4:'Receives the pledge report and manages its own collections.',
+    sin:'No tournament management. No scheduling conflicts. No payment handling.',
+    ventH:'The biggest advantage',
+    vent:'Nobody has to be convinced to organize something new. We help them benefit from the games they are already playing.',
+    cta1:'Go to Cada Punto Cuenta &rarr;', cta2:'See a sample schedule',
+    footP:'Pledges are made on'
   }
 };
 
-// Esto es Puerto Rico: la página abre en español y el inglés está
-// ahí para el que lo necesite. Cada Punto abre al revés a propósito.
 var lang = 'es';
-try { var sv = localStorage.getItem('mpr_lang'); if (sv === 'en' || sv === 'es') lang = sv; } catch(e){}
+try {
+  var q = (location.search.match(/[?&]lang=(es|en)\b/i) || [])[1];
+  lang = q ? q.toLowerCase() : (localStorage.getItem('mpr_lang') || 'es');
+} catch(e){}
 
 function t(k){ return (T[lang] && T[lang][k]) || T.es[k] || ''; }
 
@@ -400,91 +199,17 @@ function paint(){
   document.querySelectorAll('[data-t]').forEach(function(el){
     var v = t(el.getAttribute('data-t'));
     if (!v) return;
-    if (v.indexOf('<') !== -1) el.innerHTML = v; else el.textContent = v;
+    if (v.indexOf('<') !== -1 || v.indexOf('&') !== -1) el.innerHTML = v; else el.textContent = v;
   });
   document.getElementById('lang').textContent = lang === 'es' ? 'EN' : 'ES';
-  drawEvents();
+  document.title = lang === 'es' ? 'Marcador PR — los juegos y sus marcadores finales'
+                                 : 'Marcador PR — the games and their final scores';
 }
 
 function flip(){
   lang = lang === 'es' ? 'en' : 'es';
   try { localStorage.setItem('mpr_lang', lang); } catch(e){}
   paint();
-}
-
-function today(){
-  // La fecha en Puerto Rico, que no cambia de hora en todo el año.
-  var d = new Date(Date.now() - 4 * 3600 * 1000);
-  return d.toISOString().slice(0, 10);
-}
-
-function state(e){
-  var t = today();
-  if (e.to   && t > e.to)   return 'past';
-  if (e.from && t < e.from) return 'soon';
-  return 'live';
-}
-
-function span(e){
-  var f = new Date(e.from + 'T12:00:00'), t = new Date(e.to + 'T12:00:00');
-  var loc = lang === 'en' ? 'en-US' : 'es-PR';
-  var mo = function(d){ return d.toLocaleDateString(loc, { month:'long' }); };
-  var same = f.getMonth() === t.getMonth();
-  if (lang === 'en'){
-    return same ? mo(f) + ' ' + f.getDate() + ' – ' + t.getDate()
-                : mo(f) + ' ' + f.getDate() + ' – ' + mo(t) + ' ' + t.getDate();
-  }
-  return same
-    ? f.getDate() + ' – ' + t.getDate() + ' de ' + mo(t)
-    : f.getDate() + ' de ' + mo(f) + ' – ' + t.getDate() + ' de ' + mo(t);
-}
-
-// El subtítulo de un evento puede venir en un idioma o en los dos.
-// Un texto suelto sirve igual: se enseña tal cual en ambos.
-function sub(e){
-  if (!e.sub) return '';
-  return typeof e.sub === 'string' ? e.sub : (e.sub[lang] || e.sub.es || e.sub.en || '');
-}
-
-function card(e){
-  var st = state(e);
-  var go = st === 'live' ? t('openLive') : st === 'soon' ? t('openSoon') : t('openPast');
-
-  // El estado ya lo dice el encabezado del grupo. Repetirlo dentro de
-  // la tarjeta se leía como un error. Sólo "en vivo" se queda, porque
-  // el punto naranja es lo que hay que ver de lejos.
-  return '<a class="ev ' + st + (e.feature ? ' feat' : '') + '" href="' + e.href + '">' +
-    (e.feature && e.flag ? '<span class="flag">' + (e.flag[lang] || e.flag.es || e.flag) + '</span>' : '') +
-    (st === 'live' ? '<span class="when"><span class="dot"></span>' + t('live') + '</span>' : '') +
-    '<span class="nm">' + e.name + '</span>' +
-    '<span class="ds">' + span(e) + ' · ' + e.where + '</span>' +
-    '<span class="ds">' + sub(e) + '</span>' +
-    '<span class="go">' + go + '</span>' +
-  '</a>';
-}
-
-function drawEvents(){
-  var box = document.getElementById('events');
-  if (!box) return;
-
-  var order = { live:0, soon:1, past:2 };
-  var list = EVENTS.slice().sort(function(a, b){
-    var d = order[state(a)] - order[state(b)];
-    return d !== 0 ? d : (b.from || '').localeCompare(a.from || '');
-  });
-
-  if (!list.length){ box.innerHTML = '<p class="lede">' + t('none') + '</p>'; return; }
-
-  var html = '', lastGroup = null;
-  list.forEach(function(e){
-    var g = state(e);
-    if (g !== lastGroup){
-      html += '<h2>' + t(g) + '</h2>';
-      lastGroup = g;
-    }
-    html += card(e);
-  });
-  box.innerHTML = html;
 }
 
 paint();
