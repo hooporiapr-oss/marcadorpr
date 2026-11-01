@@ -227,7 +227,16 @@ footer b{color:#fff;display:block;font-weight:800}
         data-i="depVoli">Voleibol</button>
     </div>
 
-    <div class="modos">
+    <!-- SIN PESTAÑA DE TORNEOS desde el 1 de noviembre de 2026. Este
+         constructor es el de los entrenadores: la lista de juegos de su
+         equipo, y nada más. Los torneos tendrán su propio constructor en
+         marcadorpr, hecho para quien los organiza.
+
+         La pestaña se esconde y la página arranca siempre en «Juegos».
+         El código del cuadro se queda dentro, sin camino desde la
+         página, hasta que exista el constructor de torneos: así ningún
+         calendario ya registrado deja de funcionar mientras tanto. -->
+    <div class="modos" hidden style="display:none">
       <!-- Dos palabras y nada más. «La temporada de mi equipo» daba por
            hecho una temporada, y el que llega con cuatro juegos —o una
            liga con un fin de semana— no se ve ahí dentro. El verbo lo
@@ -592,7 +601,7 @@ es: {
   guiaT:'Cómo se usa',
   guiaTemp:[
     '<b>Entra desde «Mi calendario» en cadapunto.com.</b> Así llegas con tu código y el nombre de tu equipo ya puestos, y no tienes que escribirlos.',
-    '<b>Escoge el deporte</b> en los botones de abajo, y deja marcado <b>Juegos</b>.',
+    '<b>Escoge el deporte</b> en los botones de abajo: baloncesto o voleibol.',
     '<b>Tu equipo:</b> el nombre tiene que ser igual al que pusiste al inscribirte en Cada Punto Cuenta. Si llegaste desde «Mi calendario», ya está bien.',
     '<b>Añade cada juego:</b> contra quién, qué día, la hora, la cancha y si es en casa o de visita. Pulsa «+ Añadir un juego» para el siguiente.',
     '<b>Padrinos, juego por juego.</b> En <b>Sí</b>, el juego lleva su botón de prometer. En <b>No</b>, sale en el calendario y lleva marcador, pero nadie promete en él.',
@@ -725,7 +734,7 @@ en: {
   guiaT:'How to use it',
   guiaTemp:[
     '<b>Come in from “My schedule” on cadapunto.com.</b> That way you arrive with your code and your team name already filled in, and you do not have to type them.',
-    '<b>Pick the sport</b> with the buttons below, and leave <b>Games</b> selected.',
+    '<b>Pick the sport</b> with the buttons below: basketball or volleyball.',
     '<b>Your team:</b> the name has to match the one you used to sign up on Cada Punto Cuenta. If you came from “My schedule”, it already does.',
     '<b>Add each game:</b> who you play, the day, the time, the court, and home or away. Press “+ Add a game” for the next one.',
     '<b>Padrinos, game by game.</b> On <b>Yes</b>, the game gets its pledge button. On <b>No</b>, it shows on the schedule and carries a score, but nobody pledges on it.',
@@ -2126,7 +2135,9 @@ addDiv();
   // existe todo lo que toca.
   pintarEstatico();
   deporte(q.get('deporte') === 'voleibol' ? 'voleibol' : 'baloncesto');
-  modo(q.get('modo') === 'temporada' ? 'temporada' : 'torneo');
+  /* Siempre «Juegos», venga con lo que venga: ?modo=torneo ya no
+     abre el cuadro. */
+  modo('temporada');
 
   /* Sus juegos, si ya tiene: al llegar con el nombre puesto, y
      también si lo escribe a mano. */
