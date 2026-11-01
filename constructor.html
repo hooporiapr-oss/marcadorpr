@@ -677,6 +677,8 @@ es: {
   lCodigo:'Código de marcadores',
   btnRegistrar:'Registrar el torneo',
   paso2:'2 · Tu enlace',
+  marcadorDonde:'Los marcadores de tus juegos los pones en «Mi calendario», en cadapunto.com, con tu código. Ahí también ves tus enlaces y mandas los avisos.',
+  irMiCal:'Ir a Mi calendario',
   paso2p:'Primero regístralo. En cuanto lo hagas sale aquí la dirección del calendario, lista para mandar.',
   paso2ok:'Ya está publicado. Ésta es la dirección del calendario:',
   mandaWhats:'Mándalo por WhatsApp. Los marcadores se ven ahí según van entrando, y cada juego lleva su botón de prometer.',
@@ -802,6 +804,8 @@ en: {
   lCodigo:'Scoreboard code',
   btnRegistrar:'Register the tournament',
   paso2:'2 · Your link',
+  marcadorDonde:'You post your games’ scores in “My schedule” on cadapunto.com, with your code. That is also where you see your links and send the notices.',
+  irMiCal:'Go to My schedule',
   paso2p:'Register it first. As soon as you do, the schedule’s address appears here, ready to send.',
   paso2ok:'It is published. This is the schedule’s address:',
   mandaWhats:'Send it on WhatsApp. Scores show there as they come in, and every game carries its pledge button.',
@@ -1703,6 +1707,18 @@ function show(){
         T('abrirlo') + '</a>' +
     '</div>' +
     '<p class="hint" style="margin-top:10px">' + T('mandaWhats') + '</p>' +
+    /* Y DESPUÉS, EL MARCADOR. Un entrenador registraba su lista, se
+       quedaba aquí y no sabía dónde poner el marcador del juego. Se
+       pone en «Mi calendario», y esto lo lleva de vuelta — con el
+       idioma que trae, para que no le cambie al cruzar. */
+    (MODO === 'temporada'
+      ? '<div style="margin-top:16px;padding:14px 16px;border:1px solid var(--line);' +
+          'border-radius:10px;background:var(--tint)">' +
+          '<p style="margin:0 0 10px;font-weight:800">' + T('marcadorDonde') + '</p>' +
+          '<a class="btn" href="https://cadapunto.com/mi-equipo.html?lang=' + LANG + '">' +
+            T('irMiCal') + '</a>' +
+        '</div>'
+      : '') +
   '</div>' +
 
   '<h2 style="margin-top:28px">' + T('paso3') + '</h2>' +
@@ -2074,6 +2090,8 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
   padding:9px 16px;border-radius:999px;line-height:1}
 .volver a:hover{filter:brightness(1.08)}
 .volver a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.volver{display:flex;flex-wrap:wrap;gap:8px}
+.volver a.entr{background:transparent;color:#fff;border:2px solid var(--ball)}
 .mark{font-weight:900;font-size:1.05rem;color:#fff;line-height:1.1}
 .mark span{display:block;font-size:.58rem;font-weight:800;letter-spacing:.2em;
   text-transform:uppercase;color:var(--ball)}
@@ -2368,6 +2386,12 @@ footer a{color:#4FD3F0;text-decoration:none}
        vendiendo. -->
   <div class="wrap volver">
     <a href="https://cadapunto.com/">&larr; Cada Punto Cuenta</a>
+    <!-- EL ENTRENADOR, A SU MARCADOR. Desde aquí la única manera de
+         poner un marcador era el doble toque en el escudo, que nadie
+         adivina: un entrenador montó su calendario, lo abrió, y no
+         encontró dónde. Los marcadores de un equipo se ponen en «Mi
+         calendario», con su código; este enlace lo lleva ahí. -->
+    <a class="entr" href="https://cadapunto.com/mi-equipo.html">¿Entrenador? Pon el marcador &rarr;</a>
   </div>
 </header>
 
