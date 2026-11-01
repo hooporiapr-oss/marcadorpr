@@ -45,6 +45,8 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
   padding:9px 16px;border-radius:999px;line-height:1}
 .volver a:hover{filter:brightness(1.08)}
 .volver a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.demoband{margin:10px 0 0;padding:10px 14px;border-radius:10px;font-size:.88rem;
+  font-weight:700;background:rgba(255,122,24,.12);border:1px solid rgba(255,122,24,.45)}
 .volver{display:flex;flex-wrap:wrap;gap:8px}
 .volver a.entr{background:transparent;color:#fff;border:2px solid var(--ball)}
 .mark{font-weight:900;font-size:1.05rem;color:#fff;line-height:1.1}
@@ -369,6 +371,9 @@ footer a{color:#4FD3F0;text-decoration:none}
   <div class="wrap">
     <h1 id="h1"></h1>
     <p class="lede" id="lede"></p>
+    <!-- Sólo en un calendario de demostración: lo que se promete aquí
+         es de ejemplo, y hay que decirlo antes de que alguien lo pruebe. -->
+    <p class="demoband" id="demoBand" hidden>Demostración: así ve el calendario un padrino. El botón de prometer abre una hoja de ejemplo; nada de lo que pongas se guarda.</p>
     <div class="stat" id="stat"></div>
 
     <div class="courts" id="courts"></div>
@@ -511,6 +516,28 @@ var SCORES = {};
 //  no entren.
 // ══════════════════════════════════════════════════════
 var TEAMS = {};
+
+/* UN CALENDARIO DE DEMOSTRACIÓN es el que tiene un id que empieza por
+   «demo». Enseña lo que ve un padrino —cada juego con su botón de
+   prometer— sin campaña detrás: el botón abre la hoja de ejemplo de
+   Cada Punto Cuenta, y nada de lo que se prometa ahí se guarda ni le
+   escribe a nadie. Antes la única demostración era un torneo con su
+   cuadro, que no es lo que monta un entrenador. */
+function esDemo(){ return /^demo/.test(TORNEO || ''); }
+
+/* El equipo de la demostración: el que sale en más juegos. En la
+   temporada de un equipo, es ése en todos. */
+function equipoDemo(){
+  var n = {}, mejor = '', max = 0;
+  [].forEach.call(document.querySelectorAll('.r'), function(r){
+    [r.dataset.a, r.dataset.b].forEach(function(s){
+      var x = resolve(s); if (!x) return;
+      n[x] = (n[x] || 0) + 1;
+      if (n[x] > max){ max = n[x]; mejor = x; }
+    });
+  });
+  return mejor;
+}
 
 // ══════════════════════════════════════════════════════
 //  Un equipo sin campaña enseña cómo conseguir una. El
@@ -680,6 +707,24 @@ function pledgeBits(row){
   var mine = [];                       // un "soy jugador" por equipo
   var sides = [row.dataset.a, row.dataset.b];
 
+  if (esDemo()){
+    var eq = equipoDemo();
+    sides.forEach(function(side, i){
+      var real = resolve(side);
+      if (!real || teamKey(real) !== teamKey(eq)) return;
+      var clave = 'p' + (++PKEY);
+      PLEDGEABLE[clave] = {
+        team: real, campaign: '', foe: resolve(sides[i === 0 ? 1 : 0]), game: '',
+        demo: true, on: row.dataset.on || '', j: row.dataset.j || '',
+        court: row.dataset.court || '',
+        time: (row.querySelector('.t') || {}).textContent || ''
+      };
+      out.push('<button class="pl" onclick="event.stopPropagation();pledgeSheet(\'' +
+                 clave + '\')"><b>' + real + '</b>' + STR_PLEDGE + '</button>');
+    });
+    return out.join('');
+  }
+
   sides.forEach(function(side, i){
     var real = resolve(side);
     // Un hueco del cuadro no es un equipo. placeholderFor sólo conoce
@@ -773,6 +818,15 @@ function pledgeBits(row){
 // prometer, y borrar el botón no explicaba nada.
 function closedBits(row){
   var out = [];
+  if (esDemo()){
+    var eq = equipoDemo();
+    [row.dataset.a, row.dataset.b].forEach(function(side){
+      var real = resolve(side);
+      if (real && teamKey(real) === teamKey(eq))
+        out.push('<span class="pl closed"><b>' + real + '</b>' + STR_CLOSED + '</span>');
+    });
+    return out.join('');
+  }
   [row.dataset.a, row.dataset.b].forEach(function(side){
     var real = resolve(side);
     if (/^(Ganador|\d+º)/.test(real)) return;
@@ -784,6 +838,8 @@ function closedBits(row){
 
 function paintPledges(){
   PEDIDOS = {};
+  var band = document.getElementById('demoBand');
+  if (band) band.hidden = !esDemo();
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
     var holder = rows[i].querySelector('.pls');
@@ -823,6 +879,10 @@ function pledgeURL(d){
      Con &t= la página de promesa puede ofrecer la vuelta al
      calendario. Quien reciba el enlace por WhatsApp sin t= no verá
      ese botón, que es lo correcto: no vino de ningún calendario. */
+  /* La demostración no tiene juego: va a la hoja de ejemplo, que
+     enseña lo mismo y no guarda nada. */
+  if (d.demo) return CP + '/prometer.html?ejemplo=1'
+                       + (TORNEO ? '&t=' + encodeURIComponent(TORNEO) : '');
   return CP + '/prometer.html?g=' + encodeURIComponent(d.game || '')
             + (TORNEO ? '&t=' + encodeURIComponent(TORNEO) : '');
 }
