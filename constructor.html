@@ -347,13 +347,29 @@ function ordenSiembra(size){
   return o;
 }
 
-function knockout(teams, prefix, startNo){
+function knockout(teams, prefix, startNo, serie){
   var n = teams.length;
   if (n < 2) return { games: [], nextNo: startNo };
 
   var size = 1;
   while (size < n) size *= 2;
   var byes = size - n;
+  /* A round before the final can be a two-game series: the second
+     game swaps home, and whoever wins more games — or, 1-1, scores
+     more in the two — goes on. The next round waits for
+     "Ganador X/Y". The final is always one game. */
+  var rondas = Math.log2(size);
+  function partido(ronda, a, b){
+    var g1 = { no: prefix + '-' + no, round: ronda, a: a, b: b };
+    games.push(g1); no++;
+    if (serie === 2 && ronda < rondas){
+      var g2 = { no: prefix + '-' + no, round: ronda, a: b, b: a, serieDe: g1.no };
+      games.push(g2); no++;
+      g1.serie = 1; g2.serie = 2;
+      return { from: g1.no + '/' + g2.no };
+    }
+    return { from: g1.no };
+  }
 
   var games = [], no = startNo;
   var orden = ordenSiembra(size);
@@ -372,13 +388,7 @@ function knockout(teams, prefix, startNo){
     var tb = sb <= n ? teams[sb - 1] : null;
 
     if (ta && tb){
-      var g = {
-        no: prefix + '-' + no, round: 1,
-        a: { team: ta }, b: { team: tb }
-      };
-      games.push(g);
-      slots.push({ from: g.no });
-      no++;
+      slots.push(partido(1, { team: ta }, { team: tb }));
     } else {
       slots.push({ team: ta || tb });          // pasa directo
     }
@@ -390,10 +400,7 @@ function knockout(teams, prefix, startNo){
     var next = [];
     for (var k = 0; k < slots.length; k += 2){
       var left = slots[k], right = slots[k + 1];
-      var gg = { no: prefix + '-' + no, round: round, a: left, b: right };
-      games.push(gg);
-      next.push({ from: gg.no });
-      no++;
+      next.push(partido(round, left, right));
     }
     slots = next;
     round++;
@@ -406,6 +413,7 @@ function knockout(teams, prefix, startNo){
             : g.round === last - 1 ? 'Semifinal'
             : g.round === last - 2 ? 'Cuartos'
             : 'Ronda ' + g.round;
+    if (g.serie) g.stage += ' · juego ' + g.serie;
   });
 
   return { games: games, nextNo: no, byes: byes, bracket: size };
@@ -414,7 +422,8 @@ function knockout(teams, prefix, startNo){
 // ── Grupos, y luego eliminación ──────────────────────────────
 // Todos contra todos dentro del grupo, y los primeros de cada
 // grupo pasan al cuadro.
-function pools(teams, perPool, advance, prefix, startNo){
+function pools(teams, perPool, advance, prefix, startNo, vueltas, serie, cat){
+  vueltas = vueltas || 1;
   var n = teams.length;
   if (n < 2) return { games: [], nextNo: startNo };
 
@@ -431,19 +440,23 @@ function pools(teams, perPool, advance, prefix, startNo){
   var games = [], no = startNo;
   var letter = 'ABCDEFGH';
 
-  groups.forEach(function(gr, gi){
-    for (var i = 0; i < gr.length; i++){
-      for (var j = i + 1; j < gr.length; j++){
-        games.push({
-          no: prefix + '-' + no, round: 0,
-          stage: count > 1 ? 'Grupo ' + letter[gi] : 'Grupo',
-          group: letter[gi],
-          a: { team: gr[i] }, b: { team: gr[j] }
-        });
-        no++;
+  // Every pair once per round; the second round swaps home and away.
+  for (var v = 0; v < vueltas; v++){
+    groups.forEach(function(gr, gi){
+      for (var i = 0; i < gr.length; i++){
+        for (var j = i + 1; j < gr.length; j++){
+          var x = { team: gr[i] }, y = { team: gr[j] };
+          games.push({
+            no: prefix + '-' + no, round: 0,
+            stage: count > 1 ? 'Grupo ' + letter[gi] : 'Grupo',
+            group: letter[gi],
+            a: v % 2 ? y : x, b: v % 2 ? x : y
+          });
+          no++;
+        }
       }
-    }
-  });
+    });
+  }
 
   // Quiénes pasan, cruzados: el primero de un grupo contra el
   // segundo de otro. Emparejarlos dentro del mismo grupo haría que
@@ -458,8 +471,11 @@ function pools(teams, perPool, advance, prefix, startNo){
       // Con un solo grupo la letra sobra, y además hacía que las
       // finales de todas las categorías se leyeran igual: "1º Grupo A
       // vs 2º Grupo A", tres veces.
-      var etiqueta = groups.length > 1 ? place + 'º Grupo ' + letter[idx]
-                                       : place + 'º';
+      /* The category rides on the seed ("2º · Juvenil"), so the
+         published page can fill it from the right table by itself
+         once that table is complete. */
+      var etiqueta = (groups.length > 1 ? place + 'º Grupo ' + letter[idx]
+                                        : place + 'º') + (cat ? ' · ' + cat : '');
       through.push({ place: etiqueta, seed: place, g: idx });
     }
   }
@@ -473,7 +489,7 @@ function pools(teams, perPool, advance, prefix, startNo){
     if (rest[q])   through.push(rest[q]);
   }
 
-  var ko = knockout(through.map(function(t){ return t.place; }), prefix, no);
+  var ko = knockout(through.map(function(t){ return t.place; }), prefix, no, serie);
   ko.games.forEach(function(x){ x.fromPools = true; });
 
   return {
@@ -502,14 +518,25 @@ function schedule(allGames, slots, gapHours){
     return (a.round || 0) - (b.round || 0);
   });
 
+  var finTabla = {};   // category → when its last table game starts
   byRound.forEach(function(g){
     // No puede empezar hasta que hayan terminado los que lo alimentan.
     var earliest = 0;
     [g.a, g.b].forEach(function(side){
-      if (side && side.from && when[side.from] != null){
-        earliest = Math.max(earliest, when[side.from] + gap);
-      }
+      if (!side) return;
+      // "X/Y" is a two-game series: wait for both.
+      if (side.from) String(side.from).split('/').forEach(function(f){
+        if (when[f] != null) earliest = Math.max(earliest, when[f] + gap);
+      });
+      // A seed ("2º · Juvenil") waits for the table it comes from.
+      if (side.team && /^\d+º/.test(side.team) && finTabla[g.cat] != null)
+        earliest = Math.max(earliest, finTabla[g.cat] + gap);
     });
+    // The second game of a series is never the same day as the first.
+    if (g.serieDe && when[g.serieDe] != null){
+      var d = new Date(when[g.serieDe]); d.setHours(24, 0, 0, 0);
+      earliest = Math.max(earliest, d.getTime());
+    }
 
     for (var i = 0; i < slots.length; i++){
       var s = slots[i];
@@ -534,6 +561,7 @@ function schedule(allGames, slots, gapHours){
       s.taken = true;
       g.date = s.date; g.time = s.time; g.court = s.court;
       when[g.no] = t;
+      if (!g.round) finTabla[g.cat] = Math.max(finTabla[g.cat] || 0, t);
       placed.push(g);
       return;
     }
@@ -663,6 +691,8 @@ es: {
   categoria:'Categoría',
   koDirecto:'Eliminación directa',
   koGrupos:'Grupos y luego eliminación',
+  vueltas:'Veces que se enfrentan', vuelta1:'Una vez', vuelta2:'Dos veces (ida y vuelta)', vuelta3:'Tres veces',
+  serie:'Antes de la final', serie1:'Un juego', serie2:'Serie de dos juegos', enSerie:'serie de dos juegos antes de la final (1-1: pasa quien sumó más puntos)',
   cuantosPasan:'Cuántos pasan de cada grupo',
   canchasCat:'Canchas de esta categoría',
   escogeCuantos:'Escoge cuántos equipos.',
@@ -794,6 +824,8 @@ en: {
   categoria:'Division',
   koDirecto:'Single elimination',
   koGrupos:'Pools, then elimination',
+  vueltas:'Times each pair meets', vuelta1:'Once', vuelta2:'Twice (home and away)', vuelta3:'Three times',
+  serie:'Before the final', serie1:'One game', serie2:'Two-game series', enSerie:'two-game series before the final (1-1: more total points goes on)',
   cuantosPasan:'How many advance from each pool',
   canchasCat:'Courts for this division',
   escogeCuantos:'Choose how many teams.',
@@ -1047,6 +1079,23 @@ function addDiv(name, teams){
           '<option value="pools">' + T('koGrupos') + '</option>' +
         '</select></div>' +
     '</div>' +
+    /* LIGAS DE VERDAD (Nov 6, 2026). Una liga de programa se juega
+       ida y vuelta, y unas semifinales de liga suelen ser una serie.
+       Torneo Navidad de Colores: todos contra todos dos veces, luego
+       1.º-4.º y 2.º-3.º en serie de dos juegos, y una final. */
+    '<div id="dv' + id + 'w" style="display:none" class="row two">' +
+      '<div><label>' + T('vueltas') + '</label>' +
+        '<select id="dv' + id + '" onchange="divCount(' + id + ')">' +
+          '<option value="1">' + T('vuelta1') + '</option>' +
+          '<option value="2">' + T('vuelta2') + '</option>' +
+          '<option value="3">' + T('vuelta3') + '</option>' +
+        '</select></div>' +
+      '<div id="dse' + id + 'w"><label>' + T('serie') + '</label>' +
+        '<select id="dse' + id + '" onchange="divCount(' + id + ')">' +
+          '<option value="1">' + T('serie1') + '</option>' +
+          '<option value="2">' + T('serie2') + '</option>' +
+        '</select></div>' +
+    '</div>' +
     '<div id="dp' + id + '" style="display:none" class="row two">' +
       '<div><label>' + T('eqPorGrupo') + '</label>' +
         '<input id="dps' + id + '" type="number" value="4" min="3" max="6"></div>' +
@@ -1078,6 +1127,7 @@ function addDiv(name, teams){
   }
 
   drawTeams(id);
+  divMode(id);
 }
 
 function dropDiv(id){
@@ -1087,10 +1137,19 @@ function dropDiv(id){
 }
 
 function divMode(id){
-  var pools = document.getElementById('df' + id).value === 'pools';
+  var mode = document.getElementById('df' + id).value;
+  var pools = mode === 'pools';
   document.getElementById('dp' + id).style.display = pools ? '' : 'none';
+  // Rounds of a league: anything with a table. A series before the
+  // final: anything with rounds before the final.
+  document.getElementById('dv' + id + 'w').style.display = (mode === 'ko') ? 'none' : '';
+  document.getElementById('dv' + id).parentNode.style.display = (mode === 'ko') ? 'none' : '';
+  document.getElementById('dse' + id + 'w').style.display = (mode === 'ko' || mode === 'pools') ? '' : 'none';
+  if (mode === 'ko') document.getElementById('dv' + id + 'w').style.display = '';
   divCount(id);
 }
+function vueltasDe(id){ var el = document.getElementById('dv' + id); return el ? Math.max(1, Math.min(3, Number(el.value) || 1)) : 1; }
+function serieDe(id){ var el = document.getElementById('dse' + id); return el && Number(el.value) === 2 ? 2 : 1; }
 
 // ── En qué canchas juega una categoría ──────────────────────
 // Mini juega en canastos de seis pies. Ponerla en una cancha
@@ -1223,11 +1282,12 @@ function divCount(id){
 
   var mode = document.getElementById('df' + id).value;
 
+  var vv = vueltasDe(id);
   if (mode === 'rr' || mode === 'rrf'){
-    var liga = t.length * (t.length - 1) / 2;
+    var liga = t.length * (t.length - 1) / 2 * vv;
     el.textContent = t.length + ' ' + T('equipos') + ' · ' +
       (mode === 'rrf' ? liga + 1 : liga) + ' ' + T('juegos') + ' · ' +
-      T('cadaJuega') + ' ' + (t.length - 1) +
+      T('cadaJuega') + ' ' + (t.length - 1) * vv +
       (mode === 'rrf' ? T('yFinal') : '');
     return;
   }
@@ -1235,16 +1295,19 @@ function divCount(id){
   if (mode === 'ko'){
     var size = 1; while (size < t.length) size *= 2;
     el.textContent = t.length + ' ' + T('equipos') + ' · ' + (t.length - 1) + ' ' +
-      T('juegos') + ' · ' + (size - t.length) + ' ' + T('pasanDirecto');
+      T('juegos') + ' · ' + (size - t.length) + ' ' + T('pasanDirecto') +
+      (serieDe(id) === 2 ? ' · ' + T('enSerie') : '');
   } else {
     var per = Number(document.getElementById('dps' + id).value) || 4;
     var adv = Number(document.getElementById('dpa' + id).value) || 2;
     var g = Math.max(1, Math.ceil(t.length / per));
     var base = Math.floor(t.length / g), extra = t.length % g, pg = 0;
     for (var i = 0; i < g; i++){ var sz = base + (i < extra ? 1 : 0); pg += sz * (sz - 1) / 2; }
+    pg *= vv;
     var through = Math.min(adv * g, t.length);
     el.textContent = t.length + ' ' + T('equipos') + ' · ' + g + ' ' + T('grupos') + ' · ' +
-      pg + ' ' + T('juegosGrupo') + ' · ' + through + ' ' + T('pasanCuadro');
+      pg + ' ' + T('juegosGrupo') + ' · ' + through + ' ' + T('pasanCuadro') +
+      (serieDe(id) === 2 ? ' · ' + T('enSerie') : '');
   }
 }
 
@@ -1376,13 +1439,14 @@ function generate(){
        con dos, arma un único juego entre el primero y el segundo,
        que es la final. No hace falta motor nuevo. */
     var mode = document.getElementById('df' + id).value, built;
-    if (mode === 'rr')         built = pools(teams, teams.length, 1, PFX, no);
-    else if (mode === 'rrf')   built = pools(teams, teams.length, 2, PFX, no);
+    var vv = vueltasDe(id), se = serieDe(id);
+    if (mode === 'rr')         built = pools(teams, teams.length, 1, PFX, no, vv, 1, name);
+    else if (mode === 'rrf')   built = pools(teams, teams.length, 2, PFX, no, vv, 1, name);
     else if (mode === 'pools') built = pools(teams,
                                    Number(document.getElementById('dps' + id).value) || 4,
                                    Number(document.getElementById('dpa' + id).value) || 2,
-                                   PFX, no);
-    else                       built = knockout(teams, PFX, no);
+                                   PFX, no, vv, se, name);
+    else                       built = knockout(teams, PFX, no, se);
 
     // Cada juego se lleva las canchas en que su categoría puede jugar.
     var permitidas = courtsOf(id);
@@ -3132,8 +3196,18 @@ function resolve(name, depth){
   depth = depth || 0;
   if (depth > 8) return name;
 
+  // "2º · Juvenil": the table fills it once all its games have scores.
+  var sd = seedFor(name);
+  if (sd) return resolve(sd, depth + 1);
+
   var key = placeholderFor(name);
   if (!key) return name;
+
+  // "Ganador X/Y": a two-game series.
+  if (key.indexOf('/') > 0){
+    var w = serieGanador(key, depth);
+    return w ? resolve(w, depth + 1) : name;
+  }
 
   var g = BYNO[key], s = SCORES[key];
   if (!g || !s || s.a === s.b) return name;
@@ -3144,7 +3218,48 @@ function resolve(name, depth){
 
 
 
+/* ── SEEDS AND SERIES (Nov 6, 2026) ─────────────────────────
+   The tables are worked out once per paint and kept in STAND; any
+   new score starts a paint, which starts them over. While a table is
+   being worked out no seed is looked up (its own rows are real teams,
+   and looking would loop). */
+var STAND = null, CALC = false;
+function tablas(){
+  if (!STAND){ CALC = true; try { STAND = standings(); } finally { CALC = false; } }
+  return STAND;
+}
+function seedFor(name){
+  if (CALC) return null;
+  var m = String(name || '').match(/^(\d+)º(?: Grupo (\S+))? · (.+)$/);
+  if (!m) return null;
+  var key = m[3] + (m[2] ? ' · Grupo ' + m[2].toUpperCase() : '');
+  var pot = tablas().filter(function(p){ return p.key === key; })[0];
+  if (!pot || !pot.total || pot.jugados < pot.total) return null;   // table not finished
+  var t = pot.teams[Number(m[1]) - 1];
+  return t ? t.name : null;
+}
+// Two games: more wins goes on; 1-1 goes to total points; still level,
+// nobody yet (the organizer decides).
+function serieGanador(key, depth){
+  var k = key.split('/'), g1 = BYNO[k[0]], g2 = BYNO[k[1]], s1 = SCORES[k[0]], s2 = SCORES[k[1]];
+  if (!g1 || !g2 || !s1 || !s2) return null;
+  var a1 = resolve(g1.a, depth + 1), b1 = resolve(g1.b, depth + 1),
+      a2 = resolve(g2.a, depth + 1), b2 = resolve(g2.b, depth + 1);
+  if ([a1, b1, a2, b2].some(function(n){ return placeholderFor(n) || seedFor(n) || /^(Ganador|\d+º)/i.test(n); })) return null;
+  var gan = {}, pts = {};
+  [[a1, b1, s1], [a2, b2, s2]].forEach(function(x){
+    gan[x[0]] = gan[x[0]] || 0; gan[x[1]] = gan[x[1]] || 0;
+    pts[x[0]] = (pts[x[0]] || 0) + x[2].a; pts[x[1]] = (pts[x[1]] || 0) + x[2].b;
+    if (x[2].a > x[2].b) gan[x[0]]++; else if (x[2].b > x[2].a) gan[x[1]]++;
+  });
+  var eq = Object.keys(gan); if (eq.length !== 2) return null;
+  if (gan[eq[0]] !== gan[eq[1]]) return gan[eq[0]] > gan[eq[1]] ? eq[0] : eq[1];
+  if (pts[eq[0]] !== pts[eq[1]]) return pts[eq[0]] > pts[eq[1]] ? eq[0] : eq[1];
+  return null;
+}
+
 function paint(){
+  STAND = null;
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
     var r = rows[i];
