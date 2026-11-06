@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Navidad de Colores 2026 — itinerario y marcadores</title>
+<meta name="description" content="Itinerario, tabla, cuadro de postemporada y marcadores del Torneo Navidad de Colores 2026 de Canóvanas Basketball en la Cancha Quintas.">
+<meta name="theme-color" content="#12202E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="marcadorpr">
+<meta property="og:url" content="https://marcadorpr.com/navidad-de-colores.html">
+<meta property="og:title" content="Torneo Navidad de Colores 2026 — itinerario y marcadores">
+<meta property="og:description" content="Los 75 juegos de las cinco categorías, del 7 de noviembre al 12 de diciembre en la Cancha Quintas. Tabla y cuadro se llenan solos según entran los marcadores.">
+<meta property="og:image" content="https://marcadorpr.com/marcador-card-v2.jpg">
+<meta property="og:locale" content="es_PR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,400;100,500;100,700;100,800;112,800;112,900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+<style>
+/* marcadorpr: dark bar on top, white sheet below, one column you scan. */
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18;
+  --ball-soft:#FFF1E5;--win:#05734B;--win-soft:#E3F6EE;--night:#3B4BA8;--night-soft:#ECEEFB;
+  --change:#9A5B00;--change-soft:#FFF5DB;--bad:#A8323F}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;
+  line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{width:100%;max-width:820px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+header{background:#12202E;border-bottom:3px solid var(--ball);padding-top:env(safe-area-inset-top,0px);position:sticky;top:0;z-index:5}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.mark{font-weight:900;color:#fff;line-height:1.1;text-decoration:none;font-size:1.02rem}
+.mark small{display:block;font-weight:700;font-size:.66rem;letter-spacing:.18em;color:var(--ball);text-transform:uppercase}
+.lock{border:1.5px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}
+.lock.on{background:var(--ball);border-color:var(--ball);color:#12202E}
+main{padding-block:20px 56px}
+main > .wrap{display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.eyebrow{font-weight:700;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(1.8rem, 6vw, 2.6rem);font-weight:900;font-stretch:112%;line-height:1.02}
+.sub{color:var(--mute);margin:6px 0 0}
+.tally{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--mute);font-size:.92rem}
+.tally b{color:var(--ink);font-size:1.12rem;font-variant-numeric:tabular-nums}
+
+.code{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:12px}
+.code[hidden]{display:none}
+.code label{font-weight:700;flex-basis:100%}
+.code input{font:inherit;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;width:9.5rem}
+.code input:focus{outline:none;border-color:var(--ball)}
+.btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:800;cursor:pointer;background:#12202E;color:#fff}
+.btn.alt{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ball{background:var(--ball);color:#12202E}
+.btn:disabled{opacity:.55;cursor:default}
+.say{flex-basis:100%;margin:0;font-size:.9rem;color:var(--mute)}
+.say.bad{color:var(--bad)}
+
+.views{display:flex;border:2px solid #12202E;border-radius:999px;overflow:hidden;align-self:flex-start}
+.views button{border:0;background:#fff;color:var(--ink);font:inherit;font-weight:800;padding:9px 18px;cursor:pointer}
+.views button[aria-pressed="true"]{background:#12202E;color:#fff}
+.ages{display:flex;flex-wrap:wrap;gap:8px}
+.ages[hidden]{display:none}
+.ages button{border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit;font-weight:800;cursor:pointer;
+  display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.ages button small{font-weight:500;color:var(--mute);font-size:.76rem}
+.ages button[aria-pressed="true"]{border-color:var(--ball);background:var(--ball-soft)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ball);outline-offset:2px}
+
+.champ{background:#12202E;color:#fff;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.champ small{color:var(--ball);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.7rem}
+.champ b{font-size:1.4rem;font-weight:900;font-stretch:112%}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sec h2{font-size:1.05rem;font-weight:900;font-stretch:112%;text-transform:uppercase;letter-spacing:.04em}
+.rules{color:var(--mute);font-size:.92rem;margin:0}
+.tablaW{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table.tabla{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.92rem}
+.tabla th{background:var(--tint);text-align:right;padding:8px 10px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:800}
+.tabla th:nth-child(2),.tabla td:nth-child(2){text-align:left}
+.tabla td{padding:9px 10px;border-top:1px solid var(--line);text-align:right}
+.tabla td:first-child{font-weight:800;color:var(--mute);width:2.4rem}
+.tabla td:nth-child(2){font-weight:800;white-space:nowrap}
+.q{display:inline-block;margin-left:6px;font-size:.68rem;font-weight:800;padding:1px 7px;border-radius:999px;background:var(--win-soft);color:var(--win);vertical-align:1px}
+.q.dir{background:var(--ball-soft);color:#9A4A00}
+.prov{font-size:.82rem;color:var(--mute);margin:0}
+
+.day{display:flex;flex-direction:column;gap:6px}
+.dayH{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:4px;margin-top:8px}
+.dayH h3{font-size:1.1rem;font-weight:900;font-stretch:112%}
+.dayH span{font-weight:700;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.g{display:grid;grid-template-columns:3.1rem 5.2rem minmax(0,1fr);gap:4px 10px;align-items:baseline;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.g.tap{cursor:pointer}
+.g.tap:hover{border-color:var(--ball)}
+.num{font-weight:700;color:var(--mute);font-size:.78rem;font-variant-numeric:tabular-nums}
+.time{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.time.tbd{color:var(--mute);font-weight:500}
+.match{min-width:0;display:flex;flex-direction:column;gap:2px}
+.side{display:flex;justify-content:space-between;gap:10px}
+.side .t{font-weight:700;min-width:0;overflow-wrap:anywhere}
+.side .t.ph{color:var(--mute);font-weight:500;font-style:italic}
+.side .p{font-weight:900;font-variant-numeric:tabular-nums}
+.side.w .t,.side.w .p{color:var(--win)}
+.side.l .t,.side.l .p{color:var(--mute);font-weight:600}
+.side .h{font-size:.66rem;font-weight:800;color:var(--mute);margin-left:4px;letter-spacing:.06em}
+.tags{grid-column:3;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:999px}
+.t-age{background:#12202E;color:#fff}
+.t-night{background:var(--night-soft);color:var(--night)}
+.t-change{background:var(--change-soft);color:var(--change)}
+.t-po{background:var(--win-soft);color:var(--win)}
+.t-fin{background:var(--ink);color:#fff}
+.ed{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:8px;align-items:end;border-top:1px dashed var(--line);padding-top:10px;margin-top:4px}
+.ed label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:700;color:var(--mute);flex:1 1 7rem;min-width:0}
+.ed input{font:inherit;font-size:1.3rem;font-weight:900;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;width:100%;font-variant-numeric:tabular-nums}
+.ed input:focus{outline:none;border-color:var(--ball)}
+.ed .acts{display:flex;gap:8px;flex-wrap:wrap;flex-basis:100%}
+.bajar{display:flex;flex-wrap:wrap;gap:10px}
+.foot{color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);padding-top:12px}
+.foot a{color:var(--accent)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:#12202E;color:#fff;
+  padding:10px 16px;border-radius:999px;font-weight:700;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;max-width:92vw}
+.toast.on{opacity:1}
+@media (max-width:420px){ .g{grid-template-columns:2.4rem 4.9rem minmax(0,1fr)} .views button{padding:8px 14px} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <a class="mark" href="/"><small>marcadorpr</small>Navidad de Colores</a>
+  <button type="button" class="lock" id="lock">Poner marcadores</button>
+</div></header>
+
+<main><div class="wrap">
+  <div>
+    <div class="eyebrow">Canóvanas Basketball · Cancha Quintas</div>
+    <h1>Torneo Navidad de Colores 2026</h1>
+    <p class="sub">Del 7 de noviembre al 12 de diciembre. La tabla y el cuadro de postemporada se llenan solos según entran los marcadores.</p>
+  </div>
+  <div class="tally" id="tally"></div>
+
+  <form class="code" id="codeBox" hidden autocomplete="off">
+    <label for="codeIn">Código de marcadores</label>
+    <input id="codeIn" maxlength="7" autocapitalize="characters" spellcheck="false" placeholder="AB1234">
+    <button class="btn ball" id="codeGo" type="submit">Entrar</button>
+    <button class="btn alt" id="codeNo" type="button">Cancelar</button>
+    <p class="say" id="codeSay"></p>
+  </form>
+
+  <div class="views" role="group" aria-label="Vista">
+    <button type="button" id="vCat" data-v="categoria">Por categoría</button>
+    <button type="button" id="vDia" data-v="dia">Por día</button>
+  </div>
+  <div class="ages" id="ages" role="group" aria-label="Categoría"></div>
+  <div id="cuerpo"></div>
+
+  <div class="bajar">
+    <button type="button" class="btn ball" id="bPdf">⬇ Descargar PDF</button>
+    <button type="button" class="btn alt" id="bCsv">Descargar Excel (CSV)</button>
+  </div>
+  <p class="foot">Una sola cancha para todos los juegos: Quintas. El equipo local va segundo (Visitante @ Local).
+    Página de <a href="/">marcadorpr</a>.</p>
+</div></main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// ══ DATOS DEL TORNEO ══════════════════════════════════
+// [juego, fecha, hora, visitante, local, nota]
+// nota: n noche · c cambio de horario · s semifinal · f final
+// En postemporada, visitante/local son RUTAS que se llenan solas:
+//   "1".."4"  = lugar en la tabla de la categoría
+//   "S:a,b"   = ganador de la serie de los juegos a y b
+var TORNEO = 'navidad-colores-2026';
+var A = {
+  "5-6 años": { teams:3, rules:"El primer lugar pasa directo a la final. El segundo y el tercero juegan la serie semifinal (5 y 6 de diciembre); el ganador va a la final, un solo juego.", g:[
+    [1,"2026-11-07","8:30 am","Equipo 1","Equipo 2",""],[2,"2026-11-08","8:30 am","Equipo 3","Equipo 2",""],
+    [3,"2026-11-11","6:00 pm","Equipo 3","Equipo 1","n"],[4,"2026-11-14","8:30 am","Equipo 3","Equipo 2",""],
+    [5,"2026-11-15","8:30 am","Equipo 1","Equipo 2",""],[6,"2026-11-18","6:00 pm","Equipo 3","Equipo 2","n"],
+    [7,"2026-11-21","8:30 am","Equipo 3","Equipo 1",""],[8,"2026-11-22","8:30 am","Equipo 1","Equipo 2",""],
+    [9,"2026-12-05","8:30 am","3","2","s"],[10,"2026-12-06","8:30 am","3","2","s"],[11,"2026-12-12","","S:9,10","1","f"]]},
+  "7-8 años": { teams:2, rules:"Dos equipos se enfrentan seis veces. La final es un solo juego, ya definida: Equipo 1 visita al Equipo 2.", g:[
+    [1,"2026-11-07","9:30 am","Equipo 1","Equipo 2",""],[2,"2026-11-08","9:30 am","Equipo 2","Equipo 1",""],
+    [3,"2026-11-11","7:00 pm","Equipo 1","Equipo 2","n"],[4,"2026-11-18","7:00 pm","Equipo 2","Equipo 1","n"],
+    [5,"2026-11-21","9:30 am","Equipo 1","Equipo 2",""],[6,"2026-11-22","9:30 am","Equipo 2","Equipo 1",""],
+    [9,"2026-12-12","","Equipo 1","Equipo 2","f"]]},
+  "9-10 años": { teams:4, rules:"Cada pareja se enfrenta dos veces. Clasifican los cuatro. Semifinales: 1.º contra 4.º y 2.º contra 3.º, dos juegos cada serie; los ganadores juegan la final, un solo juego.", g:[
+    [1,"2026-11-07","10:30 am","Equipo 1","Equipo 2",""],[2,"2026-11-07","11:30 am","Equipo 3","Equipo 4",""],
+    [3,"2026-11-08","10:30 am","Equipo 3","Equipo 2",""],[4,"2026-11-08","11:30 am","Equipo 1","Equipo 4",""],
+    [5,"2026-11-14","9:30 am","Equipo 2","Equipo 4","c"],[6,"2026-11-14","10:30 am","Equipo 3","Equipo 1","c"],
+    [7,"2026-11-15","9:30 am","Equipo 3","Equipo 2","c"],[8,"2026-11-15","10:30 am","Equipo 1","Equipo 4","c"],
+    [9,"2026-11-21","10:30 am","Equipo 3","Equipo 1",""],[10,"2026-11-21","11:30 am","Equipo 2","Equipo 4",""],
+    [11,"2026-11-22","10:30 am","Equipo 1","Equipo 2",""],[12,"2026-11-22","11:30 am","Equipo 3","Equipo 4",""],
+    [13,"2026-12-05","10:30 am","4","1","s"],[14,"2026-12-05","11:30 am","3","2","s"],
+    [15,"2026-12-06","10:30 am","4","1","s"],[16,"2026-12-06","11:30 am","3","2","s"],[17,"2026-12-12","","S:14,16","S:13,15","f"]]},
+  "11-13 años": { teams:6, rules:"Juegos 1–15: cada pareja se enfrenta una vez; el 17 de noviembre repiten 1-2, 3-4 y 5-6. Clasifican los primeros cuatro de seis. Semifinales: 1.º contra 4.º y 2.º contra 3.º, dos juegos cada serie; los ganadores juegan la final, un solo juego.", g:[
+    [1,"2026-11-07","12:30 pm","Equipo 1","Equipo 2",""],[2,"2026-11-07","1:30 pm","Equipo 3","Equipo 4",""],[3,"2026-11-07","2:30 pm","Equipo 5","Equipo 6",""],
+    [4,"2026-11-08","12:30 pm","Equipo 6","Equipo 1",""],[5,"2026-11-08","1:30 pm","Equipo 5","Equipo 4",""],[6,"2026-11-08","2:30 pm","Equipo 3","Equipo 2",""],
+    [7,"2026-11-09","6:00 pm","Equipo 5","Equipo 1","n"],[8,"2026-11-09","7:00 pm","Equipo 2","Equipo 4","n"],[9,"2026-11-09","8:00 pm","Equipo 3","Equipo 6","n"],
+    [10,"2026-11-10","6:00 pm","Equipo 5","Equipo 3","n"],[11,"2026-11-10","7:00 pm","Equipo 6","Equipo 2","n"],[12,"2026-11-10","8:00 pm","Equipo 4","Equipo 1","n"],
+    [13,"2026-11-16","6:00 pm","Equipo 3","Equipo 1","n"],[14,"2026-11-16","7:00 pm","Equipo 5","Equipo 2","n"],[15,"2026-11-16","8:00 pm","Equipo 4","Equipo 6","n"],
+    [16,"2026-11-17","6:00 pm","Equipo 6","Equipo 5","n"],[17,"2026-11-17","7:00 pm","Equipo 3","Equipo 4","n"],[18,"2026-11-17","8:00 pm","Equipo 2","Equipo 1","n"],
+    [19,"2026-12-05","12:30 pm","4","1","s"],[20,"2026-12-05","1:30 pm","3","2","s"],
+    [21,"2026-12-06","12:30 pm","4","1","s"],[22,"2026-12-06","1:30 pm","3","2","s"],[23,"2026-12-12","","S:20,22","S:19,21","f"]]},
+  "14-16 años": { teams:4, rules:"Cada pareja se enfrenta dos veces. Clasifican los cuatro. Semifinales: 1.º contra 4.º y 2.º contra 3.º, dos juegos cada serie; los ganadores juegan la final, un solo juego.", g:[
+    [1,"2026-11-07","3:30 pm","Equipo 1","Equipo 2",""],[2,"2026-11-07","4:30 pm","Equipo 3","Equipo 4",""],
+    [3,"2026-11-08","3:30 pm","Equipo 3","Equipo 2",""],[4,"2026-11-08","4:30 pm","Equipo 1","Equipo 4",""],
+    [5,"2026-11-14","11:30 am","Equipo 2","Equipo 4","c"],[6,"2026-11-14","12:30 pm","Equipo 3","Equipo 1","c"],
+    [7,"2026-11-15","11:30 am","Equipo 3","Equipo 2","c"],[8,"2026-11-15","12:30 pm","Equipo 1","Equipo 4","c"],
+    [9,"2026-11-21","12:30 pm","Equipo 3","Equipo 1",""],[10,"2026-11-21","1:30 pm","Equipo 2","Equipo 4",""],
+    [11,"2026-11-22","12:30 pm","Equipo 1","Equipo 2",""],[12,"2026-11-22","1:30 pm","Equipo 3","Equipo 4",""],
+    [13,"2026-12-05","3:30 pm","4","1","s"],[14,"2026-12-05","4:30 pm","3","2","s"],
+    [15,"2026-12-06","3:30 pm","4","1","s"],[16,"2026-12-06","4:30 pm","3","2","s"],[17,"2026-12-12","","S:14,16","S:13,15","f"]]}
+};
+var EDADES = Object.keys(A);
+var SB_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+
+function rpc(name, args){
+  return fetch(SB_URL + '/rest/v1/rpc/' + name, {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer ' + SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify(args || {})
+  }).then(function(r){ if (!r.ok) throw new Error('rpc ' + r.status); return r.json(); });
+}
+function $(i){ return document.getElementById(i) }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] }) }
+var DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'], DIAS_L = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+var MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+var MESES_L = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function dia(iso){ var p = iso.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]) }
+function fecha(iso){ var d = dia(iso), t = DIAS_L[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES_L[d.getMonth()]; return t.charAt(0).toUpperCase() + t.slice(1) }
+function fechaCorta(iso){ var d = dia(iso); return DIAS[d.getDay()] + ' ' + d.getDate() + ' ' + MESES[d.getMonth()] }
+function mins(t){ if (!t) return 9999; var m = t.match(/(\d+):(\d+)\s*(am|pm)/i); return (+m[1] % 12 + (/pm/i.test(m[3]) ? 12 : 0)) * 60 + +m[2] }
+function clave(e, n){ return e.split(' ')[0] + '#' + n }   // "5-6 años", 9 → "5-6#9"
+function juego(e, n){ var l = A[e].g; for (var i = 0; i < l.length; i++) if (l[i][0] === n) return l[i]; return null }
+function esRuta(x){ return /^([1-6]|S:\d+,\d+)$/.test(x) }
+
+// ══ MARCADORES ═══════════════════════════════════════
+var SCORES = {};   // "5-6#9" → {a, b}   a = visitante, b = local
+
+// ══ TABLA DE POSICIONES ═════════════════════════════
+// Ganados primero; empate en ganados: diferencia de puntos, luego
+// puntos a favor, luego el número del equipo.
+function tabla(e){
+  var t = {}, faltan = 0;
+  A[e].g.forEach(function(g){
+    if (/[sf]/.test(g[5])) return;
+    [g[3], g[4]].forEach(function(n){ if (!t[n]) t[n] = { eq:n, jj:0, g:0, p:0, pf:0, pc:0 } });
+    var s = SCORES[clave(e, g[0])];
+    if (!s){ faltan++; return }
+    var v = t[g[3]], l = t[g[4]];
+    v.jj++; l.jj++; v.pf += s.a; v.pc += s.b; l.pf += s.b; l.pc += s.a;
+    if (s.a > s.b){ v.g++; l.p++ } else if (s.b > s.a){ l.g++; v.p++ }
+  });
+  var lista = Object.keys(t).map(function(k){ return t[k] }).sort(function(x, y){
+    return (y.g - x.g) || ((y.pf - y.pc) - (x.pf - x.pc)) || (y.pf - x.pf) || x.eq.localeCompare(y.eq, 'es', { numeric:true });
+  });
+  return { lista:lista, completa: faltan === 0, faltan:faltan };
+}
+
+// Who is in a playoff slot. Returns {eq:'Equipo 2'} or {ph:'2.º lugar'}.
+function quien(e, x, prof){
+  if (!esRuta(x)) return { eq:x };
+  if ((prof || 0) > 4) return { ph:'Por definir' };
+  if (/^\d$/.test(x)){
+    var t = tabla(e);
+    if (!t.completa || !t.lista[+x - 1]) return { ph: x + '.º lugar' };
+    return { eq: t.lista[+x - 1].eq };
+  }
+  var par = x.slice(2).split(',').map(Number), w = serie(e, par[0], par[1], (prof || 0) + 1);
+  return w ? { eq:w } : { ph:'Ganador semifinal ' + par[0] + '/' + par[1] };
+}
+// Two-game series: more wins; 1-1 goes to total points over both games.
+function serie(e, n1, n2, prof){
+  var g1 = juego(e, n1), g2 = juego(e, n2), s1 = SCORES[clave(e, n1)], s2 = SCORES[clave(e, n2)];
+  if (!s1 || !s2) return null;
+  var v1 = quien(e, g1[3], prof), l1 = quien(e, g1[4], prof), v2 = quien(e, g2[3], prof), l2 = quien(e, g2[4], prof);
+  if (!v1.eq || !l1.eq || !v2.eq || !l2.eq) return null;
+  var w = {}, p = {};
+  [[v1.eq, l1.eq, s1], [v2.eq, l2.eq, s2]].forEach(function(r){
+    p[r[0]] = (p[r[0]] || 0) + r[2].a; p[r[1]] = (p[r[1]] || 0) + r[2].b;
+    w[r[0]] = w[r[0]] || 0; w[r[1]] = w[r[1]] || 0;
+    if (r[2].a > r[2].b) w[r[0]]++; else if (r[2].b > r[2].a) w[r[1]]++;
+  });
+  var eqs = Object.keys(w); if (eqs.length !== 2) return null;
+  var a = eqs[0], b = eqs[1];
+  if (w[a] !== w[b]) return w[a] > w[b] ? a : b;
+  if (p[a] !== p[b]) return p[a] > p[b] ? a : b;
+  return null;   // tied in wins and points: the organizer decides
+}
+function campeon(e){
+  var f = A[e].g.filter(function(g){ return /f/.test(g[5]) })[0]; if (!f) return null;
+  var s = SCORES[clave(e, f[0])]; if (!s || s.a === s.b) return null;
+  var v = quien(e, f[3]), l = quien(e, f[4]); if (!v.eq || !l.eq) return null;
+  return s.a > s.b ? v.eq : l.eq;
+}
+
+// ══ PINTAR ═══════════════════════════════════════════
+var VISTA = 'categoria', EDAD = EDADES[0], CODE = '', ABIERTO = '';
+try { var e0 = localStorage.getItem('ndc-edad'); if (A[e0]) EDAD = e0 } catch(e){}
+try { CODE = sessionStorage.getItem('ndc-code') || '' } catch(e){}
+
+function notas(g){
+  var n = [];
+  if (/n/.test(g[5])) n.push('Noche');
+  if (/c/.test(g[5])) n.push('Cambio de horario');
+  if (/s/.test(g[5])) n.push('Semifinal');
+  if (/f/.test(g[5])) n.push('Final · un juego');
+  return n;
+}
+function fila(e, g, conEdad){
+  var k = clave(e, g[0]), s = SCORES[k], v = quien(e, g[3]), l = quien(e, g[4]);
+  var listo = v.eq && l.eq, puede = CODE && listo;
+  var tags = [];
+  if (conEdad) tags.push('<span class="tag t-age">' + esc(e) + '</span>');
+  if (/n/.test(g[5])) tags.push('<span class="tag t-night">Noche</span>');
+  if (/c/.test(g[5])) tags.push('<span class="tag t-change">Cambio de horario</span>');
+  if (/s/.test(g[5])) tags.push('<span class="tag t-po">Semifinal</span>');
+  if (/f/.test(g[5])) tags.push('<span class="tag t-po">Final · un juego</span>');
+  if (s) tags.push('<span class="tag t-fin">Final del juego</span>');
+  function lado(q, pts, gano, perdio, h){
+    return '<div class="side' + (gano ? ' w' : perdio ? ' l' : '') + '"><span class="t' + (q.eq ? '' : ' ph') + '">' + esc(q.eq || q.ph) +
+      (h ? '<span class="h">LOCAL</span>' : '') + '</span>' + (s ? '<span class="p">' + pts + '</span>' : '') + '</div>';
+  }
+  var html = '<div class="g' + (puede ? ' tap' : '') + '" data-k="' + k + '" data-e="' + esc(e) + '" data-n="' + g[0] + '">' +
+    '<span class="num">#' + g[0] + '</span>' +
+    '<span class="time' + (g[2] ? '' : ' tbd') + '">' + (g[2] ? esc(g[2]) : 'Hora por definir') + '</span>' +
+    '<div class="match">' + lado(v, s && s.a, s && s.a > s.b, s && s.a < s.b, false) + lado(l, s && s.b, s && s.b > s.a, s && s.b < s.a, true) + '</div>' +
+    (tags.length ? '<div class="tags">' + tags.join('') + '</div>' : '');
+  if (puede && ABIERTO === k){
+    html += '<div class="ed"><label>' + esc(v.eq) + ' (visitante)<input id="edA" inputmode="numeric" pattern="[0-9]*" value="' + (s ? s.a : '') + '"></label>' +
+      '<label>' + esc(l.eq) + ' (local)<input id="edB" inputmode="numeric" pattern="[0-9]*" value="' + (s ? s.b : '') + '"></label>' +
+      '<div class="acts"><button type="button" class="btn ball" id="edOk">Guardar</button>' +
+      (s ? '<button type="button" class="btn alt" id="edDel">Borrar marcador</button>' : '') +
+      '<button type="button" class="btn alt" id="edNo">Cerrar ✕</button></div></div>';
+  }
+  return html + '</div>';
+}
+function bloques(rows){
+  var por = {}, orden = [];
+  rows.forEach(function(r){ var d = r.g[1]; if (!por[d]){ por[d] = []; orden.push(d) } por[d].push(r) });
+  orden.sort();
+  return orden.map(function(d){
+    var l = por[d].sort(function(a, b){ return mins(a.g[2]) - mins(b.g[2]) || EDADES.indexOf(a.e) - EDADES.indexOf(b.e) });
+    return '<section class="day"><div class="dayH"><h3>' + fecha(d) + '</h3><span>' + l.length + (l.length === 1 ? ' juego' : ' juegos') + '</span></div>' +
+      l.map(function(r){ return fila(r.e, r.g, r.conEdad) }).join('') + '</section>';
+  }).join('');
+}
+function pintarTabla(e){
+  var t = tabla(e), cupo = e === '5-6 años' ? 3 : e === '7-8 años' ? 0 : 4;
+  var filas = t.lista.map(function(r, i){
+    var marca = '';
+    if (t.completa && cupo){ if (e === '5-6 años' && i === 0) marca = '<span class="q dir">a la final</span>'; else if (i < cupo) marca = '<span class="q">semifinal</span>' }
+    return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.eq) + marca + '</td><td>' + r.jj + '</td><td>' + r.g + '</td><td>' + r.p + '</td><td>' + r.pf + '</td><td>' + r.pc + '</td><td>' + (r.pf - r.pc > 0 ? '+' : '') + (r.pf - r.pc) + '</td></tr>';
+  }).join('');
+  return '<section class="sec"><h2>Tabla de posiciones</h2>' +
+    '<div class="tablaW"><table class="tabla"><thead><tr><th>#</th><th>Equipo</th><th>JJ</th><th>G</th><th>P</th><th>PF</th><th>PC</th><th>Dif</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
+    '<p class="prov">' + (t.completa ? 'Temporada regular terminada: el cuadro ya tiene sus equipos.' :
+      'Faltan ' + t.faltan + (t.faltan === 1 ? ' marcador' : ' marcadores') + ' de temporada regular. El cuadro se llena cuando estén todos. Desempate: diferencia de puntos, luego puntos a favor.') + '</p></section>';
+}
+function pintar(){
+  $('vCat').setAttribute('aria-pressed', VISTA === 'categoria');
+  $('vDia').setAttribute('aria-pressed', VISTA === 'dia');
+  $('ages').hidden = VISTA !== 'categoria';
+  var total = 0, puestos = 0;
+  EDADES.forEach(function(e){ A[e].g.forEach(function(g){ total++; if (SCORES[clave(e, g[0])]) puestos++ }) });
+  $('tally').innerHTML = '<span><b>5</b> categorías</span><span><b>' + total + '</b> juegos</span><span><b>' + puestos + '</b> con marcador</span>';
+  if (VISTA === 'categoria'){
+    $('ages').innerHTML = EDADES.map(function(e){
+      var c = campeon(e);
+      return '<button type="button" data-e="' + esc(e) + '" aria-pressed="' + (e === EDAD) + '">' + esc(e) +
+        '<small>' + (c ? '🏆 ' + esc(c) : A[e].teams + ' equipos · ' + A[e].g.length + ' juegos') + '</small></button>';
+    }).join('');
+    [].forEach.call($('ages').querySelectorAll('button'), function(b){
+      b.onclick = function(){ EDAD = b.getAttribute('data-e'); ABIERTO = ''; try { localStorage.setItem('ndc-edad', EDAD) } catch(e){} pintar() };
+    });
+    var c = campeon(EDAD), reg = [], po = [];
+    A[EDAD].g.forEach(function(g){ (/[sf]/.test(g[5]) ? po : reg).push({ e:EDAD, g:g }) });
+    $('cuerpo').innerHTML = (c ? '<div class="champ"><small>Campeón · ' + esc(EDAD) + '</small><b>' + esc(c) + '</b></div>' : '') +
+      '<p class="rules">' + esc(A[EDAD].rules) + '</p>' +
+      (EDAD === '7-8 años' ? '' : pintarTabla(EDAD)) +
+      '<section class="sec"><h2>Postemporada</h2>' + bloques(po) + '</section>' +
+      '<section class="sec"><h2>Temporada regular</h2>' + bloques(reg) + '</section>';
+  } else {
+    var t = [];
+    EDADES.forEach(function(e){ A[e].g.forEach(function(g){ t.push({ e:e, g:g, conEdad:true }) }) });
+    $('cuerpo').innerHTML = bloques(t);
+  }
+  enlazar();
+}
+
+// ══ PONER UN MARCADOR ═══════════════════════════════
+function toast(t){ var el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function(){ el.classList.remove('on') }, 2600) }
+function enlazar(){
+  [].forEach.call(document.querySelectorAll('.g.tap'), function(row){
+    row.onclick = function(ev){
+      if (ev.target.closest('.ed')) return;
+      ABIERTO = ABIERTO === row.dataset.k ? '' : row.dataset.k; pintar();
+      var a = $('edA'); if (a) a.focus();
+    };
+  });
+  if (!$('edOk')) return;
+  var row = $('edOk').closest('.g'), k = row.dataset.k;
+  function guardar(a, b){
+    $('edOk').disabled = true;
+    rpc('cuadro_marcar', { p_torneo:TORNEO, p_codigo:CODE, p_juego:k, p_a:a, p_b:b }).then(function(r){
+      if (!r || !r.ok){
+        $('edOk').disabled = false;
+        if (r && (r.reason === 'code' || r.reason === 'espera')){ salir(); pedirCodigo(r.reason === 'espera' ? 'Demasiados intentos. Espera unos minutos.' : 'El código ya no sirve. Escríbelo otra vez.'); return }
+        toast('No se pudo guardar. Revisa los números.'); return;
+      }
+      if (a === null) delete SCORES[k]; else SCORES[k] = { a:a, b:b };
+      ABIERTO = ''; pintar();
+      toast(a === null ? 'Marcador borrado.' : 'Marcador guardado. La tabla y el cuadro ya se actualizaron.');
+    }).catch(function(){ $('edOk').disabled = false; toast('Sin conexión. No se guardó.') });
+  }
+  $('edOk').onclick = function(){
+    var a = $('edA').value.trim(), b = $('edB').value.trim();
+    if (!/^\d{1,3}$/.test(a)){ $('edA').focus(); return }
+    if (!/^\d{1,3}$/.test(b)){ $('edB').focus(); return }
+    if (/[sf]/.test(juego(row.dataset.e, +row.dataset.n)[5]) && a === b){ toast('Un juego de postemporada no puede quedar empatado.'); return }
+    guardar(parseInt(a, 10), parseInt(b, 10));
+  };
+  if ($('edDel')) $('edDel').onclick = function(){ guardar(null, null) };
+  $('edNo').onclick = function(){ ABIERTO = ''; pintar() };
+  [$('edA'), $('edB')].forEach(function(i){ i.onkeydown = function(ev){ if (ev.key === 'Enter') $('edOk').click() } });
+}
+function pintarLock(){
+  $('lock').textContent = CODE ? 'Marcadores: abierto · Salir' : 'Poner marcadores';
+  $('lock').classList.toggle('on', !!CODE);
+}
+function pedirCodigo(msg){
+  $('codeBox').hidden = false; $('codeSay').textContent = msg || 'Toca un juego para ponerle el marcador después de entrar.';
+  $('codeSay').className = 'say' + (msg ? ' bad' : ''); $('codeIn').value = ''; $('codeIn').focus();
+}
+function salir(){ CODE = ''; try { sessionStorage.removeItem('ndc-code') } catch(e){} ABIERTO = ''; pintarLock(); pintar() }
+$('lock').onclick = function(){ if (CODE) salir(); else if ($('codeBox').hidden) pedirCodigo(); else $('codeBox').hidden = true };
+$('codeNo').onclick = function(){ $('codeBox').hidden = true };
+$('codeBox').onsubmit = function(ev){
+  ev.preventDefault();
+  var c = $('codeIn').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!c){ $('codeIn').focus(); return }
+  $('codeGo').disabled = true;
+  rpc('cuadro_entrar', { p_torneo:TORNEO, p_codigo:c }).then(function(r){
+    $('codeGo').disabled = false;
+    if (!r || !r.ok){ $('codeSay').textContent = r && r.reason === 'espera' ? 'Demasiados intentos. Espera unos minutos.' : 'Código incorrecto.'; $('codeSay').className = 'say bad'; return }
+    CODE = c; try { sessionStorage.setItem('ndc-code', c) } catch(e){}
+    $('codeBox').hidden = true; pintarLock(); pintar(); toast('Listo. Toca un juego para poner su marcador.');
+  }).catch(function(){ $('codeGo').disabled = false; $('codeSay').textContent = 'Sin conexión.'; $('codeSay').className = 'say bad' });
+};
+
+// ══ DESCARGAS ═══════════════════════════════════════
+function filasTodas(soloEdad){
+  var t = [];
+  EDADES.forEach(function(e){ if (soloEdad && e !== soloEdad) return; A[e].g.forEach(function(g){ t.push({ e:e, g:g }) }) });
+  return t.sort(function(a, b){ return a.g[1] < b.g[1] ? -1 : a.g[1] > b.g[1] ? 1 : (mins(a.g[2]) - mins(b.g[2]) || EDADES.indexOf(a.e) - EDADES.indexOf(b.e)) });
+}
+function datos(r){
+  var g = r.g, s = SCORES[clave(r.e, g[0])], v = quien(r.e, g[3]), l = quien(r.e, g[4]);
+  return { v: v.eq || v.ph, l: l.eq || l.ph, m: s ? s.a + ' - ' + s.b : '', h: g[2] || 'Por definir', n: notas(g).join(', ') };
+}
+function bajar(nombre, blob){
+  var u = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = u; a.download = nombre; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(u); a.remove() }, 1500);
+}
+function sinAcento(t){ return t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') }
+$('bPdf').onclick = function(){
+  var J = window.jspdf && window.jspdf.jsPDF;
+  if (!J){ toast('El PDF todavía está cargando. Inténtalo en un momento.'); return }
+  var porDia = VISTA === 'dia', doc = new J({ unit:'pt', format:'letter' }), W = doc.internal.pageSize.getWidth();
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(18, 32, 46);
+  doc.text('Torneo Navidad de Colores 2026', 40, 50);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.setTextColor(90, 107, 124);
+  doc.text((porDia ? 'Itinerario completo, por día' : EDAD) + '  ·  Canóvanas Basketball  ·  Cancha Quintas', 40, 68);
+  var y = 84;
+  if (!porDia){
+    var lin = doc.splitTextToSize(A[EDAD].rules, W - 80); doc.text(lin, 40, y + 4); y += lin.length * 13 + 8;
+    if (EDAD !== '7-8 años'){
+      var t = tabla(EDAD);
+      doc.autoTable({ head:[['#', 'Equipo', 'JJ', 'G', 'P', 'PF', 'PC', 'Dif']], startY:y, margin:{ left:40, right:40 },
+        body: t.lista.map(function(r, i){ return [i + 1, r.eq, r.jj, r.g, r.p, r.pf, r.pc, r.pf - r.pc] }),
+        styles:{ fontSize:9.5, cellPadding:4 }, headStyles:{ fillColor:[18, 32, 46] } });
+      y = doc.lastAutoTable.finalY + 14;
+    }
+  }
+  var rows = filasTodas(porDia ? null : EDAD);
+  doc.autoTable({ startY:y, margin:{ left:40, right:40 },
+    head: porDia ? [['Fecha', 'Hora', 'Categoría', 'Juego', 'Visitante', 'Local', 'Marcador', 'Nota']] : [['Juego', 'Fecha', 'Hora', 'Visitante', 'Local', 'Marcador', 'Nota']],
+    body: rows.map(function(r){ var d = datos(r);
+      return porDia ? [fechaCorta(r.g[1]), d.h, r.e, '#' + r.g[0], d.v, d.l, d.m, d.n] : ['#' + r.g[0], fechaCorta(r.g[1]), d.h, d.v, d.l, d.m, d.n] }),
+    styles:{ fontSize:9, cellPadding:4, textColor:[18, 32, 46], lineColor:[215, 224, 232], lineWidth:.5 },
+    headStyles:{ fillColor:[18, 32, 46], textColor:255 }, alternateRowStyles:{ fillColor:[247, 250, 252] },
+    didDrawPage:function(){ doc.setFontSize(8); doc.setTextColor(120); doc.text('marcadorpr.com/navidad-de-colores.html  ·  El equipo local va segundo.', 40, doc.internal.pageSize.getHeight() - 24) } });
+  bajar('Navidad-de-Colores-2026-' + (porDia ? 'por-dia' : sinAcento(EDAD)) + '.pdf', doc.output('blob'));
+};
+$('bCsv').onclick = function(){
+  var q = function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v };
+  var l = [['Fecha', 'Día', 'Hora', 'Categoría', 'Juego', 'Visitante', 'Local', 'Marcador', 'Cancha', 'Nota'].join(',')];
+  filasTodas(null).forEach(function(r){ var d = datos(r), dd = dia(r.g[1]);
+    l.push([r.g[1], DIAS_L[dd.getDay()], d.h, r.e, r.g[0], d.v, d.l, d.m, 'Quintas', d.n].map(q).join(',')) });
+  bajar('Navidad-de-Colores-2026.csv', new Blob(['\ufeff' + l.join('\r\n') + '\r\n'], { type:'text/csv;charset=utf-8' }));
+};
+
+// ══ ARRANQUE ════════════════════════════════════════
+function ruta(){ VISTA = location.hash === '#dia' ? 'dia' : 'categoria'; ABIERTO = ''; pintar() }
+[$('vCat'), $('vDia')].forEach(function(b){ b.onclick = function(){ location.hash = b.getAttribute('data-v') } });
+window.addEventListener('hashchange', ruta);
+function cargar(){
+  return rpc('cuadro_tablero', { p_torneo:TORNEO }).then(function(r){
+    SCORES = r || {};
+    if (!ABIERTO) pintar();   // never repaint under a score being typed
+  }).catch(function(e){ console.error(e) });
+}
+pintarLock(); ruta(); cargar();
+setInterval(function(){ if (!document.hidden) cargar() }, 60000);
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) cargar() });
+</script>
+</body>
+</html>
