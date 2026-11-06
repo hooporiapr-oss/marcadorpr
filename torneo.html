@@ -1003,8 +1003,18 @@ function resolve(name, depth){
   depth = depth || 0;
   if (depth > 8) return name;
 
+  // "2º · Juvenil": the table fills it once all its games have scores.
+  var sd = seedFor(name);
+  if (sd) return resolve(sd, depth + 1);
+
   var key = placeholderFor(name);
   if (!key) return name;
+
+  // "Ganador X/Y": a two-game series.
+  if (key.indexOf('/') > 0){
+    var w = serieGanador(key, depth);
+    return w ? resolve(w, depth + 1) : name;
+  }
 
   var g = BYNO[key], s = SCORES[key];
   if (!g || !s || s.a === s.b) return name;
@@ -1015,7 +1025,48 @@ function resolve(name, depth){
 
 
 
+/* ── SEEDS AND SERIES (Nov 6, 2026) ─────────────────────────
+   The tables are worked out once per paint and kept in STAND; any
+   new score starts a paint, which starts them over. While a table is
+   being worked out no seed is looked up (its own rows are real teams,
+   and looking would loop). */
+var STAND = null, CALC = false;
+function tablas(){
+  if (!STAND){ CALC = true; try { STAND = standings(); } finally { CALC = false; } }
+  return STAND;
+}
+function seedFor(name){
+  if (CALC) return null;
+  var m = String(name || '').match(/^(\d+)º(?: Grupo (\S+))? · (.+)$/);
+  if (!m) return null;
+  var key = m[3] + (m[2] ? ' · Grupo ' + m[2].toUpperCase() : '');
+  var pot = tablas().filter(function(p){ return p.key === key; })[0];
+  if (!pot || !pot.total || pot.jugados < pot.total) return null;   // table not finished
+  var t = pot.teams[Number(m[1]) - 1];
+  return t ? t.name : null;
+}
+// Two games: more wins goes on; 1-1 goes to total points; still level,
+// nobody yet (the organizer decides).
+function serieGanador(key, depth){
+  var k = key.split('/'), g1 = BYNO[k[0]], g2 = BYNO[k[1]], s1 = SCORES[k[0]], s2 = SCORES[k[1]];
+  if (!g1 || !g2 || !s1 || !s2) return null;
+  var a1 = resolve(g1.a, depth + 1), b1 = resolve(g1.b, depth + 1),
+      a2 = resolve(g2.a, depth + 1), b2 = resolve(g2.b, depth + 1);
+  if ([a1, b1, a2, b2].some(function(n){ return placeholderFor(n) || seedFor(n) || /^(Ganador|\d+º)/i.test(n); })) return null;
+  var gan = {}, pts = {};
+  [[a1, b1, s1], [a2, b2, s2]].forEach(function(x){
+    gan[x[0]] = gan[x[0]] || 0; gan[x[1]] = gan[x[1]] || 0;
+    pts[x[0]] = (pts[x[0]] || 0) + x[2].a; pts[x[1]] = (pts[x[1]] || 0) + x[2].b;
+    if (x[2].a > x[2].b) gan[x[0]]++; else if (x[2].b > x[2].a) gan[x[1]]++;
+  });
+  var eq = Object.keys(gan); if (eq.length !== 2) return null;
+  if (gan[eq[0]] !== gan[eq[1]]) return gan[eq[0]] > gan[eq[1]] ? eq[0] : eq[1];
+  if (pts[eq[0]] !== pts[eq[1]]) return pts[eq[0]] > pts[eq[1]] ? eq[0] : eq[1];
+  return null;
+}
+
 function paint(){
+  STAND = null;
   var rows = document.querySelectorAll('.r');
   for (var i = 0; i < rows.length; i++){
     var r = rows[i];
