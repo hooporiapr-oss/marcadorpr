@@ -91,6 +91,8 @@ table.tabla{border-collapse:collapse;width:100%;font-variant-numeric:tabular-num
 .g{display:grid;grid-template-columns:3.1rem 5.2rem minmax(0,1fr);gap:4px 10px;align-items:baseline;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .g.tap{cursor:pointer}
 .g.tap:hover{border-color:var(--ball)}
+.g.tap{border-left:4px solid var(--ball)}
+.g.wait{cursor:not-allowed;opacity:.8}
 .num{font-weight:700;color:var(--mute);font-size:.78rem;font-variant-numeric:tabular-nums}
 .time{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .time.tbd{color:var(--mute);font-weight:500}
@@ -309,7 +311,7 @@ function notas(g){
 }
 function fila(e, g, conEdad){
   var k = clave(e, g[0]), s = SCORES[k], v = quien(e, g[3]), l = quien(e, g[4]);
-  var listo = v.eq && l.eq, puede = CODE && listo;
+  var listo = v.eq && l.eq, puede = CODE && listo, espera = CODE && !listo;
   var tags = [];
   if (conEdad) tags.push('<span class="tag t-age">' + esc(e) + '</span>');
   if (/n/.test(g[5])) tags.push('<span class="tag t-night">Noche</span>');
@@ -321,7 +323,7 @@ function fila(e, g, conEdad){
     return '<div class="side' + (gano ? ' w' : perdio ? ' l' : '') + '"><span class="t' + (q.eq ? '' : ' ph') + '">' + esc(q.eq || q.ph) +
       (h ? '<span class="h">LOCAL</span>' : '') + '</span>' + (s ? '<span class="p">' + pts + '</span>' : '') + '</div>';
   }
-  var html = '<div class="g' + (puede ? ' tap' : '') + '" data-k="' + k + '" data-e="' + esc(e) + '" data-n="' + g[0] + '">' +
+  var html = '<div class="g' + (puede ? ' tap' : espera ? ' wait' : '') + '" data-k="' + k + '" data-e="' + esc(e) + '" data-n="' + g[0] + '">' +
     '<span class="num">#' + g[0] + '</span>' +
     '<span class="time' + (g[2] ? '' : ' tbd') + '">' + (g[2] ? esc(g[2]) : 'Hora por definir') + '</span>' +
     '<div class="match">' + lado(v, s && s.a, s && s.a > s.b, s && s.a < s.b, false) + lado(l, s && s.b, s && s.b > s.a, s && s.b < s.a, true) + '</div>' +
@@ -378,8 +380,8 @@ function pintar(){
     $('cuerpo').innerHTML = (c ? '<div class="champ"><small>Campeón · ' + esc(EDAD) + '</small><b>' + esc(c) + '</b></div>' : '') +
       '<p class="rules">' + esc(A[EDAD].rules) + '</p>' +
       (EDAD === '7-8 años' ? '' : pintarTabla(EDAD)) +
-      '<section class="sec"><h2>Postemporada</h2>' + bloques(po) + '</section>' +
-      '<section class="sec"><h2>Temporada regular</h2>' + bloques(reg) + '</section>';
+      '<section class="sec"><h2>Temporada regular</h2>' + bloques(reg) + '</section>' +
+      '<section class="sec"><h2>Postemporada</h2>' + bloques(po) + '</section>';
   } else {
     var t = [];
     EDADES.forEach(function(e){ A[e].g.forEach(function(g){ t.push({ e:e, g:g, conEdad:true }) }) });
@@ -391,6 +393,9 @@ function pintar(){
 // ══ PONER UN MARCADOR ═══════════════════════════════
 function toast(t){ var el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function(){ el.classList.remove('on') }, 2600) }
 function enlazar(){
+  [].forEach.call(document.querySelectorAll('.g.wait'), function(row){
+    row.onclick = function(){ toast('Este juego todavía no tiene equipos: se llena solo cuando terminen los juegos de antes.') };
+  });
   [].forEach.call(document.querySelectorAll('.g.tap'), function(row){
     row.onclick = function(ev){
       if (ev.target.closest('.ed')) return;
@@ -444,7 +449,7 @@ $('codeBox').onsubmit = function(ev){
     $('codeGo').disabled = false;
     if (!r || !r.ok){ $('codeSay').textContent = r && r.reason === 'espera' ? 'Demasiados intentos. Espera unos minutos.' : 'Código incorrecto.'; $('codeSay').className = 'say bad'; return }
     CODE = c; try { sessionStorage.setItem('ndc-code', c) } catch(e){}
-    $('codeBox').hidden = true; pintarLock(); pintar(); toast('Listo. Toca un juego para poner su marcador.');
+    $('codeBox').hidden = true; pintarLock(); pintar(); toast('Listo. Toca un juego con borde anaranjado para poner su marcador.');
   }).catch(function(){ $('codeGo').disabled = false; $('codeSay').textContent = 'Sin conexión.'; $('codeSay').className = 'say bad' });
 };
 
