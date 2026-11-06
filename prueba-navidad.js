@@ -66,6 +66,10 @@ let bad = 0; const si = (c, m) => { if (!c) bad++; console.log((c ? '  ok   ' : 
   await p.fill('#codeIn', 'nv-4827'); await p.click('#codeGo'); await p.waitForTimeout(300);
   si(await p.locator('#codeBox').isHidden() && /abierto/.test(await p.locator('#lock').innerText()), 'right code (any case, any dashes): scorer mode on');
   si(await row(p, '9-10#17').evaluate(e => !e.classList.contains('tap')), 'the final cannot be scored before its teams are known');
+  await row(p, '9-10#17').click(); await p.waitForTimeout(100);
+  si(/todavía no tiene equipos/.test(await p.locator('#toast').innerText()) && await p.locator('.ed').count() === 0, 'tapping a game without teams says why');
+  const secs = await p.locator('.sec h2').allInnerTexts();
+  si(/regular/i.test(secs[1]) && /postemporada/i.test(secs[2]), 'regular season comes before the playoffs (the games you can score now)');
   async function poner(k, a, bb){
     await row(p, k).click(); await p.waitForTimeout(100);
     await p.fill('#edA', String(a)); await p.fill('#edB', String(bb)); await p.click('#edOk'); await p.waitForTimeout(250);
