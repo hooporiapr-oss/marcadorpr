@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Box score — marcadorpr</title>
+<meta name="description" content="Box score del juego en marcadorpr.">
+<meta property="og:title" content="Box score — marcadorpr">
+<meta property="og:description" content="Puntos por jugador, por periodo y el final.">
+<meta property="og:image" content="https://marcadorpr.com/marcador-share.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;min-height:100dvh;font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.5}
+.wrap{width:min(720px,100% - 32px);margin:0 auto}
+header{background:#12202E;border-bottom:3px solid var(--ball);padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff;text-decoration:none}
+.mark span{color:var(--ball)}
+.langb{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;padding:6px 13px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+.score{background:#12202E;color:#fff;padding:22px 0 26px}
+.meta{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#9FB3C5;font-weight:800;text-align:center;margin-bottom:12px}
+.sb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;text-align:center}
+.sb .t{font-weight:900;font-size:clamp(.95rem,3.6vw,1.2rem);line-height:1.2}
+.sb .n{font-size:clamp(2.6rem,12vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1}
+.sb .gana .n{color:var(--ball)}
+.sb .vs{color:#5F7487;font-weight:900}
+.fin{text-align:center;font-size:.7rem;letter-spacing:.2em;color:#9FB3C5;font-weight:900;margin-top:10px}
+main .wrap{padding:22px 0 44px}
+h2{font-size:1rem;font-weight:900;margin:24px 0 8px;letter-spacing:-.01em}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);text-align:center;padding:6px 4px;border-bottom:2px solid var(--ink)}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:center}
+td.num{color:var(--mute);width:42px}
+td.pts{font-weight:900}
+tr.top td.pts{color:var(--ball)}
+tr.sum td{font-weight:900;border-bottom:none;border-top:2px solid var(--ink)}
+.nota{color:var(--mute);font-size:.85rem;margin-top:22px}
+.btn{display:block;border:none;border-radius:4px;background:var(--ball);color:#12202E;font:inherit;font-weight:900;padding:13px 18px;text-align:center;text-decoration:none;margin:26px auto 0;max-width:340px}
+.vacio{text-align:center;color:var(--mute);padding:60px 0}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <a class="mark" href="index.html">marcador<span>pr</span></a>
+  <button class="langb" id="lang" type="button">EN</button>
+</div></header>
+<section class="score" id="score" hidden><div class="wrap">
+  <div class="meta" id="meta"></div>
+  <div class="sb">
+    <div id="ladoA"><div class="n" id="nA"></div><div class="t" id="tA"></div></div>
+    <div class="vs">–</div>
+    <div id="ladoB"><div class="n" id="nB"></div><div class="t" id="tB"></div></div>
+  </div>
+  <div class="fin" id="fin">FINAL</div>
+</div></section>
+<main><div class="wrap" id="cuerpo"><div class="vacio" id="vacio">…</div></div></main>
+<script>
+(function(){
+  var SB_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+  var $ = function(id){ return document.getElementById(id) };
+  var EN = false; try { EN = localStorage.getItem('mpr-lang') === 'en' } catch(e){}
+  function t(es, en){ return EN ? en : es }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c] }) }
+  var H = null, id = (location.search.match(/[?&]h=([A-Za-z0-9]+)/) || [])[1];
+
+  function equipo(e){
+    var top = Math.max.apply(null, e.jugadores.map(function(j){ return j.puntos || 0 }).concat([1]));
+    return '<h2>' + esc(e.nombre) + '</h2><div class="tw"><table><thead><tr><th>#</th><th style="text-align:left">' + t('Jugador', 'Player') + '</th><th>' + t('Pts', 'Pts') + '</th><th>' + t('Faltas', 'Fouls') + '</th></tr></thead><tbody>' +
+      e.jugadores.map(function(j){
+        return '<tr' + (j.puntos === top ? ' class="top"' : '') + '><td class="num">' + esc(j.numero) + '</td><td style="text-align:left">' + esc(j.nombre) + '</td><td class="pts">' + (j.puntos == null ? '—' : j.puntos) + '</td><td>' + (j.faltas == null ? '—' : j.faltas) + '</td></tr>';
+      }).join('') +
+      '<tr class="sum"><td></td><td style="text-align:left">Total</td><td class="pts">' + e.total + '</td><td></td></tr></tbody></table></div>';
+  }
+  function pintar(){
+    $('lang').textContent = EN ? 'ES' : 'EN'; document.documentElement.lang = EN ? 'en' : 'es';
+    if (!H) { $('vacio').textContent = id ? t('No encontramos ese box score.', 'We could not find that box score.') : t('Falta el enlace del juego.', 'The game link is missing.'); return }
+    var d = H.datos, a = d.a, b = d.b;
+    document.title = a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre + ' · marcadorpr';
+    $('score').hidden = false;
+    $('meta').textContent = [d.categoria, d.lugar, d.fecha].filter(Boolean).join(' · ');
+    $('nA').textContent = a.total; $('tA').textContent = a.nombre;
+    $('nB').textContent = b.total; $('tB').textContent = b.nombre;
+    $('ladoA').className = a.total > b.total ? 'gana' : ''; $('ladoB').className = b.total > a.total ? 'gana' : '';
+    var n = Math.max(a.periodos.length, b.periodos.length), head = '', per = '';
+    for (var i = 0; i < n; i++) head += '<th>' + (i < 4 ? i + 1 : 'OT' + (i - 3)) + '</th>';
+    [a, b].forEach(function(e){
+      per += '<tr><td>' + esc(e.nombre) + '</td>';
+      for (var i = 0; i < n; i++) per += '<td>' + (e.periodos[i] == null ? '—' : e.periodos[i]) + '</td>';
+      per += '<td class="pts">' + e.total + '</td></tr>';
+    });
+    var html = (a.periodos.some(function(x){ return x != null }) || b.periodos.some(function(x){ return x != null }))
+      ? '<h2>' + t('Por periodo', 'By period') + '</h2><div class="tw"><table><thead><tr><th></th>' + head + '<th>T</th></tr></thead><tbody>' + per + '</tbody></table></div>' : '';
+    html += equipo(a) + equipo(b);
+    html += '<p class="nota">' + t('Pasado de la hoja de anotación oficial y revisado por el organizador.', 'Taken from the official scoresheet and checked by the organizer.') + '</p>';
+    html += '<a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent('🏀 ' + a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre + '\n' + location.href) + '">' + t('COMPARTIR POR WHATSAPP', 'SHARE ON WHATSAPP') + '</a>';
+    $('cuerpo').innerHTML = html;
+  }
+  $('lang').onclick = function(){ EN = !EN; try { localStorage.setItem('mpr-lang', EN ? 'en' : 'es') } catch(e){} pintar() };
+  if (!id) { pintar(); return }
+  fetch(SB_URL + '/rest/v1/rpc/bw_hoja', { method:'POST',
+    headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify({ p_id: id }) })
+  .then(function(r){ return r.ok ? r.json() : null }).then(function(j){ H = j; pintar() }, function(){ pintar() });
+})();
+</script>
+</body>
+</html>
