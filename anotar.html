@@ -161,7 +161,8 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
       <div class="vst"><span class="rec"></span><b data-en="LIVE">EN VIVO</b> <span id="vivoHora"></span></div>
       <div class="vbtn">
         <a class="btn" id="vivoWa" href="#" target="_blank" rel="noopener" data-en="SEND LINK">ENVIAR ENLACE</a>
-        <button class="btn ghost" id="vivoYa" type="button" data-en="UPDATE NOW">ACTUALIZAR YA</button>
+        <button class="btn dark" id="vivoCopia" type="button" data-en="COPY LINK">COPIAR ENLACE</button>
+        <button class="btn ghost" id="vivoYa" type="button" style="grid-column:1/-1" data-en="UPDATE NOW">ACTUALIZAR YA</button>
       </div>
     </div>
   </div>
@@ -179,6 +180,7 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
   <div class="stack">
     <a class="btn" id="verBox" href="#" data-en="SEE THE BOX SCORE">VER EL BOX SCORE</a>
     <a class="btn dark" id="wa" href="#" target="_blank" rel="noopener" data-en="SHARE ON WHATSAPP">COMPARTIR POR WHATSAPP</a>
+    <button class="btn dark" id="copia" type="button" data-en="COPY LINK">COPIAR ENLACE</button>
     <button class="btn ghost" id="otro" type="button" data-en="NEW GAME">JUEGO NUEVO</button>
   </div>
 </section>
@@ -389,6 +391,24 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
     var c = cuentas(), a = equipoFinal('a', c), b = equipoFinal('b', c);
     return { a: a, b: b, fecha: G.info.fecha, lugar: G.info.lugar, categoria: G.info.categoria, estado: estado, periodo: G.per };
   }
+  /* COPY LINK: for texts, email or anywhere besides WhatsApp. The
+     clipboard API first; the old way for browsers that lack it. */
+  function copiar(texto, boton){
+    function hecho(ok){
+      var antes = boton.textContent;
+      boton.textContent = ok ? t('¡COPIADO!', 'COPIED!') : t('NO SE PUDO COPIAR', 'COULD NOT COPY');
+      setTimeout(function(){ boton.textContent = antes }, 2000);
+    }
+    function viejo(){
+      try {
+        var ta = document.createElement('textarea'); ta.value = texto; ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand('copy'); ta.remove(); hecho(ok);
+      } catch(e){ hecho(false) }
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(texto).then(function(){ hecho(true) }, viejo);
+    else viejo();
+  }
   function enlace(id){ return location.origin + location.pathname.replace(/anotar\.html$/, '') + 'box.html?h=' + encodeURIComponent(id) }
   /* ONE LINK FOR THE WHOLE GAME. Every update is a new row that replaces
      the one before (nothing is overwritten), and the first link always
@@ -433,8 +453,11 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
       $('enVivo').disabled = false; say('m3', ''); G.vivo = true; guardar(); pintarVivo();
     }, function(){ $('enVivo').disabled = false; say('m3', t('Sin conexión. Intenta otra vez.', 'No connection. Try again.'), 'bad') });
   };
+  $('vivoCopia').onclick = function(){ if (G && G.raiz) copiar(enlace(G.raiz), this) };
   $('vivoYa').onclick = function(){ clearTimeout(reloj); reloj = null; G.enviado = ''; enviarVivo() };
 
+  var URL_FINAL = '';
+  $('copia').onclick = function(){ if (URL_FINAL) copiar(URL_FINAL, this) };
   var seguro = false;
   $('terminar').onclick = function(){
     if (!seguro) { seguro = true; say('m3', t('¿Se acabó el juego? Toca otra vez para publicar el final.', 'Is the game over? Tap again to publish the final.'), 'bad'); setTimeout(function(){ seguro = false }, 6000); return }
@@ -445,7 +468,7 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
       $('terminar').disabled = false; say('m3', '');
       var url = enlace(G.raiz);
       $('final').textContent = d.a.nombre + ' ' + d.a.total + ' – ' + d.b.total + ' ' + d.b.nombre;
-      $('verBox').href = url;
+      $('verBox').href = url; URL_FINAL = url;
       $('wa').href = 'https://wa.me/?text=' + encodeURIComponent('🏀 ' + $('final').textContent + '\nBox score: ' + url);
       try { localStorage.removeItem(GUARDA) } catch(e){}
       G = null; ver('pListo');
