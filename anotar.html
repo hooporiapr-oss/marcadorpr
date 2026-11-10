@@ -85,6 +85,9 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
 .flash{animation:fl .5s}
 @keyframes fl{0%{background:#FFF1E6}100%{background:transparent}}
 .end{display:grid;gap:10px;margin-top:22px}
+.practica{background:#12202E;color:#C8D6E2;border-left:5px solid var(--ball);border-radius:6px;padding:10px 14px;margin:0 0 18px;font-size:.9rem}
+.practica b{color:var(--ball);letter-spacing:.12em;margin-right:6px}
+.practica a{color:#fff;font-weight:800;margin-left:6px}
 .vivo{border:1.5px solid var(--line);border-radius:6px;padding:14px;margin-top:18px}
 .mini{font-size:.85rem;color:var(--mute);margin:8px 0 0}
 .vst{font-size:.9rem;color:var(--mute);margin:0 0 10px}
@@ -106,6 +109,11 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
   <button class="langb" id="lang" type="button">EN</button>
 </div></header>
 <main><div class="wrap">
+<div class="practica" id="practica" hidden>
+  <b data-en="PRACTICE MODE">MODO PRÁCTICA</b>
+  <span data-en="Nothing is saved or published. Try every button.">Nada se guarda ni se publica. Prueba todos los botones.</span>
+  <a href="index.html" data-en="Exit">Salir</a>
+</div>
 
 <!-- 1 · code -->
 <section id="pCodigo">
@@ -190,7 +198,19 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
 (function(){
   var SB_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
-  var GUARDA = 'mpr-anotar';            /* the game in progress, on this phone only */
+  /* PRACTICE: anotar.html?practica=1 — no code, two made-up teams, and
+     nothing goes to the database. Its game lives under its own key, so
+     practicing never touches a real game in progress on the same phone. */
+  var PRACTICA = /[?&]practica=1\b/.test(location.search);
+  var GUARDA = PRACTICA ? 'mpr-anotar-practica' : 'mpr-anotar';   /* the game in progress, on this phone only */
+  function ejemplo(){
+    var P = function(t, l){ return l.map(function(x, k){ return { id: 'p' + t + k, numero: x[0], nombre: x[1] } }) };
+    var g = nuevo();
+    g.info = { fecha: '', lugar: 'Cancha de práctica', categoria: '12U' };
+    g.a = { nombre: 'Tiburones', jugadores: P('a', [['3', 'Andrés Ejemplo'], ['10', 'Bruno Ejemplo'], ['14', 'Diego Ejemplo'], ['21', 'Mateo Ejemplo'], ['33', 'Tomás Ejemplo']]) };
+    g.b = { nombre: 'Halcones', jugadores: P('b', [['5', 'Gabriel Ejemplo'], ['8', 'Iván Ejemplo'], ['11', 'Javier Ejemplo'], ['24', 'Lucas Ejemplo'], ['30', 'Samuel Ejemplo']]) };
+    return g;
+  }
   var $ = function(id){ return document.getElementById(id) };
   var EN = false; try { EN = localStorage.getItem('mpr-lang') === 'en' } catch(e){}
   function t(es, en){ return EN ? en : es }
@@ -308,6 +328,7 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
      each team's players as of its latest game. Nothing extra to keep. */
   var PLANT = [];
   function cargarPlantillas(){
+    if (PRACTICA) return Promise.resolve();
     return rpc('bw_plantillas', { p_code: code() }).then(function(l){
       PLANT = Array.isArray(l) ? l : [];
       if (!$('pEquipos').hidden) { leerPlantillas(); pintarPlantillas() }
@@ -462,6 +483,10 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
   $('terminar').onclick = function(){
     if (!seguro) { seguro = true; say('m3', t('¿Se acabó el juego? Toca otra vez para publicar el final.', 'Is the game over? Tap again to publish the final.'), 'bad'); setTimeout(function(){ seguro = false }, 6000); return }
     seguro = false; clearTimeout(reloj); reloj = null;
+    if (PRACTICA) {     /* practice: show the box score it would have published, and publish nothing */
+      try { sessionStorage.setItem('mpr-practica-box', JSON.stringify(datosAhora('final'))); localStorage.removeItem(GUARDA) } catch(e){}
+      location.href = 'box.html?practica=1'; return;
+    }
     $('terminar').disabled = true; say('m3', '<span class="spin"></span>' + t('Publicando…', 'Publishing…'));
     var esperar = enVuelo ? new Promise(function(r){ var k = setInterval(function(){ if (!enVuelo) { clearInterval(k); r() } }, 200) }) : Promise.resolve();
     esperar.then(function(){ return publicar('final') }).then(function(d){
@@ -477,7 +502,11 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
   $('otro').onclick = function(){ G = nuevo(); ver('pEquipos'); pintarPlantillas(); cargarPlantillas() };
 
   idioma();
-  if (code()) entrar(code());
+  if (PRACTICA) {
+    $('practica').hidden = false; $('vivo').hidden = true;
+    if (!G) { G = ejemplo(); guardar() }
+    if (G.ev.length) { ver('pJuego'); pintarJuego() } else { ver('pEquipos'); pintarPlantillas() }
+  } else if (code()) entrar(code());
 })();
 </script>
 </body>
