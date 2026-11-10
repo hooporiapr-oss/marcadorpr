@@ -89,6 +89,9 @@ h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercas
 .nuevo{text-align:center}
 .nuevo li{padding-left:0}
 .nuevo li::before{position:static;display:inline-block;margin-right:8px;vertical-align:1px}
+.nuBtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.nuOrg{display:inline-block;margin-top:14px;font-weight:800;color:var(--accent);text-decoration:none}
+@media(max-width:520px){ .nuBtns{flex-direction:column} }
 a.pieza{display:block;text-decoration:none;color:inherit;border-color:var(--ball)}
 a.pieza b::after{content:" →";color:var(--ball)}
 a.pieza:hover{background:#FFF7F0}
@@ -137,7 +140,11 @@ footer a{color:#4FD3F0;text-decoration:none}
         <li data-t="nu2">Al final, el box score con los puntos de cada jugador</li>
         <li data-t="nu3">Se comparte por WhatsApp o copiando el enlace</li>
       </ul>
-      <a class="go" href="anotar.html" data-t="nuCta">Anotar un juego &rarr;</a>
+      <div class="nuBtns">
+        <a class="go" href="box.html?demo=1" data-t="nuDemo">Ver un juego de ejemplo en vivo</a>
+        <a class="go alt" href="anotar.html?practica=1" data-t="nuPrac">Practicar sin código</a>
+      </div>
+      <a class="nuOrg" href="anotar.html" data-t="nuCta">¿Eres organizador? Anota un juego &rarr;</a>
     </div>
 
     <h2 data-t="modeloH">Cómo encaja todo</h2>
@@ -200,7 +207,8 @@ var T = {
     nu1:'Los padres siguen el juego en vivo con un solo enlace',
     nu2:'Al final, el box score con los puntos de cada jugador',
     nu3:'Se comparte por WhatsApp o copiando el enlace',
-    nuCta:'Anotar un juego &rarr;'
+    nuCta:'¿Eres organizador? Anota un juego &rarr;',
+    nuDemo:'Ver un juego de ejemplo en vivo', nuPrac:'Practicar sin código'
   },
   en: {
     tagline:'Basketball and volleyball',
@@ -222,7 +230,8 @@ var T = {
     nu1:'Parents follow the game live on one link',
     nu2:'At the end, the box score with every player\'s points',
     nu3:'Share it on WhatsApp or by copying the link',
-    nuCta:'Score a game &rarr;'
+    nuCta:'Organizer? Score a game &rarr;',
+    nuDemo:'Watch a sample live game', nuPrac:'Practice, no code needed'
   }
 };
 
