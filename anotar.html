@@ -85,6 +85,14 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
 .flash{animation:fl .5s}
 @keyframes fl{0%{background:#FFF1E6}100%{background:transparent}}
 .end{display:grid;gap:10px;margin-top:22px}
+.vivo{border:1.5px solid var(--line);border-radius:6px;padding:14px;margin-top:18px}
+.mini{font-size:.85rem;color:var(--mute);margin:8px 0 0}
+.vst{font-size:.9rem;color:var(--mute);margin:0 0 10px}
+.vst b{color:var(--bad);letter-spacing:.08em}
+.vst.err{color:var(--bad);font-weight:700}
+.rec{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--bad);margin-right:6px;animation:rec 1.4s infinite}
+@keyframes rec{50%{opacity:.25}}
+.vbtn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hecho{text-align:center}
 .hecho .big{font-size:2rem;font-weight:900;letter-spacing:-.03em;margin:4px 0 12px}
 .stack{display:grid;gap:10px;max-width:360px;margin:0 auto}
@@ -144,6 +152,19 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
   <div class="tabs"><button type="button" data-t="a" id="tabA"></button><button type="button" data-t="b" id="tabB"></button></div>
   <div id="lista"></div>
   <div class="log"><span id="ultimo"></span><button class="btn ghost" id="deshacer" type="button" data-en="UNDO">DESHACER</button></div>
+  <div class="vivo" id="vivo">
+    <div id="vivoOff">
+      <button class="btn" id="enVivo" type="button" style="width:100%" data-en="SHARE LIVE">COMPARTIR EN VIVO</button>
+      <p class="mini" data-en="Parents follow the score on one link. It updates by itself while you score.">Los padres siguen el marcador en un enlace. Se actualiza solo mientras anotas.</p>
+    </div>
+    <div id="vivoOn" hidden>
+      <div class="vst"><span class="rec"></span><b data-en="LIVE">EN VIVO</b> <span id="vivoHora"></span></div>
+      <div class="vbtn">
+        <a class="btn" id="vivoWa" href="#" target="_blank" rel="noopener" data-en="SEND LINK">ENVIAR ENLACE</a>
+        <button class="btn ghost" id="vivoYa" type="button" data-en="UPDATE NOW">ACTUALIZAR YA</button>
+      </div>
+    </div>
+  </div>
   <div class="end">
     <button class="btn dark" id="terminar" type="button" data-en="END GAME AND PUBLISH">TERMINAR Y PUBLICAR</button>
     <button class="btn ghost" id="editar" type="button" data-en="EDIT PLAYERS">EDITAR JUGADORES</button>
@@ -187,7 +208,7 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
   var G = null;
   function nuevo(){ return { info:{ fecha:'', lugar:'', categoria:'' },
     a:{ nombre:'', jugadores:[] }, b:{ nombre:'', jugadores:[] }, per:1, lado:'a', ev:[] } }
-  function guardar(){ try { localStorage.setItem(GUARDA, JSON.stringify(G)) } catch(e){} }
+  function guardar(){ try { localStorage.setItem(GUARDA, JSON.stringify(G)) } catch(e){} if (G && G.vivo) programar() }
   try { G = JSON.parse(localStorage.getItem(GUARDA) || 'null') } catch(e){ G = null }
 
   function cuentas(){
@@ -341,6 +362,7 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
       $('ultimo').innerHTML = t('Último: ', 'Last: ') + '<b>' + esc((jj.numero ? '#' + jj.numero + ' ' : '') + (jj.nombre || '')) + '</b> ' + (u.k === 'f' ? t('falta', 'foul') : '+' + u.k) + ' (' + perNom(u.p) + ')';
     } else $('ultimo').textContent = t('Toca +1, +2, +3 o F en cada jugada.', 'Tap +1, +2, +3 or F on each play.');
     $('deshacer').disabled = !G.ev.length;
+    pintarVivo();
   }
   $('per').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; G.per = +b.dataset.p; guardar(); pintarJuego() };
   document.querySelector('.tabs').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; G.lado = b.dataset.t; guardar(); pintarJuego() };
@@ -363,17 +385,66 @@ html[lang="en"] .pl.out .who b::after{content:" · OUT"}
     return { nombre: G[s].nombre, periodos: per, total: c[s].pts,
       jugadores: G[s].jugadores.map(function(j){ var x = c[s].j[j.id] || { pts:0, f:0 }; return { numero: j.numero, nombre: j.nombre, puntos: x.pts, faltas: Math.min(x.f, 6) } }) };
   }
+  function datosAhora(estado){
+    var c = cuentas(), a = equipoFinal('a', c), b = equipoFinal('b', c);
+    return { a: a, b: b, fecha: G.info.fecha, lugar: G.info.lugar, categoria: G.info.categoria, estado: estado, periodo: G.per };
+  }
+  function enlace(id){ return location.origin + location.pathname.replace(/anotar\.html$/, '') + 'box.html?h=' + encodeURIComponent(id) }
+  /* ONE LINK FOR THE WHOLE GAME. Every update is a new row that replaces
+     the one before (nothing is overwritten), and the first link always
+     opens the newest one. */
+  function publicar(estado){
+    var d = datosAhora(estado);
+    return rpc('bw_hoja_guardar', { p_code: code(), p_datos: d, p_reemplaza: G.ultimo || null }).then(function(id){
+      G.ultimo = id; if (!G.raiz) G.raiz = id;
+      G.enviado = JSON.stringify(d); G.hora = Date.now();
+      try { localStorage.setItem(GUARDA, JSON.stringify(G)) } catch(e){}
+      return d;
+    });
+  }
+
+  /* LIVE: after a change, wait 15 seconds and send. Taps in between ride
+     along on the same update, so a busy quarter is one update, not fifty. */
+  var reloj = null, enVuelo = false, fallo = false;
+  function programar(){ if (!reloj) reloj = setTimeout(enviarVivo, 15000) }
+  function enviarVivo(){
+    reloj = null;
+    if (!G || !G.vivo) return;
+    if (enVuelo) { programar(); return }
+    if (JSON.stringify(datosAhora('vivo')) === G.enviado) { pintarVivo(); return }
+    enVuelo = true;
+    publicar('vivo').then(function(){ enVuelo = false; fallo = false; pintarVivo() },
+                          function(){ enVuelo = false; fallo = true; pintarVivo(); programar() });
+  }
+  function pintarVivo(){
+    if (!G) return;
+    $('vivoOff').hidden = !!G.vivo; $('vivoOn').hidden = !G.vivo;
+    if (!G.vivo) return;
+    if (!reloj && !enVuelo) programar();      /* also after a reload: anything not sent yet goes out */
+    var h = G.hora ? new Date(G.hora).toLocaleTimeString(EN ? 'en-US' : 'es-PR', { hour:'numeric', minute:'2-digit' }) : '';
+    $('vivoHora').parentNode.className = 'vst' + (fallo ? ' err' : '');
+    $('vivoHora').textContent = fallo ? t('· sin señal, se reintenta solo', '· no signal, it will retry') : (h ? t('· actualizado ', '· updated ') + h : '');
+    var c = cuentas();
+    $('vivoWa').href = 'https://wa.me/?text=' + encodeURIComponent('🔴 ' + t('EN VIVO', 'LIVE') + ': ' + G.a.nombre + ' vs ' + G.b.nombre + '\n' + enlace(G.raiz));
+  }
+  $('enVivo').onclick = function(){
+    $('enVivo').disabled = true; say('m3', '<span class="spin"></span>' + t('Publicando…', 'Publishing…'));
+    publicar('vivo').then(function(){
+      $('enVivo').disabled = false; say('m3', ''); G.vivo = true; guardar(); pintarVivo();
+    }, function(){ $('enVivo').disabled = false; say('m3', t('Sin conexión. Intenta otra vez.', 'No connection. Try again.'), 'bad') });
+  };
+  $('vivoYa').onclick = function(){ clearTimeout(reloj); reloj = null; G.enviado = ''; enviarVivo() };
+
   var seguro = false;
   $('terminar').onclick = function(){
-    if (!seguro) { seguro = true; say('m3', t('¿Se acabó el juego? Toca otra vez para publicar.', 'Is the game over? Tap again to publish.'), 'bad'); setTimeout(function(){ seguro = false }, 6000); return }
-    seguro = false;
-    var c = cuentas(), a = equipoFinal('a', c), b = equipoFinal('b', c);
-    var datos = { a: a, b: b, fecha: G.info.fecha, lugar: G.info.lugar, categoria: G.info.categoria };
+    if (!seguro) { seguro = true; say('m3', t('¿Se acabó el juego? Toca otra vez para publicar el final.', 'Is the game over? Tap again to publish the final.'), 'bad'); setTimeout(function(){ seguro = false }, 6000); return }
+    seguro = false; clearTimeout(reloj); reloj = null;
     $('terminar').disabled = true; say('m3', '<span class="spin"></span>' + t('Publicando…', 'Publishing…'));
-    rpc('bw_hoja_guardar', { p_code: code(), p_datos: datos }).then(function(id){
+    var esperar = enVuelo ? new Promise(function(r){ var k = setInterval(function(){ if (!enVuelo) { clearInterval(k); r() } }, 200) }) : Promise.resolve();
+    esperar.then(function(){ return publicar('final') }).then(function(d){
       $('terminar').disabled = false; say('m3', '');
-      var url = location.origin + location.pathname.replace(/anotar\.html$/, '') + 'box.html?h=' + encodeURIComponent(id);
-      $('final').textContent = a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre;
+      var url = enlace(G.raiz);
+      $('final').textContent = d.a.nombre + ' ' + d.a.total + ' – ' + d.b.total + ' ' + d.b.nombre;
       $('verBox').href = url;
       $('wa').href = 'https://wa.me/?text=' + encodeURIComponent('🏀 ' + $('final').textContent + '\nBox score: ' + url);
       try { localStorage.removeItem(GUARDA) } catch(e){}
