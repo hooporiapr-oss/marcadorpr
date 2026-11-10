@@ -76,13 +76,29 @@ h2{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercas
 .pieza span{color:var(--mute)}
 @media(min-width:640px){ .piezas{grid-template-columns:1fr 1fr} }
 
+/* Lo nuevo: la hoja de anotación en el teléfono, con el juego en vivo. */
+.nuevo{margin:22px 0 0;border:2px solid var(--ball);border-radius:12px;padding:18px 18px 20px;background:#FFF7F0}
+.nuevo .k{font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--ball)}
+.nuevo h3{font-size:clamp(1.2rem,4.4vw,1.45rem);font-weight:900;letter-spacing:-.02em;margin:4px 0 6px;line-height:1.2}
+.nuevo p{margin:0 0 12px;color:var(--mute)}
+.nuevo ul{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:6px}
+.nuevo li{padding-left:22px;position:relative;font-weight:700}
+.nuevo li::before{content:"";position:absolute;left:2px;top:.5em;width:9px;height:9px;border-radius:50%;background:var(--ball)}
+.nuevo li.vivo::before{background:#D93A2B;animation:rec 1.4s infinite}
+@keyframes rec{50%{opacity:.25}}
+.nuevo{text-align:center}
+.nuevo li{padding-left:0}
+.nuevo li::before{position:static;display:inline-block;margin-right:8px;vertical-align:1px}
+a.pieza{display:block;text-decoration:none;color:inherit;border-color:var(--ball)}
+a.pieza b::after{content:" →";color:var(--ball)}
+a.pieza:hover{background:#FFF7F0}
 .sin{margin:22px 0 0;font-weight:800;font-size:1.05rem}
 .ventaja{margin:22px 0 0;padding:16px 18px;border:2px solid var(--ink);border-radius:6px}
 .ventaja b{display:block;font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
   color:var(--ball);margin-bottom:6px}
 .ventaja p{margin:0;font-size:1.05rem}
 
-.ctas{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0 0}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0 0;justify-content:center}
 .go{display:inline-block;background:var(--ball);color:#12202E;font-weight:900;text-decoration:none;
   padding:13px 20px;border-radius:999px}
 .go.alt{background:transparent;border:2px solid var(--ink);color:var(--ink)}
@@ -112,12 +128,24 @@ footer a{color:#4FD3F0;text-decoration:none}
 
     <div class="lema"><p data-t="lema">No organizamos juegos. <span>Hacemos que cada juego cuente.</span></p></div>
 
+    <div class="nuevo">
+      <div class="k" data-t="nuK">Nuevo</div>
+      <h3 data-t="nuH">La hoja de anotación, en el teléfono.</h3>
+      <p data-t="nuP">Sin papel. El anotador toca los puntos y las faltas según pasan.</p>
+      <ul>
+        <li class="vivo" data-t="nu1">Los padres siguen el juego en vivo con un solo enlace</li>
+        <li data-t="nu2">Al final, el box score con los puntos de cada jugador</li>
+        <li data-t="nu3">Se comparte por WhatsApp o copiando el enlace</li>
+      </ul>
+      <a class="go" href="anotar.html" data-t="nuCta">Anotar un juego &rarr;</a>
+    </div>
+
     <h2 data-t="modeloH">Cómo encaja todo</h2>
     <div class="piezas">
       <div class="pieza"><b data-t="p1b">Marcador PR</b>
-        <span data-t="p1">Publica los juegos y sus marcadores finales.</span></div>
-      <div class="pieza"><b data-t="p2b">Cada Punto Cuenta</b>
-        <span data-t="p2">El manejo de promesas, de cara al programa y a sus padrinos.</span></div>
+        <span data-t="p1">Publica los juegos, el marcador en vivo y el box score final.</span></div>
+      <a class="pieza" href="https://cadapunto.com/"><b data-t="p2b">Cada Punto Cuenta</b>
+        <span data-t="p2">El manejo de promesas, de cara al programa y a sus padrinos.</span></a>
       <div class="pieza"><b data-t="p3b">El entrenador</b>
         <span data-t="p3">Registra el juego que ya tiene en calendario y comparte un enlace.</span></div>
       <div class="pieza"><b data-t="p4b">El programa</b>
@@ -158,7 +186,7 @@ var T = {
     lede:'Marcador PR es nuestra tecnología para publicar los juegos y sus marcadores finales. Es lo que hay detrás de cada juego de Cada Punto Cuenta.',
     lema:'No organizamos juegos. <span>Hacemos que cada juego cuente.</span>',
     modeloH:'Cómo encaja todo',
-    p1b:'Marcador PR', p1:'Publica los juegos y sus marcadores finales.',
+    p1b:'Marcador PR', p1:'Publica los juegos, el marcador en vivo y el box score final.',
     p2b:'Cada Punto Cuenta', p2:'El manejo de promesas, de cara al programa y a sus padrinos.',
     p3b:'El entrenador', p3:'Registra el juego que ya tiene en calendario y comparte un enlace.',
     p4b:'El programa', p4:'Recibe el reporte de promesas y maneja sus propios cobros.',
@@ -166,7 +194,13 @@ var T = {
     ventH:'La mayor ventaja',
     vent:'No hay que convencer a nadie de organizar algo nuevo. Ayudamos a que se beneficien de los juegos que ya están jugando.',
     cta1:'Ir a Cada Punto Cuenta &rarr;', cta2:'Ver un calendario de ejemplo',
-    footP:'Las promesas se hacen en'
+    footP:'Las promesas se hacen en',
+    nuK:'Nuevo', nuH:'La hoja de anotación, en el teléfono.',
+    nuP:'Sin papel. El anotador toca los puntos y las faltas según pasan.',
+    nu1:'Los padres siguen el juego en vivo con un solo enlace',
+    nu2:'Al final, el box score con los puntos de cada jugador',
+    nu3:'Se comparte por WhatsApp o copiando el enlace',
+    nuCta:'Anotar un juego &rarr;'
   },
   en: {
     tagline:'Basketball and volleyball',
@@ -174,7 +208,7 @@ var T = {
     lede:'Marcador PR is our technology for posting games and their final scores. It is what runs behind every game on Cada Punto Cuenta.',
     lema:'We don’t organize games. <span>We make every game count.</span>',
     modeloH:'How it fits together',
-    p1b:'Marcador PR', p1:'Posts the games and their final scores.',
+    p1b:'Marcador PR', p1:'Posts the games, the live score and the final box score.',
     p2b:'Cada Punto Cuenta', p2:'Pledge management, facing the program and its padrinos.',
     p3b:'The coach', p3:'Registers a game already on the schedule and shares one link.',
     p4b:'The program', p4:'Receives the pledge report and manages its own collections.',
@@ -182,7 +216,13 @@ var T = {
     ventH:'The biggest advantage',
     vent:'Nobody has to be convinced to organize something new. We help them benefit from the games they are already playing.',
     cta1:'Go to Cada Punto Cuenta &rarr;', cta2:'See a sample schedule',
-    footP:'Pledges are made on'
+    footP:'Pledges are made on',
+    nuK:'New', nuH:'The scoresheet, on your phone.',
+    nuP:'No paper. The scorer taps points and fouls as they happen.',
+    nu1:'Parents follow the game live on one link',
+    nu2:'At the end, the box score with every player\'s points',
+    nu3:'Share it on WhatsApp or by copying the link',
+    nuCta:'Score a game &rarr;'
   }
 };
 
