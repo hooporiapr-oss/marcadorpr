@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Anotar el juego — marcadorpr</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#12202E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18;--ok:#1E8A4C;--bad:#C0392B}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#12202E}
+body{margin:0;min-height:100dvh;font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{width:min(720px,100% - 32px);margin:0 auto}
+header{background:#12202E;border-bottom:3px solid var(--ball);padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff;text-decoration:none}
+.mark span{color:var(--ball)}
+.langb{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;padding:6px 13px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+main .wrap{padding:22px 0 48px}
+.kick{font-size:.64rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+h1{font-size:clamp(1.45rem,4.6vw,2rem);letter-spacing:-.03em;margin:0 0 8px;font-weight:900}
+h2{font-size:1.05rem;margin:0 0 10px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 20px}
+.card{border:1.5px solid var(--line);border-radius:6px;padding:16px;margin:0 0 16px}
+label.f{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 4px}
+input{font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:4px;padding:9px 10px;width:100%;color:var(--ink);background:#fff}
+input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+.btn{display:inline-block;border:none;border-radius:4px;background:var(--ball);color:#12202E;font:inherit;font-weight:900;font-size:.95rem;padding:13px 18px;cursor:pointer;text-decoration:none;text-align:center}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.ghost{background:none;border:1.5px solid var(--line);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.row>*{flex:1 1 140px}
+.msg{min-height:1.4em;font-weight:700;margin:10px 0 0}
+.msg.bad{color:var(--bad)} .msg.ok{color:var(--ok)}
+.alt{font-size:.9rem;color:var(--mute);margin:0 0 18px}
+.alt a{color:var(--accent);font-weight:800}
+/* roster */
+table.ro{width:100%;border-collapse:collapse;margin:8px 0 4px}
+table.ro td{padding:3px}
+table.ro td.n{width:64px} table.ro td.x{width:30px}
+table.ro td.n input{text-align:center}
+.del{border:none;background:none;color:var(--mute);font-size:1.2rem;cursor:pointer;padding:4px}
+select.guardado{font:inherit;font-size:16px;width:100%;margin:0 0 12px;padding:10px;border:1.5px solid var(--accent);border-radius:4px;background:#EEF7FA;color:var(--ink);font-weight:800}
+.add{border:none;background:none;color:var(--accent);font:inherit;font-weight:800;cursor:pointer;padding:6px 0}
+/* game */
+.sb{position:sticky;top:0;z-index:5;background:#12202E;color:#fff;margin:-22px -16px 14px;padding:12px 16px 12px}
+@media (min-width:752px){ .sb{margin:0 0 14px;border-radius:6px} }
+.sb .g{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;text-align:center;gap:8px}
+.sb .vs{font-weight:900;color:#5F7487;font-size:1.6rem;padding-top:6px}
+.sb .n{font-size:2.6rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+.sb .t{font-size:.8rem;font-weight:800;color:#C8D6E2;line-height:1.2;margin-top:3px}
+.sb .tf{font-size:.68rem;color:#9FB3C5;font-weight:800;letter-spacing:.06em;margin-top:2px}
+.sb .tf.bonus{color:var(--ball)}
+.per{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.per button{border:1.5px solid #33465A;background:none;color:#C8D6E2;border-radius:4px;font:inherit;font-weight:900;font-size:.8rem;padding:6px 0;width:40px;cursor:pointer}
+.per button.on{background:var(--ball);border-color:var(--ball);color:#12202E}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 10px}
+.tabs button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1.5px solid var(--line);background:#fff;border-radius:4px;font:inherit;font-weight:900;padding:11px 6px;cursor:pointer;color:var(--ink)}
+.tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pl{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;border-bottom:1px solid var(--line);padding:10px 0}
+.pl .who{min-width:0}
+.pl .who b{font-size:1.05rem}
+.pl .who .num{display:inline-block;min-width:34px;color:var(--mute);font-weight:900}
+.pl .who .st{font-size:.85rem;color:var(--mute);margin-top:1px}
+.pl .who .st b{color:var(--ink);font-size:.95rem}
+.dots{display:inline-flex;gap:3px;vertical-align:-1px;margin-left:4px}
+.dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--mute);display:block}
+.dots i.on{background:var(--bad);border-color:var(--bad)}
+.pl.out{opacity:.55}
+.pl.out .who b::after{content:" · FUERA";color:var(--bad);font-size:.7rem;letter-spacing:.06em}
+html[lang="en"] .pl.out .who b::after{content:" · OUT"}
+.keys{display:flex;gap:6px}
+.keys button{width:50px;height:46px;border-radius:6px;border:none;font:inherit;font-weight:900;font-size:1.05rem;cursor:pointer;background:var(--tint);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.keys button.p{background:#FFF1E6;box-shadow:inset 0 0 0 1.5px #FFD2B0}
+.keys button.fo{background:#FDECEA;color:var(--bad);box-shadow:inset 0 0 0 1.5px #F5C6C0}
+.keys button:active{transform:scale(.94)}
+@media (max-width:400px){ .keys{gap:5px} .keys button{width:44px;height:46px} }
+.log{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0 0;font-size:.9rem;color:var(--mute);min-height:44px}
+.log b{color:var(--ink)}
+.flash{animation:fl .5s}
+@keyframes fl{0%{background:#FFF1E6}100%{background:transparent}}
+.end{display:grid;gap:10px;margin-top:22px}
+.hecho{text-align:center}
+.hecho .big{font-size:2rem;font-weight:900;letter-spacing:-.03em;margin:4px 0 12px}
+.stack{display:grid;gap:10px;max-width:360px;margin:0 auto}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--ball);border-radius:50%;animation:g 1s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes g{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <a class="mark" href="index.html">marcador<span>pr</span></a>
+  <button class="langb" id="lang" type="button">EN</button>
+</div></header>
+<main><div class="wrap">
+
+<!-- 1 · code -->
+<section id="pCodigo">
+  <div class="kick" data-en="Digital scoresheet">Hoja de anotación digital</div>
+  <h1 data-en="Score the game on the phone">Anota el juego en el teléfono</h1>
+  <p class="lede" data-en="No paper: tap points and fouls as they happen. At the end the box score goes up on marcadorpr.">Sin papel: toca los puntos y las faltas según pasan. Al final, el box score sube a marcadorpr.</p>
+  <div class="card">
+    <h2 data-en="Your organizer code">Tu código de organizador</h2>
+    <div class="row">
+      <div><input id="codigo" type="password" autocomplete="off" aria-label="Código"></div>
+      <div style="flex:0 0 auto"><button class="btn dark" id="entrar" type="button" data-en="CONTINUE">SEGUIR</button></div>
+    </div>
+    <div class="msg" id="m1" role="status"></div>
+  </div>
+</section>
+
+<!-- 2 · teams and players -->
+<section id="pEquipos" hidden>
+  <div class="kick" data-en="Before tip-off">Antes del salto</div>
+  <h1 data-en="Teams and players">Equipos y jugadores</h1>
+  <div class="card">
+    <div class="row">
+      <div><label class="f" data-en="Date">Fecha</label><input id="fecha"></div>
+      <div><label class="f" data-en="Place">Lugar</label><input id="lugar"></div>
+      <div><label class="f" data-en="Division">Categoría</label><input id="categoria"></div>
+    </div>
+  </div>
+  <div class="card ros" data-t="a"></div>
+  <div class="card ros" data-t="b"></div>
+  <button class="btn" id="empezar" type="button" style="width:100%" data-en="START THE GAME">EMPEZAR EL JUEGO</button>
+  <div class="msg" id="m2" role="status"></div>
+</section>
+
+<!-- 3 · the game -->
+<section id="pJuego" hidden>
+  <div class="sb">
+    <div class="g">
+      <div><div class="n" id="nA">0</div><div class="t" id="tA"></div><div class="tf" id="fA"></div></div>
+      <div class="vs">–</div>
+      <div><div class="n" id="nB">0</div><div class="t" id="tB"></div><div class="tf" id="fB"></div></div>
+    </div>
+    <div class="per" id="per"></div>
+  </div>
+  <div class="tabs"><button type="button" data-t="a" id="tabA"></button><button type="button" data-t="b" id="tabB"></button></div>
+  <div id="lista"></div>
+  <div class="log"><span id="ultimo"></span><button class="btn ghost" id="deshacer" type="button" data-en="UNDO">DESHACER</button></div>
+  <div class="end">
+    <button class="btn dark" id="terminar" type="button" data-en="END GAME AND PUBLISH">TERMINAR Y PUBLICAR</button>
+    <button class="btn ghost" id="editar" type="button" data-en="EDIT PLAYERS">EDITAR JUGADORES</button>
+  </div>
+  <div class="msg" id="m3" role="status"></div>
+</section>
+
+<!-- 4 · done -->
+<section class="card hecho" id="pListo" hidden>
+  <div class="kick" data-en="Published">Publicado</div>
+  <div class="big" id="final"></div>
+  <div class="stack">
+    <a class="btn" id="verBox" href="#" data-en="SEE THE BOX SCORE">VER EL BOX SCORE</a>
+    <a class="btn dark" id="wa" href="#" target="_blank" rel="noopener" data-en="SHARE ON WHATSAPP">COMPARTIR POR WHATSAPP</a>
+    <button class="btn ghost" id="otro" type="button" data-en="NEW GAME">JUEGO NUEVO</button>
+  </div>
+</section>
+
+</div></main>
+<script>
+(function(){
+  var SB_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+  var GUARDA = 'mpr-anotar';            /* the game in progress, on this phone only */
+  var $ = function(id){ return document.getElementById(id) };
+  var EN = false; try { EN = localStorage.getItem('mpr-lang') === 'en' } catch(e){}
+  function t(es, en){ return EN ? en : es }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c] }) }
+  function rpc(name, args){
+    return fetch(SB_URL + '/rest/v1/rpc/' + name, { method:'POST',
+      headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify(args || {}) }).then(function(r){ if (!r.ok) throw new Error('rpc ' + r.status); return r.json() });
+  }
+  function code(){ try { return sessionStorage.getItem('bw-code') || '' } catch(e){ return '' } }
+  function keep(c){ try { sessionStorage.setItem('bw-code', c) } catch(e){} }
+  function say(id, txt, cls){ $(id).className = 'msg' + (cls ? ' ' + cls : ''); $(id).innerHTML = txt }
+
+  /* THE GAME is the rosters plus a list of events. Every number on the
+     screen is worked out from the events, so undo is just "drop the
+     last one" and nothing can drift out of step. */
+  var G = null;
+  function nuevo(){ return { info:{ fecha:'', lugar:'', categoria:'' },
+    a:{ nombre:'', jugadores:[] }, b:{ nombre:'', jugadores:[] }, per:1, lado:'a', ev:[] } }
+  function guardar(){ try { localStorage.setItem(GUARDA, JSON.stringify(G)) } catch(e){} }
+  try { G = JSON.parse(localStorage.getItem(GUARDA) || 'null') } catch(e){ G = null }
+
+  function cuentas(){
+    var c = { a:{ pts:0, per:[], tf:{}, j:{} }, b:{ pts:0, per:[], tf:{}, j:{} } };
+    G.ev.forEach(function(e){
+      var x = c[e.t], j = x.j[e.i] || (x.j[e.i] = { pts:0, f:0 });
+      if (e.k === 'f') { j.f++; x.tf[e.p] = (x.tf[e.p] || 0) + 1 }
+      else { j.pts += e.k; x.pts += e.k; x.per[e.p - 1] = (x.per[e.p - 1] || 0) + e.k }
+    });
+    return c;
+  }
+  function nPer(){ return Math.max(4, G.per, G.ev.reduce(function(m, e){ return Math.max(m, e.p) }, 0)) }
+  function perNom(p){ return p <= 4 ? String(p) : 'OT' + (p - 4 > 1 ? p - 4 : '') }
+
+  /* ── language ── */
+  function idioma(){
+    document.documentElement.lang = EN ? 'en' : 'es';
+    $('lang').textContent = EN ? 'ES' : 'EN';
+    document.querySelectorAll('[data-en]').forEach(function(el){
+      if (!el.hasAttribute('data-es')) el.setAttribute('data-es', el.textContent);
+      el.textContent = EN ? el.getAttribute('data-en') : el.getAttribute('data-es');
+    });
+    if (!$('pEquipos').hidden) { leerPlantillas(); pintarPlantillas() }
+    if (!$('pJuego').hidden) pintarJuego();
+  }
+  $('lang').onclick = function(){ EN = !EN; try { localStorage.setItem('mpr-lang', EN ? 'en' : 'es') } catch(e){} idioma() };
+
+  function ver(id){ ['pCodigo', 'pEquipos', 'pJuego', 'pListo'].forEach(function(s){ $(s).hidden = s !== id }); window.scrollTo(0, 0) }
+
+  /* ── 1 · code ── */
+  function entrar(c){
+    say('m1', '<span class="spin"></span>' + t('Comprobando…', 'Checking…'));
+    return rpc('bw_code_id', { p_code: c }).then(function(id){
+      if (!id) { say('m1', t('Ese código no sirve.', 'That code does not work.'), 'bad'); return }
+      keep(c); say('m1', '');
+      if (G && G.ev.length) { ver('pJuego'); pintarJuego() }      /* a game in progress comes back as it was */
+      else { G = G || nuevo(); ver('pEquipos'); pintarPlantillas() }
+      cargarPlantillas();
+    }, function(){ say('m1', t('Sin conexión. Intenta otra vez.', 'No connection. Try again.'), 'bad') });
+  }
+  $('entrar').onclick = function(){ var c = $('codigo').value.trim(); if (c) entrar(c) };
+  $('codigo').onkeydown = function(e){ if (e.key === 'Enter') $('entrar').click() };
+
+  /* ── 2 · rosters ── */
+  function filaRo(j){
+    return '<tr><td class="n"><input class="jn" inputmode="numeric" maxlength="4" placeholder="#" value="' + esc(j.numero) + '"></td>' +
+      '<td><input class="jo" maxlength="60" placeholder="' + t('Nombre', 'Name') + '" value="' + esc(j.nombre) + '"></td>' +
+      '<td class="x"><button class="del" type="button" aria-label="quitar">×</button></td></tr>';
+  }
+  function pintarPlantillas(){
+    $('fecha').value = G.info.fecha || new Date().toLocaleDateString('es-PR', { day:'numeric', month:'numeric' }).replace('-', '/');
+    $('lugar').value = G.info.lugar; $('categoria').value = G.info.categoria;
+    document.querySelectorAll('.ros').forEach(function(box){
+      var e = G[box.dataset.t], js = e.jugadores.length ? e.jugadores : [{}, {}, {}, {}, {}];
+      box.innerHTML = '<label class="f">' + (box.dataset.t === 'a' ? t('Equipo A', 'Team A') : t('Equipo B', 'Team B')) + '</label>' +
+        '<input class="nom" maxlength="80" placeholder="' + t('Nombre del equipo', 'Team name') + '" value="' + esc(e.nombre) + '" style="font-weight:900">' +
+        '<table class="ro"><tbody>' + js.map(filaRo).join('') + '</tbody></table>' +
+        '<button class="add" type="button">+ ' + t('jugador', 'player') + '</button>';
+    });
+  }
+  function leerPlantillas(){
+    G.info = { fecha: $('fecha').value.trim(), lugar: $('lugar').value.trim(), categoria: $('categoria').value.trim() };
+    document.querySelectorAll('.ros').forEach(function(box){
+      var e = G[box.dataset.t], viejos = e.jugadores;
+      e.nombre = box.querySelector('.nom').value.trim();
+      /* each player keeps an id, so points already scored stay with them when the list is edited mid-game */
+      var usados = {};
+      e.jugadores = [].map.call(box.querySelectorAll('tbody tr'), function(tr, k){
+        var id = tr.dataset.id || ('j' + Date.now().toString(36) + k);
+        usados[id] = 1; tr.dataset.id = id;
+        return { id: id, numero: tr.querySelector('.jn').value.trim(), nombre: tr.querySelector('.jo').value.trim() };
+      }).filter(function(j){ return j.numero || j.nombre });
+      /* a player who already has points or fouls cannot vanish by being erased */
+      viejos.forEach(function(v){
+        if (!usados[v.id] && G.ev.some(function(ev){ return ev.t === box.dataset.t && ev.i === v.id })) e.jugadores.push(v);
+      });
+    });
+  }
+  /* keep the ids on the rows when the rosters are drawn for editing */
+  var _pp = pintarPlantillas;
+  pintarPlantillas = function(){
+    _pp();
+    document.querySelectorAll('.ros').forEach(function(box){
+      var e = G[box.dataset.t];
+      box.querySelectorAll('tbody tr').forEach(function(tr, k){ if (e.jugadores[k]) tr.dataset.id = e.jugadores[k].id });
+      /* saved teams: before tip-off, pick one and its players fill in */
+      if (PLANT.length && !G.ev.length) {
+        box.insertAdjacentHTML('afterbegin', '<select class="guardado" aria-label="' + t('Equipo guardado', 'Saved team') + '"><option value="">' +
+          t('Escoger un equipo guardado…', 'Pick a saved team…') + '</option>' +
+          PLANT.map(function(x, i){ return '<option value="' + i + '">' + esc(x.nombre) + ' (' + x.jugadores.length + ')</option>' }).join('') + '</select>');
+      }
+    });
+  };
+  /* THE SAVED TEAMS come from the games this organizer already published:
+     each team's players as of its latest game. Nothing extra to keep. */
+  var PLANT = [];
+  function cargarPlantillas(){
+    return rpc('bw_plantillas', { p_code: code() }).then(function(l){
+      PLANT = Array.isArray(l) ? l : [];
+      if (!$('pEquipos').hidden) { leerPlantillas(); pintarPlantillas() }
+    }, function(){ PLANT = [] });
+  }
+  $('pEquipos').addEventListener('change', function(e){
+    if (!e.target.classList.contains('guardado') || e.target.value === '') return;
+    var x = PLANT[+e.target.value], lado = e.target.closest('.ros').dataset.t;
+    leerPlantillas();
+    G[lado] = { nombre: x.nombre, jugadores: x.jugadores.map(function(j, k){
+      return { id: 'j' + Date.now().toString(36) + lado + k, numero: j.numero || '', nombre: j.nombre || '' } }) };
+    guardar(); pintarPlantillas();
+  });
+  $('pEquipos').addEventListener('click', function(e){
+    if (e.target.classList.contains('del')) e.target.closest('tr').remove();
+    if (e.target.classList.contains('add')) e.target.previousElementSibling.querySelector('tbody').insertAdjacentHTML('beforeend', filaRo({}));
+  });
+  $('pEquipos').addEventListener('input', function(){ leerPlantillas(); guardar() });
+  $('empezar').onclick = function(){
+    leerPlantillas();
+    if (!G.a.nombre || !G.b.nombre) { say('m2', t('Escribe el nombre de los dos equipos.', 'Type both team names.'), 'bad'); return }
+    if (!G.a.jugadores.length || !G.b.jugadores.length) { say('m2', t('Cada equipo necesita al menos un jugador.', 'Each team needs at least one player.'), 'bad'); return }
+    say('m2', ''); guardar(); ver('pJuego'); pintarJuego();
+  };
+
+  /* ── 3 · the game ── */
+  function pintarJuego(){
+    var c = cuentas(), n = nPer();
+    $('nA').textContent = c.a.pts; $('nB').textContent = c.b.pts;
+    $('tA').textContent = G.a.nombre; $('tB').textContent = G.b.nombre;
+    ['a', 'b'].forEach(function(s){
+      var tf = c[s].tf[G.per] || 0, el = $(s === 'a' ? 'fA' : 'fB');
+      el.textContent = t('Faltas: ', 'Fouls: ') + tf + (tf >= 4 ? ' · BONUS' : '');
+      el.className = 'tf' + (tf >= 4 ? ' bonus' : '');
+    });
+    var per = '';
+    for (var p = 1; p <= n; p++) per += '<button type="button" data-p="' + p + '" class="' + (p === G.per ? 'on' : '') + '">' + perNom(p) + '</button>';
+    per += '<button type="button" data-p="' + (n + 1) + '" aria-label="' + t('Tiempo extra', 'Overtime') + '">+</button>';
+    $('per').innerHTML = per;
+    $('tabA').textContent = G.a.nombre; $('tabB').textContent = G.b.nombre;
+    $('tabA').className = G.lado === 'a' ? 'on' : ''; $('tabB').className = G.lado === 'b' ? 'on' : '';
+    var x = c[G.lado];
+    $('lista').innerHTML = G[G.lado].jugadores.map(function(j){
+      var s = x.j[j.id] || { pts:0, f:0 }, dots = '';
+      for (var i = 0; i < 5; i++) dots += '<i class="' + (i < s.f ? 'on' : '') + '"></i>';
+      return '<div class="pl' + (s.f >= 5 ? ' out' : '') + '" data-id="' + esc(j.id) + '">' +
+        '<div class="who"><b><span class="num">' + esc(j.numero) + '</span>' + esc(j.nombre) + '</b>' +
+        '<div class="st"><b>' + s.pts + '</b> ' + t('pts', 'pts') + ' · F<span class="dots">' + dots + '</span></div></div>' +
+        '<div class="keys"><button type="button" class="p" data-k="1">+1</button><button type="button" class="p" data-k="2">+2</button><button type="button" class="p" data-k="3">+3</button><button type="button" class="fo" data-k="f">F</button></div></div>';
+    }).join('');
+    var u = G.ev[G.ev.length - 1];
+    if (u) {
+      var jj = G[u.t].jugadores.filter(function(j){ return j.id === u.i })[0] || {};
+      $('ultimo').innerHTML = t('Último: ', 'Last: ') + '<b>' + esc((jj.numero ? '#' + jj.numero + ' ' : '') + (jj.nombre || '')) + '</b> ' + (u.k === 'f' ? t('falta', 'foul') : '+' + u.k) + ' (' + perNom(u.p) + ')';
+    } else $('ultimo').textContent = t('Toca +1, +2, +3 o F en cada jugada.', 'Tap +1, +2, +3 or F on each play.');
+    $('deshacer').disabled = !G.ev.length;
+  }
+  $('per').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; G.per = +b.dataset.p; guardar(); pintarJuego() };
+  document.querySelector('.tabs').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; G.lado = b.dataset.t; guardar(); pintarJuego() };
+  $('lista').onclick = function(e){
+    var b = e.target.closest('.keys button'); if (!b) return;
+    var row = b.closest('.pl');
+    G.ev.push({ t: G.lado, i: row.dataset.id, k: b.dataset.k === 'f' ? 'f' : +b.dataset.k, p: G.per });
+    guardar(); pintarJuego(); say('m3', '');
+    var nr = $('lista').querySelector('.pl[data-id="' + row.dataset.id + '"]'); if (nr) nr.classList.add('flash');
+    if (navigator.vibrate) try { navigator.vibrate(15) } catch(x){}
+  };
+  $('deshacer').onclick = function(){ G.ev.pop(); guardar(); pintarJuego() };
+  $('editar').onclick = function(){ ver('pEquipos'); pintarPlantillas() };
+
+  /* ── 4 · publish: same box score as the photo route ── */
+  function equipoFinal(s, c){
+    var n = nPer(), per = [];
+    for (var p = 0; p < n; p++) per.push(c[s].per[p] || 0);
+    while (per.length > 4 && !per[per.length - 1] && !G.ev.some(function(e){ return e.p === per.length })) per.pop();
+    return { nombre: G[s].nombre, periodos: per, total: c[s].pts,
+      jugadores: G[s].jugadores.map(function(j){ var x = c[s].j[j.id] || { pts:0, f:0 }; return { numero: j.numero, nombre: j.nombre, puntos: x.pts, faltas: Math.min(x.f, 6) } }) };
+  }
+  var seguro = false;
+  $('terminar').onclick = function(){
+    if (!seguro) { seguro = true; say('m3', t('¿Se acabó el juego? Toca otra vez para publicar.', 'Is the game over? Tap again to publish.'), 'bad'); setTimeout(function(){ seguro = false }, 6000); return }
+    seguro = false;
+    var c = cuentas(), a = equipoFinal('a', c), b = equipoFinal('b', c);
+    var datos = { a: a, b: b, fecha: G.info.fecha, lugar: G.info.lugar, categoria: G.info.categoria };
+    $('terminar').disabled = true; say('m3', '<span class="spin"></span>' + t('Publicando…', 'Publishing…'));
+    rpc('bw_hoja_guardar', { p_code: code(), p_datos: datos }).then(function(id){
+      $('terminar').disabled = false; say('m3', '');
+      var url = location.origin + location.pathname.replace(/anotar\.html$/, '') + 'box.html?h=' + encodeURIComponent(id);
+      $('final').textContent = a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre;
+      $('verBox').href = url;
+      $('wa').href = 'https://wa.me/?text=' + encodeURIComponent('🏀 ' + $('final').textContent + '\nBox score: ' + url);
+      try { localStorage.removeItem(GUARDA) } catch(e){}
+      G = null; ver('pListo');
+    }, function(){ $('terminar').disabled = false; say('m3', t('No se pudo publicar. El juego sigue guardado en este teléfono; intenta otra vez.', 'Could not publish. The game is still saved on this phone; try again.'), 'bad') });
+  };
+  $('otro').onclick = function(){ G = nuevo(); ver('pEquipos'); pintarPlantillas(); cargarPlantillas() };
+
+  idioma();
+  if (code()) entrar(code());
+})();
+</script>
+</body>
+</html>
