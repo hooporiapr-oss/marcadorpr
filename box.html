@@ -48,6 +48,8 @@ tr.sum td{font-weight:900;border-bottom:none;border-top:2px solid var(--ink)}
 .btn{display:block;border:none;border-radius:4px;background:var(--ball);color:#12202E;font:inherit;font-weight:900;padding:13px 18px;text-align:center;text-decoration:none;margin:26px auto 0;max-width:340px}
 button.btn{width:100%;cursor:pointer;font-size:1rem}
 .btn.ghost{background:none;border:1.5px solid var(--line);color:var(--ink);margin-top:10px}
+.aviso{background:#FFF1E6;color:#7A3B0A;text-align:center;font-weight:800;font-size:.85rem;padding:10px 16px;border-bottom:1px solid #FFD2B0}
+.aviso a{color:#12202E}
 .vacio{text-align:center;color:var(--mute);padding:60px 0}
 </style>
 </head>
@@ -65,6 +67,7 @@ button.btn{width:100%;cursor:pointer;font-size:1rem}
   </div>
   <div class="fin" id="fin">FINAL</div>
 </div></section>
+<div class="aviso" id="aviso" hidden></div>
 <main><div class="wrap" id="cuerpo"><div class="vacio" id="vacio">…</div></div></main>
 <script>
 (function(){
@@ -93,6 +96,10 @@ button.btn{width:100%;cursor:pointer;font-size:1rem}
     else viejo();
   }
   var H = null, id = (location.search.match(/[?&]h=([A-Za-z0-9]+)/) || [])[1];
+  /* Two samples that never touch the database:
+     ?demo=1      a made-up game that plays itself, the way parents see a live game
+     ?practica=1  the box score from the practice scoresheet, kept on this phone only */
+  var MODO = /[?&]demo=1\b/.test(location.search) ? 'demo' : /[?&]practica=1\b/.test(location.search) ? 'practica' : '';
 
   function equipo(e){
     var top = Math.max.apply(null, e.jugadores.map(function(j){ return j.puntos || 0 }).concat([1]));
@@ -117,7 +124,8 @@ button.btn{width:100%;cursor:pointer;font-size:1rem}
     $('fin').className = 'fin' + (vivo ? ' vivo' : '');
     $('fin').innerHTML = vivo ? '<span class="rec"></span>' + t('EN VIVO', 'LIVE') + (pn ? ' · ' + (pn === 'OT' ? t('TIEMPO EXTRA', 'OVERTIME') : t('PERIODO ', 'PERIOD ') + pn) : '') : 'FINAL';
     clearTimeout(window._otra);
-    if (vivo) window._otra = setTimeout(cargar, 20000);     /* live: fetch again every 20 seconds */
+    if (vivo && !MODO) window._otra = setTimeout(cargar, 20000);     /* live: fetch again every 20 seconds */
+    aviso();
     var n = Math.max(a.periodos.length, b.periodos.length), head = '', per = '';
     for (var i = 0; i < n; i++) head += '<th>' + (i < 4 ? i + 1 : 'OT' + (i - 3)) + '</th>';
     [a, b].forEach(function(e){
@@ -129,12 +137,61 @@ button.btn{width:100%;cursor:pointer;font-size:1rem}
       ? '<h2>' + t('Por periodo', 'By period') + '</h2><div class="tw"><table><thead><tr><th></th>' + head + '<th>T</th></tr></thead><tbody>' + per + '</tbody></table></div>' : '';
     html += equipo(a) + equipo(b);
     html += '<p class="nota">' + (vivo ? t('Se actualiza solo durante el juego.', 'Updates by itself during the game.') : t('Anotado por el organizador del juego.', 'Scored by the game organizer.')) + '</p>';
+    if (MODO === 'practica') {
+      html += '<a class="btn" href="anotar.html?practica=1">' + t('PRACTICAR OTRA VEZ', 'PRACTICE AGAIN') + '</a>';
+      html += '<a class="btn ghost" href="index.html">' + t('VOLVER AL INICIO', 'BACK TO HOME') + '</a>';
+      $('cuerpo').innerHTML = html; return;
+    }
+    if (MODO === 'demo' && !vivo) html += '<button class="btn dark" id="otraVez" type="button">' + t('VER OTRA VEZ', 'WATCH AGAIN') + '</button>';
     html += '<a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent('🏀 ' + a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre + '\n' + location.href) + '">' + t('COMPARTIR POR WHATSAPP', 'SHARE ON WHATSAPP') + '</a>';
     html += '<button class="btn ghost" id="copia" type="button">' + t('COPIAR ENLACE', 'COPY LINK') + '</button>';
     $('cuerpo').innerHTML = html;
     $('copia').onclick = function(){ copiar(location.href, this) };
+    if ($('otraVez')) $('otraVez').onclick = function(){ demo() };
   }
   $('lang').onclick = function(){ EN = !EN; try { localStorage.setItem('mpr-lang', EN ? 'en' : 'es') } catch(e){} pintar() };
+  function aviso(){
+    $('aviso').hidden = !MODO;
+    if (MODO === 'demo') $('aviso').innerHTML = t('JUEGO DE EJEMPLO · equipos y jugadores inventados. Así lo ven los padres durante un juego.', 'SAMPLE GAME · made-up teams and players. This is what parents see during a game.');
+    if (MODO === 'practica') $('aviso').innerHTML = t('PRÁCTICA · este box score no se publicó. Así se vería.', 'PRACTICE · this box score was not published. This is how it would look.');
+  }
+
+  /* ── THE SELF-PLAYING SAMPLE: a fixed script, one play every 1.5
+     seconds, four periods, about two minutes from tip-off to FINAL. ── */
+  var RELOJ = null;
+  function demo(){
+    clearTimeout(RELOJ);
+    var J = function(l){ return l.map(function(x){ return { numero: x[0], nombre: x[1], puntos: 0, faltas: 0 } }) };
+    var d = { estado: 'vivo', periodo: 1, fecha: '', lugar: 'Cancha de ejemplo', categoria: '12U',
+      a: { nombre: 'Tiburones', periodos: [0, 0, 0, 0], total: 0, jugadores: J([['3', 'Andrés Ejemplo'], ['10', 'Bruno Ejemplo'], ['14', 'Diego Ejemplo'], ['21', 'Mateo Ejemplo'], ['33', 'Tomás Ejemplo']]) },
+      b: { nombre: 'Halcones', periodos: [0, 0, 0, 0], total: 0, jugadores: J([['5', 'Gabriel Ejemplo'], ['8', 'Iván Ejemplo'], ['11', 'Javier Ejemplo'], ['24', 'Lucas Ejemplo'], ['30', 'Samuel Ejemplo']]) } };
+    /* the same game every time: a small fixed-seed random generator */
+    var semilla = 7;
+    function azar(n){ semilla = (semilla * 16807) % 2147483647; return semilla % n }
+    var jugadas = [];
+    for (var p = 1; p <= 4; p++) for (var k = 0; k < 18; k++) {
+      var lado = azar(2) ? 'a' : 'b', r = azar(10);
+      jugadas.push({ p: p, t: lado, j: azar(5), k: r < 2 ? 'f' : r < 4 ? 1 : r < 8 ? 2 : 3 });
+    }
+    H = { datos: d }; pintar();
+    var i = 0;
+    function paso(){
+      if (i >= jugadas.length) { d.estado = 'final'; pintar(); return }
+      var x = jugadas[i++], e = d[x.t], jj = e.jugadores[x.j];
+      d.periodo = x.p;
+      if (x.k === 'f') jj.faltas = Math.min(jj.faltas + 1, 5);
+      else { jj.puntos += x.k; e.total += x.k; e.periodos[x.p - 1] += x.k }
+      pintar();
+      RELOJ = setTimeout(paso, 1500);
+    }
+    RELOJ = setTimeout(paso, 1500);
+  }
+  if (MODO === 'demo') { demo(); return }
+  if (MODO === 'practica') {
+    try { var pd = JSON.parse(sessionStorage.getItem('mpr-practica-box') || 'null'); if (pd) H = { datos: pd } } catch(e){}
+    if (!H) { location.replace('anotar.html?practica=1'); return }
+    pintar(); return;
+  }
   if (!id) { pintar(); return }
   function cargar(){ fetch(SB_URL + '/rest/v1/rpc/bw_hoja', { method:'POST',
     headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY, 'Content-Type':'application/json' },
