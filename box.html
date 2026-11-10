@@ -29,6 +29,9 @@ header .bar{display:flex;align-items:center;justify-content:space-between;gap:12
 .sb .n{font-size:clamp(2.6rem,12vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1}
 .sb .gana .n{color:var(--ball)}
 .sb .vs{color:#5F7487;font-weight:900}
+.fin .rec{display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF4B3E;margin-right:8px;animation:rec 1.4s infinite;vertical-align:0}
+@keyframes rec{50%{opacity:.25}}
+.fin.vivo{color:#FF8A80}
 .fin{text-align:center;font-size:.7rem;letter-spacing:.2em;color:#9FB3C5;font-weight:900;margin-top:10px}
 main .wrap{padding:22px 0 44px}
 h2{font-size:1rem;font-weight:900;margin:24px 0 8px;letter-spacing:-.01em}
@@ -88,27 +91,34 @@ tr.sum td{font-weight:900;border-bottom:none;border-top:2px solid var(--ink)}
     $('meta').textContent = [d.categoria, d.lugar, d.fecha].filter(Boolean).join(' · ');
     $('nA').textContent = a.total; $('tA').textContent = a.nombre;
     $('nB').textContent = b.total; $('tB').textContent = b.nombre;
-    $('ladoA').className = a.total > b.total ? 'gana' : ''; $('ladoB').className = b.total > a.total ? 'gana' : '';
+    var vivo = d.estado === 'vivo';
+    $('ladoA').className = !vivo && a.total > b.total ? 'gana' : ''; $('ladoB').className = !vivo && b.total > a.total ? 'gana' : '';
+    var pn = d.periodo > 4 ? 'OT' : (d.periodo || '');
+    $('fin').className = 'fin' + (vivo ? ' vivo' : '');
+    $('fin').innerHTML = vivo ? '<span class="rec"></span>' + t('EN VIVO', 'LIVE') + (pn ? ' · ' + (pn === 'OT' ? t('TIEMPO EXTRA', 'OVERTIME') : t('PERIODO ', 'PERIOD ') + pn) : '') : 'FINAL';
+    clearTimeout(window._otra);
+    if (vivo) window._otra = setTimeout(cargar, 20000);     /* live: fetch again every 20 seconds */
     var n = Math.max(a.periodos.length, b.periodos.length), head = '', per = '';
     for (var i = 0; i < n; i++) head += '<th>' + (i < 4 ? i + 1 : 'OT' + (i - 3)) + '</th>';
     [a, b].forEach(function(e){
       per += '<tr><td>' + esc(e.nombre) + '</td>';
-      for (var i = 0; i < n; i++) per += '<td>' + (e.periodos[i] == null ? '—' : e.periodos[i]) + '</td>';
+      for (var i = 0; i < n; i++) per += '<td>' + (e.periodos[i] == null || (d.estado === 'vivo' && i + 1 > (d.periodo || 99)) ? '—' : e.periodos[i]) + '</td>';
       per += '<td class="pts">' + e.total + '</td></tr>';
     });
     var html = (a.periodos.some(function(x){ return x != null }) || b.periodos.some(function(x){ return x != null }))
       ? '<h2>' + t('Por periodo', 'By period') + '</h2><div class="tw"><table><thead><tr><th></th>' + head + '<th>T</th></tr></thead><tbody>' + per + '</tbody></table></div>' : '';
     html += equipo(a) + equipo(b);
-    html += '<p class="nota">' + t('Pasado de la hoja de anotación oficial y revisado por el organizador.', 'Taken from the official scoresheet and checked by the organizer.') + '</p>';
+    html += '<p class="nota">' + (vivo ? t('Se actualiza solo durante el juego.', 'Updates by itself during the game.') : t('Anotado por el organizador del juego.', 'Scored by the game organizer.')) + '</p>';
     html += '<a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent('🏀 ' + a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre + '\n' + location.href) + '">' + t('COMPARTIR POR WHATSAPP', 'SHARE ON WHATSAPP') + '</a>';
     $('cuerpo').innerHTML = html;
   }
   $('lang').onclick = function(){ EN = !EN; try { localStorage.setItem('mpr-lang', EN ? 'en' : 'es') } catch(e){} pintar() };
   if (!id) { pintar(); return }
-  fetch(SB_URL + '/rest/v1/rpc/bw_hoja', { method:'POST',
+  function cargar(){ fetch(SB_URL + '/rest/v1/rpc/bw_hoja', { method:'POST',
     headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY, 'Content-Type':'application/json' },
     body: JSON.stringify({ p_id: id }) })
-  .then(function(r){ return r.ok ? r.json() : null }).then(function(j){ H = j; pintar() }, function(){ pintar() });
+  .then(function(r){ return r.ok ? r.json() : null }).then(function(j){ if (j || !H) H = j; pintar() }, function(){ if (H && H.datos.estado === 'vivo') window._otra = setTimeout(cargar, 20000); pintar() }); }
+  cargar();
 })();
 </script>
 </body>
