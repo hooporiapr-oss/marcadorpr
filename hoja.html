@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hoja de anotación → box score — marcadorpr</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12202E;--mute:#5A6B7C;--line:#D7E0E8;--tint:#F7FAFC;--accent:#0C6E8C;--ball:#FF7A18;--ok:#1E8A4C;--bad:#C0392B}
+*{box-sizing:border-box}
+html{background:#12202E}
+body{margin:0;min-height:100dvh;font-family:Archivo,"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{width:min(720px,100% - 32px);margin:0 auto}
+header{background:#12202E;border-bottom:3px solid var(--ball);padding-top:env(safe-area-inset-top,0px)}
+header .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.mark{font-weight:900;font-size:1.05rem;color:#fff;text-decoration:none}
+.mark span{color:var(--ball)}
+.langb{border:1px solid #33465A;background:none;color:#C8D6E2;border-radius:999px;padding:6px 13px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+main .wrap{padding:24px 0 48px}
+.kick{font-size:.64rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+h1{font-size:clamp(1.45rem,4.6vw,2rem);letter-spacing:-.03em;margin:0 0 8px;font-weight:900}
+h2{font-size:1.05rem;margin:0 0 10px;font-weight:900}
+.lede{color:var(--mute);margin:0 0 22px}
+.card{border:1.5px solid var(--line);border-radius:6px;padding:16px;margin:0 0 16px}
+label.f{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 4px}
+input{font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:4px;padding:9px 10px;width:100%;color:var(--ink);background:#fff}
+input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+.btn{display:inline-block;border:none;border-radius:4px;background:var(--ball);color:#12202E;font:inherit;font-weight:900;font-size:.95rem;padding:13px 18px;cursor:pointer;text-decoration:none;text-align:center}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.ghost{background:none;border:1.5px solid var(--line);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.row>*{flex:1 1 140px}
+.msg{min-height:1.4em;font-weight:700;margin:10px 0 0}
+.msg.bad{color:var(--bad)} .msg.ok{color:var(--ok)}
+.foto{display:block;border:2px dashed var(--line);border-radius:6px;padding:26px 16px;text-align:center;cursor:pointer;background:var(--tint)}
+.foto b{display:block;font-size:1.05rem}
+.foto span{color:var(--mute);font-size:.9rem}
+.foto input{display:none}
+#prev{max-width:100%;max-height:260px;display:block;margin:12px auto 0;border-radius:4px}
+.dudas{border-left:4px solid var(--ball);background:#FFF7F0;padding:12px 14px;margin:0 0 16px}
+.dudas ul{margin:6px 0 0;padding-left:18px}
+.team input.nom{font-weight:900;font-size:1.05rem}
+.per{display:flex;gap:6px;margin:10px 0}
+.per div{flex:1;min-width:0}
+.per input,.tot input{text-align:center;padding:8px 4px}
+table{width:100%;border-collapse:collapse;margin:10px 0 6px}
+th{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);text-align:left;padding:4px 3px}
+td{padding:3px}
+td input{padding:7px 6px}
+td.n{width:58px} td.p,td.fa{width:62px} td.x{width:30px}
+td.p input,td.fa input,td.n input{text-align:center}
+.del{border:none;background:none;color:var(--mute);font-size:1.2rem;cursor:pointer;padding:4px}
+.chk{font-size:.9rem;color:var(--mute);margin:6px 0 0}
+.chk.bad{color:var(--bad);font-weight:700}
+.add{border:none;background:none;color:var(--accent);font:inherit;font-weight:800;cursor:pointer;padding:6px 0}
+.hecho{text-align:center}
+.hecho .big{font-size:2.2rem;font-weight:900;letter-spacing:-.03em;margin:4px 0 12px}
+.stack{display:grid;gap:10px;max-width:360px;margin:0 auto}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--ball);border-radius:50%;animation:g 1s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes g{to{transform:rotate(360deg)}}
+@media (max-width:420px){ td.n{width:46px} td.p,td.fa{width:50px} }
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <a class="mark" href="index.html">marcador<span>pr</span></a>
+  <button class="langb" id="lang" type="button">EN</button>
+</div></header>
+<main><div class="wrap">
+
+  <div class="kick" data-en="Paper scoresheet">Hoja de anotación</div>
+  <h1 data-en="Photo of the sheet → box score">Foto de la hoja → box score</h1>
+  <p class="lede" data-en="Take a photo of the paper scoresheet. The assistant reads it, you check every number, and the box score goes up on marcadorpr.">Toma una foto de la hoja de papel. El asistente la lee, tú revisas cada número y el box score sube a marcadorpr.</p>
+
+  <!-- 1 · code -->
+  <section class="card" id="pCodigo">
+    <h2 data-en="1 · Your organizer code">1 · Tu código de organizador</h2>
+    <div class="row">
+      <div><input id="codigo" type="password" autocomplete="off" aria-label="Código"></div>
+      <div style="flex:0 0 auto"><button class="btn dark" id="entrar" type="button" data-en="CONTINUE">SEGUIR</button></div>
+    </div>
+    <div class="msg" id="m1" role="status"></div>
+  </section>
+
+  <!-- 2 · photo -->
+  <section class="card" id="pFoto" hidden>
+    <h2 data-en="2 · Photo of the sheet">2 · Foto de la hoja</h2>
+    <label class="foto">
+      <input id="archivo" type="file" accept="image/*" capture="environment">
+      <b data-en="TAKE OR CHOOSE A PHOTO">TOMAR O ESCOGER FOTO</b>
+      <span data-en="Flat, in good light, the whole sheet in the frame.">Plana, con buena luz, la hoja entera en la foto.</span>
+    </label>
+    <img id="prev" alt="" hidden>
+    <div style="margin-top:12px"><button class="btn" id="leer" type="button" hidden data-en="READ THE SHEET">LEER LA HOJA</button></div>
+    <div class="msg" id="m2" role="status"></div>
+  </section>
+
+  <!-- 3 · review -->
+  <section id="pRevisar" hidden>
+    <div class="dudas" id="dudas" hidden><b data-en="Check these before confirming:">Revisa esto antes de confirmar:</b><ul id="dudasL"></ul></div>
+    <div class="card">
+      <h2 data-en="3 · Check every number">3 · Revisa cada número</h2>
+      <div class="row">
+        <div><label class="f" data-en="Date">Fecha</label><input id="fecha"></div>
+        <div><label class="f" data-en="Place">Lugar</label><input id="lugar"></div>
+        <div><label class="f" data-en="Division">Categoría</label><input id="categoria"></div>
+      </div>
+    </div>
+    <div class="card team" data-t="a"></div>
+    <div class="card team" data-t="b"></div>
+    <div class="card">
+      <button class="btn" id="confirmar" type="button" style="width:100%" data-en="CONFIRM AND PUBLISH">CONFIRMAR Y PUBLICAR</button>
+      <div class="msg" id="m3" role="status"></div>
+    </div>
+  </section>
+
+  <!-- 4 · done -->
+  <section class="card hecho" id="pListo" hidden>
+    <div class="kick" data-en="Published">Publicado</div>
+    <div class="big" id="final"></div>
+    <div class="stack">
+      <a class="btn" id="verBox" href="#" data-en="SEE THE BOX SCORE">VER EL BOX SCORE</a>
+      <a class="btn dark" id="wa" href="#" target="_blank" rel="noopener" data-en="SHARE ON WHATSAPP">COMPARTIR POR WHATSAPP</a>
+      <button class="btn ghost" id="otra" type="button" data-en="ANOTHER SHEET">OTRA HOJA</button>
+    </div>
+  </section>
+
+</div></main>
+<script>
+(function(){
+  var SB_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+  var SERVER = 'https://hooporia-server.onrender.com';
+  var $ = function(id){ return document.getElementById(id) };
+  var EN = false;
+  try { EN = localStorage.getItem('mpr-lang') === 'en' } catch(e){}
+  function t(es, en){ return EN ? en : es }
+
+  function rpc(name, args){
+    return fetch(SB_URL + '/rest/v1/rpc/' + name, { method:'POST',
+      headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify(args || {}) }).then(function(r){ if (!r.ok) throw new Error('rpc ' + r.status); return r.json() });
+  }
+  function code(){ try { return sessionStorage.getItem('bw-code') || '' } catch(e){ return '' } }
+  function keep(c){ try { sessionStorage.setItem('bw-code', c) } catch(e){} }
+  function say(id, txt, cls){ $(id).className = 'msg' + (cls ? ' ' + cls : ''); $(id).innerHTML = txt }
+
+  /* language: every element with data-en keeps its Spanish in data-es */
+  function idioma(){
+    document.documentElement.lang = EN ? 'en' : 'es';
+    $('lang').textContent = EN ? 'ES' : 'EN';
+    document.querySelectorAll('[data-en]').forEach(function(el){
+      if (!el.hasAttribute('data-es')) el.setAttribute('data-es', el.textContent);
+      el.textContent = EN ? el.getAttribute('data-en') : el.getAttribute('data-es');
+    });
+    if (HOJA) {
+      /* keep what the scorer already corrected: redraw from the boxes, not from the first read */
+      if (document.querySelector('.team .nom')) {
+        HOJA.a = leerEquipo(document.querySelector('.team[data-t="a"]')); HOJA.b = leerEquipo(document.querySelector('.team[data-t="b"]'));
+        HOJA.fecha = $('fecha').value; HOJA.lugar = $('lugar').value; HOJA.categoria = $('categoria').value;
+      }
+      pintar();
+    }
+  }
+  $('lang').onclick = function(){ EN = !EN; try { localStorage.setItem('mpr-lang', EN ? 'en' : 'es') } catch(e){} idioma() };
+
+  /* ── 1 · code ── */
+  function entrar(c){
+    say('m1', '<span class="spin"></span>' + t('Comprobando…', 'Checking…'));
+    return rpc('bw_code_id', { p_code: c }).then(function(id){
+      if (!id) { say('m1', t('Ese código no sirve.', 'That code does not work.'), 'bad'); return }
+      keep(c); say('m1', '');
+      $('pCodigo').hidden = true; $('pFoto').hidden = false;
+    }, function(){ say('m1', t('Sin conexión. Intenta otra vez.', 'No connection. Try again.'), 'bad') });
+  }
+  $('entrar').onclick = function(){ var c = $('codigo').value.trim(); if (c) entrar(c) };
+  $('codigo').onkeydown = function(e){ if (e.key === 'Enter') $('entrar').click() };
+  if (code()) entrar(code());
+
+  /* ── 2 · photo: shrunk on the phone so it uploads fast ── */
+  var FOTO = null;
+  $('archivo').onchange = function(){
+    var f = this.files && this.files[0]; if (!f) return;
+    var img = new Image();
+    img.onload = function(){
+      var k = Math.min(1, 2000 / Math.max(img.width, img.height));
+      var c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      var url = c.toDataURL('image/jpeg', 0.88);
+      FOTO = url.split(',')[1];
+      $('prev').src = url; $('prev').hidden = false; $('leer').hidden = false;
+      URL.revokeObjectURL(img.src); say('m2', '');
+    };
+    img.onerror = function(){ say('m2', t('No pude abrir esa foto.', 'Could not open that photo.'), 'bad') };
+    img.src = URL.createObjectURL(f);
+  };
+  $('leer').onclick = function(){
+    if (!FOTO) return;
+    $('leer').disabled = true;
+    say('m2', '<span class="spin"></span>' + t('Leyendo la hoja… (unos 20 segundos)', 'Reading the sheet… (about 20 seconds)'));
+    fetch(SERVER + '/hoja/leer', { method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ code: code(), imagen: FOTO, tipo: 'image/jpeg' }) })
+    .then(function(r){ return r.json().catch(function(){ return { ok:false } }) })
+    .then(function(j){
+      $('leer').disabled = false;
+      if (!j.ok) {
+        var e = { bad_code: t('Ese código ya no sirve.', 'That code no longer works.'),
+                  too_many: t('Demasiadas fotos en una hora. Espera un poco.', 'Too many photos this hour. Wait a bit.'),
+                  no_key: t('El lector todavía no está activado.', 'The reader is not switched on yet.') }[j.error];
+        say('m2', e || t('No se pudo leer. Intenta otra foto.', 'Could not read it. Try another photo.'), 'bad'); return;
+      }
+      if (!j.hoja.es_hoja) { say('m2', t('Eso no parece una hoja de anotación.', 'That does not look like a scoresheet.'), 'bad'); return }
+      say('m2', t('Leída. Revisa abajo.', 'Read. Check it below.'), 'ok');
+      HOJA = j.hoja; pintar(); $('pRevisar').hidden = false;
+      $('pRevisar').scrollIntoView({ behavior:'smooth' });
+    }, function(){ $('leer').disabled = false; say('m2', t('Sin conexión con el lector.', 'Could not reach the reader.'), 'bad') });
+  };
+
+  /* ── 3 · review: everything editable, sums checked live ── */
+  var HOJA = null;
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c] }) }
+  function numIn(v, cls){ return '<input class="' + cls + '" inputmode="numeric" pattern="[0-9]*" value="' + (v == null ? '' : v) + '">' }
+  function fila(j){
+    return '<tr><td class="n">' + '<input class="jn" value="' + esc(j.numero) + '" maxlength="4">' + '</td>' +
+      '<td><input class="jo" value="' + esc(j.nombre) + '" maxlength="60"></td>' +
+      '<td class="p">' + numIn(j.puntos, 'jp') + '</td><td class="fa">' + numIn(j.faltas, 'jf') + '</td>' +
+      '<td class="x"><button class="del" type="button" aria-label="quitar">×</button></td></tr>';
+  }
+  function pintar(){
+    $('fecha').value = HOJA.fecha || ''; $('lugar').value = HOJA.lugar || ''; $('categoria').value = HOJA.categoria || '';
+    $('dudas').hidden = !HOJA.dudas.length;
+    $('dudasL').innerHTML = HOJA.dudas.map(function(d){ return '<li>' + esc(d) + '</li>' }).join('');
+    document.querySelectorAll('.team').forEach(function(box){
+      var e = HOJA[box.dataset.t], n = Math.max(4, e.periodos.length), per = '';
+      for (var i = 0; i < n; i++) per += '<div><label class="f">' + (i < 4 ? 'P' + (i + 1) : 'OT' + (i - 3)) + '</label>' + numIn(e.periodos[i], 'pe') + '</div>';
+      box.innerHTML =
+        '<label class="f">' + (box.dataset.t === 'a' ? t('Equipo A', 'Team A') : t('Equipo B', 'Team B')) + '</label>' +
+        '<input class="nom" value="' + esc(e.nombre) + '" maxlength="80">' +
+        '<div class="per">' + per + '<div class="tot"><label class="f">Total</label>' + numIn(e.total, 'to') + '</div></div>' +
+        '<table><thead><tr><th>#</th><th>' + t('Jugador', 'Player') + '</th><th>' + t('Pts', 'Pts') + '</th><th>' + t('Faltas', 'Fouls') + '</th><th></th></tr></thead><tbody>' +
+        e.jugadores.map(fila).join('') + '</tbody></table>' +
+        '<button class="add" type="button">+ ' + t('jugador', 'player') + '</button>' +
+        '<div class="chk"></div>';
+    });
+    revisar();
+  }
+  function leerEquipo(box){
+    var n = function(v){ v = String(v).trim(); return /^\d{1,3}$/.test(v) ? parseInt(v, 10) : null };
+    var per = [].map.call(box.querySelectorAll('.pe'), function(i){ return n(i.value) });
+    while (per.length > 4 && per[per.length - 1] === null) per.pop();
+    return {
+      nombre: box.querySelector('.nom').value.trim(),
+      periodos: per,
+      total: n(box.querySelector('.to').value),
+      jugadores: [].map.call(box.querySelectorAll('tbody tr'), function(tr){
+        return { numero: tr.querySelector('.jn').value.trim(), nombre: tr.querySelector('.jo').value.trim(),
+                 puntos: n(tr.querySelector('.jp').value), faltas: n(tr.querySelector('.jf').value) };
+      }).filter(function(j){ return j.numero || j.nombre })
+    };
+  }
+  function suma(a){ return a.reduce(function(s, x){ return s + (x || 0) }, 0) }
+  /* returns true when everything adds up */
+  function revisar(){
+    var bien = true;
+    document.querySelectorAll('.team').forEach(function(box){
+      var e = leerEquipo(box), sj = suma(e.jugadores.map(function(j){ return j.puntos })), sp = suma(e.periodos);
+      var malo = [];
+      if (e.total === null) malo.push(t('falta el total', 'the total is missing'));
+      else {
+        if (sj !== e.total) malo.push(t('los jugadores suman ' + sj + ', el total dice ' + e.total, 'players add up to ' + sj + ', the total says ' + e.total));
+        if (e.periodos.some(function(p){ return p !== null }) && sp !== e.total) malo.push(t('los periodos suman ' + sp, 'the periods add up to ' + sp));
+      }
+      var c = box.querySelector('.chk');
+      c.className = 'chk' + (malo.length ? ' bad' : '');
+      c.textContent = malo.length ? '⚠ ' + malo.join(' · ') : '✓ ' + t('Todo cuadra: ', 'Everything adds up: ') + sj;
+      if (malo.length) bien = false;
+    });
+    return bien;
+  }
+  document.addEventListener('input', function(e){ if (e.target.closest('#pRevisar')) { $('confirmar').dataset.ok = ''; say('m3', ''); revisar() } });
+  document.addEventListener('click', function(e){
+    if (e.target.classList.contains('del')) { e.target.closest('tr').remove(); revisar() }
+    if (e.target.classList.contains('add')) { e.target.previousElementSibling.querySelector('tbody').insertAdjacentHTML('beforeend', fila({ numero:'', nombre:'', puntos:null, faltas:null })) }
+  });
+
+  $('confirmar').onclick = function(){
+    var a = leerEquipo(document.querySelector('.team[data-t="a"]')), b = leerEquipo(document.querySelector('.team[data-t="b"]'));
+    if (!a.nombre || !b.nombre || a.total === null || b.total === null) { say('m3', t('Faltan los nombres o los totales de los equipos.', 'Team names or totals are missing.'), 'bad'); return }
+    /* sums that do not add up: say so once, publish on the second tap */
+    if (!revisar() && !$('confirmar').dataset.ok) {
+      $('confirmar').dataset.ok = '1';
+      say('m3', t('Hay números que no cuadran (en rojo arriba). Si la hoja dice eso, toca otra vez para publicar.', 'Some numbers do not add up (in red above). If the sheet says so, tap again to publish.'), 'bad'); return;
+    }
+    var datos = { a: a, b: b, fecha: $('fecha').value.trim(), lugar: $('lugar').value.trim(), categoria: $('categoria').value.trim() };
+    $('confirmar').disabled = true; say('m3', '<span class="spin"></span>' + t('Publicando…', 'Publishing…'));
+    rpc('bw_hoja_guardar', { p_code: code(), p_datos: datos }).then(function(id){
+      $('confirmar').disabled = false; $('confirmar').dataset.ok = '';
+      var url = location.origin + location.pathname.replace(/hoja\.html$/, '') + 'box.html?h=' + encodeURIComponent(id);
+      $('final').textContent = a.nombre + ' ' + a.total + ' – ' + b.total + ' ' + b.nombre;
+      $('verBox').href = url;
+      $('wa').href = 'https://wa.me/?text=' + encodeURIComponent('🏀 ' + $('final').textContent + '\n' + t('Box score', 'Box score') + ': ' + url);
+      $('pRevisar').hidden = true; $('pFoto').hidden = true; $('pListo').hidden = false;
+      window.scrollTo(0, 0);
+    }, function(){ $('confirmar').disabled = false; say('m3', t('No se pudo publicar. Intenta otra vez.', 'Could not publish. Try again.'), 'bad') });
+  };
+  $('otra').onclick = function(){
+    HOJA = null; FOTO = null; $('archivo').value = ''; $('prev').hidden = true; $('leer').hidden = true; say('m2', '');
+    $('pListo').hidden = true; $('pFoto').hidden = false;
+  };
+
+  idioma();
+})();
+</script>
+</body>
+</html>
