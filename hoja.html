@@ -212,7 +212,16 @@ td.p input,td.fa input,td.n input{text-align:center}
         var e = { bad_code: t('Ese código ya no sirve.', 'That code no longer works.'),
                   too_many: t('Demasiadas fotos en una hora. Espera un poco.', 'Too many photos this hour. Wait a bit.'),
                   no_key: t('El lector todavía no está activado.', 'The reader is not switched on yet.') }[j.error];
-        say('m2', e || t('No se pudo leer. Intenta otra foto.', 'Could not read it. Try another photo.'), 'bad'); return;
+        /* when the assistant refused, say why, in words the organizer can act on */
+        var m = { sin_credito: t('La cuenta de Anthropic no tiene crédito. Hay que añadirlo en console.anthropic.com → Billing.', 'The Anthropic account has no credit. Add it at console.anthropic.com → Billing.'),
+                  clave: t('La clave de Anthropic en el servidor no es válida.', 'The Anthropic key on the server is not valid.'),
+                  permiso: t('La clave de Anthropic no tiene permiso para esto.', 'The Anthropic key is not allowed to do this.'),
+                  modelo: t('El modelo del lector no está disponible para esta cuenta.', 'The reader model is not available to this account.'),
+                  ocupado: t('El lector está ocupado. Intenta en un minuto.', 'The reader is busy. Try again in a minute.'),
+                  foto: t('La foto es muy grande o no se pudo abrir. Intenta otra.', 'The photo is too big or could not be opened. Try another.'),
+                  red: t('El servidor no pudo llegar al lector. Intenta otra vez.', 'The server could not reach the reader. Try again.') }[j.motivo];
+        if (!m && j.motivo) m = t('No se pudo leer (' + j.motivo + ').', 'Could not read it (' + j.motivo + ').');
+        say('m2', e || m || t('No se pudo leer. Intenta otra foto.', 'Could not read it. Try another photo.'), 'bad'); return;
       }
       if (!j.hoja.es_hoja) { say('m2', t('Eso no parece una hoja de anotación.', 'That does not look like a scoresheet.'), 'bad'); return }
       say('m2', t('Leída. Revisa abajo.', 'Read. Check it below.'), 'ok');
