@@ -109,6 +109,14 @@ td.p input,td.fa input,td.n input{text-align:center}
         <div><label class="f" data-en="Place">Lugar</label><input id="lugar"></div>
         <div><label class="f" data-en="Division">Categoría</label><input id="categoria"></div>
       </div>
+      <div class="row" style="margin-top:12px">
+        <div><label class="f" data-en="Player names in the box score">Nombres en el box score</label>
+          <select id="nombres" style="font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:4px;background:#fff;color:var(--ink)">
+            <option value="inicial" data-en="First name and initial (Sebastián B.)">Nombre e inicial (Sebastián B.)</option>
+            <option value="completo" data-en="Full name">Nombre completo</option>
+            <option value="numero" data-en="Jersey number only">Solo el número</option>
+          </select></div>
+      </div>
     </div>
     <div class="card team" data-t="a"></div>
     <div class="card team" data-t="b"></div>
@@ -233,6 +241,22 @@ td.p input,td.fa input,td.n input{text-align:center}
     }, function(){ $('leer').disabled = false; say('m2', t('Sin conexión con el lector.', 'Could not reach the reader.'), 'bad') });
   };
 
+  /* HOW PLAYERS APPEAR ON THE PUBLIC BOX SCORE. They are kids, so the
+     default is first name and last initial; the organizer can choose the
+     full name or the jersey number only. The choice is applied before
+     saving, so the full name never reaches the public page unless chosen.
+     Remembered on this phone. */
+  function nombrePublico(n, modo){
+    n = String(n || '').trim().replace(/\s+/g, ' ');
+    if (modo === 'completo') return n;
+    if (modo === 'numero' || !n) return '';
+    var p = n.split(' ').filter(function(w, i){ return i === 0 || !/^(jr|sr|ii|iii|iv)\.?$/i.test(w) });     /* Jr., Sr., III are not a last name */
+    return p.length > 1 ? p[0] + ' ' + p[p.length - 1].charAt(0).toUpperCase() + '.' : p[0];
+  }
+  function modoNombres(){ return ($('nombres') && $('nombres').value) || 'inicial' }
+  try { var _mn = localStorage.getItem('mpr-nombres'); if (_mn && $('nombres')) $('nombres').value = _mn } catch(e){}
+  if ($('nombres')) $('nombres').addEventListener('change', function(){ try { localStorage.setItem('mpr-nombres', this.value) } catch(e){} });
+
   /* ── 3 · review: everything editable, sums checked live ── */
   var HOJA = null;
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c] }) }
@@ -308,7 +332,9 @@ td.p input,td.fa input,td.n input{text-align:center}
       $('confirmar').dataset.ok = '1';
       say('m3', t('Hay números que no cuadran (en rojo arriba). Si la hoja dice eso, toca otra vez para publicar.', 'Some numbers do not add up (in red above). If the sheet says so, tap again to publish.'), 'bad'); return;
     }
-    var datos = { a: a, b: b, fecha: $('fecha').value.trim(), lugar: $('lugar').value.trim(), categoria: $('categoria').value.trim() };
+    var modo = modoNombres();
+    [a, b].forEach(function(e){ e.jugadores.forEach(function(j){ j.nombre = nombrePublico(j.nombre, modo) }) });
+    var datos = { a: a, b: b, fecha: $('fecha').value.trim(), lugar: $('lugar').value.trim(), categoria: $('categoria').value.trim(), nombres: modo };
     $('confirmar').disabled = true; say('m3', '<span class="spin"></span>' + t('Publicando…', 'Publishing…'));
     rpc('bw_hoja_guardar', { p_code: code(), p_datos: datos }).then(function(id){
       $('confirmar').disabled = false; $('confirmar').dataset.ok = '';
