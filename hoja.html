@@ -220,7 +220,10 @@ td.p input,td.fa input,td.n input{text-align:center}
                   ocupado: t('El lector está ocupado. Intenta en un minuto.', 'The reader is busy. Try again in a minute.'),
                   foto: t('La foto es muy grande o no se pudo abrir. Intenta otra.', 'The photo is too big or could not be opened. Try another.'),
                   red: t('El servidor no pudo llegar al lector. Intenta otra vez.', 'The server could not reach the reader. Try again.') }[j.motivo];
+        if (j.motivo === 'sin_respuesta') m = t('El lector no devolvió la hoja. Intenta otra vez.', 'The reader did not return the sheet. Try again.');
         if (!m && j.motivo) m = t('No se pudo leer (' + j.motivo + ').', 'Could not read it (' + j.motivo + ').');
+        /* the reader's own reason, small, so it can be passed on as-is */
+        if (m && j.detalle) m += '<br><small style="font-weight:400;opacity:.8">' + esc(j.detalle) + '</small>';
         say('m2', e || m || t('No se pudo leer. Intenta otra foto.', 'Could not read it. Try another photo.'), 'bad'); return;
       }
       if (!j.hoja.es_hoja) { say('m2', t('Eso no parece una hoja de anotación.', 'That does not look like a scoresheet.'), 'bad'); return }
